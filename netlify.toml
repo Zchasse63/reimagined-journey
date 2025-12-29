@@ -1,5 +1,6 @@
 [build]
-  command = "npm run build"
+  base = "."
+  command = "npm install && npm run build"
   publish = "apps/web/dist"
   ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ."
 
@@ -7,12 +8,11 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
-# Redirects for SPA fallback
+# 404 fallback - Astro generates static pages, no SPA redirect needed
 [[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
-  conditions = {Role = ["admin"]}
+  to = "/404.html"
+  status = 404
 
 # Headers for security and caching
 [[headers]]
