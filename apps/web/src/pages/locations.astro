@@ -1,0 +1,212 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Card, CardContent } from '@/components/ui';
+import { getAllStates, getTotalCityCount, getCityCountByTier } from '@value-source/data';
+import { MapPin, Truck, Package, Warehouse, ArrowRight } from 'lucide-react';
+
+const states = getAllStates();
+const totalCities = getTotalCityCount();
+const tierCounts = getCityCountByTier();
+
+const title = 'Service Locations | Food Service Distribution | Value Source';
+const description = `Food service distribution across ${states.length} states and ${totalCities} cities. Find your local delivery options, minimums, and get a custom quote.`;
+---
+
+<Layout title={title} description={description}>
+  <!-- Breadcrumbs -->
+  <nav class="bg-slate-50 border-b border-slate-200">
+    <div class="container-wide py-3">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li>
+          <a href="/" class="text-slate-500 hover:text-primary-600">Home</a>
+        </li>
+        <li class="text-slate-400">/</li>
+        <li class="text-slate-900 font-medium">Locations</li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-5"></div>
+    <div class="container-wide relative py-16 md:py-24">
+      <div class="max-w-3xl">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+          Serving <span class="text-primary-400">{totalCities} Cities</span> Across {states.length} States
+        </h1>
+        <p class="text-lg md:text-xl text-slate-300 mb-8">
+          From our Atlanta distribution hub, we deliver food service supplies throughout
+          the Southeast via weekly routes and common carrier freight.
+        </p>
+
+        <!-- Delivery Tier Overview -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-white/10 rounded-lg p-4 text-center">
+            <Warehouse className="w-8 h-8 text-primary-400 mx-auto mb-2" />
+            <div class="text-2xl font-bold text-white">{tierCounts.Hub}</div>
+            <div class="text-sm text-slate-400">Hub City</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-4 text-center">
+            <Truck className="w-8 h-8 text-primary-400 mx-auto mb-2" />
+            <div class="text-2xl font-bold text-white">{tierCounts.Tier1_Route + tierCounts.Tier2_Route}</div>
+            <div class="text-sm text-slate-400">Route Cities</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-4 text-center">
+            <Package className="w-8 h-8 text-primary-400 mx-auto mb-2" />
+            <div class="text-2xl font-bold text-white">{tierCounts.Common_Carrier}</div>
+            <div class="text-sm text-slate-400">Freight Cities</div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-4 text-center">
+            <MapPin className="w-8 h-8 text-primary-400 mx-auto mb-2" />
+            <div class="text-2xl font-bold text-white">{totalCities}</div>
+            <div class="text-sm text-slate-400">Total Cities</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- States Grid Section -->
+  <section class="section-padding">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+          Select Your State
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Click your state to see all cities we serve and get delivery details
+          for your location.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {states.map((state) => (
+          <a
+            href={`/${state.slug}`}
+            class="group flex flex-col p-6 bg-white rounded-xl border border-slate-200 hover:border-primary-300 hover:shadow-lg transition-all"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                <MapPin className="w-5 h-5 text-primary-600" />
+              </div>
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary-600 group-hover:translate-x-1 transition-all" />
+            </div>
+            <h3 class="font-semibold text-slate-900 mb-1">{state.name}</h3>
+            <p class="text-sm text-slate-500">{state.cityCount} cities</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Delivery Methods Section -->
+  <section class="section-padding bg-slate-50">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+          Delivery Options
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          We offer multiple delivery options based on your location and order volume.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <Card className="bg-white">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Warehouse className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Atlanta Hub</h3>
+            <p class="text-slate-600 mb-4">
+              Same-day pickup or next-day delivery throughout Metro Atlanta.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-600">
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                Order by 2 PM for same-day
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                $3,000 minimum order
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                Lowest pricing tier
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Truck className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Route Truck Delivery</h3>
+            <p class="text-slate-600 mb-4">
+              Weekly and bi-weekly scheduled routes to cities within driving distance.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-600">
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                Weekly/bi-weekly service
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                $3,000-$5,000 minimums
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                No freight costs
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Package className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Freight Shipping</h3>
+            <p class="text-slate-600 mb-4">
+              Common carrier delivery to cities beyond our route network.
+            </p>
+            <ul class="space-y-2 text-sm text-slate-600">
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                3-5 business day delivery
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                $5,000 minimum order
+              </li>
+              <li class="flex items-center">
+                <span class="w-2 h-2 bg-primary-500 rounded-full mr-2"></span>
+                Full shipment tracking
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section-padding bg-slate-900 text-white">
+    <div class="container-wide text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">
+        Don't See Your City?
+      </h2>
+      <p class="text-lg text-slate-300 mb-8 max-w-2xl mx-auto">
+        We may still be able to serve you via common carrier freight. Contact us
+        to discuss delivery options for your location.
+      </p>
+      <a href="/#quote" class="btn-primary px-8 py-4 text-lg inline-flex items-center">
+        Get a Quote
+        <ArrowRight className="w-5 h-5 ml-2" />
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,139 @@
+---
+import { Phone, Mail, MapPin } from 'lucide-react';
+
+const currentYear = new Date().getFullYear();
+
+const footerLinks = {
+  services: [
+    { href: '/services/disposables', label: 'Disposables' },
+    { href: '/services/custom-print', label: 'Custom Print' },
+    { href: '/services/proteins', label: 'Proteins' },
+    { href: '/services/eco-friendly', label: 'Eco-Friendly' },
+  ],
+  locations: [
+    { href: '/georgia', label: 'Georgia' },
+    { href: '/florida', label: 'Florida' },
+    { href: '/alabama', label: 'Alabama' },
+    { href: '/tennessee', label: 'Tennessee' },
+    { href: '/locations', label: 'All Locations' },
+  ],
+  company: [
+    { href: '/about', label: 'About Us' },
+    { href: '/contact', label: 'Contact' },
+    { href: '/careers', label: 'Careers' },
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms of Service' },
+  ],
+};
+---
+
+<footer class="bg-slate-900 text-slate-300">
+  <!-- Main Footer -->
+  <div class="container-wide py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+      <!-- Brand Column -->
+      <div class="lg:col-span-2">
+        <a href="/" class="flex items-center space-x-2 mb-4">
+          <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-xl">VS</span>
+          </div>
+          <span class="font-semibold text-xl text-white">Value Source</span>
+        </a>
+        <p class="text-slate-400 mb-6 max-w-sm">
+          Your trusted partner for food service distribution across the Southeast.
+          Lower minimums, better service, competitive pricing.
+        </p>
+        <div class="space-y-3">
+          <a
+            href="tel:+1XXXXXXXXXX"
+            class="flex items-center text-slate-300 hover:text-primary-400 transition-colors"
+          >
+            <Phone className="w-5 h-5 mr-3 text-primary-500" />
+            (XXX) XXX-XXXX
+          </a>
+          <a
+            href="mailto:info@valuesource.com"
+            class="flex items-center text-slate-300 hover:text-primary-400 transition-colors"
+          >
+            <Mail className="w-5 h-5 mr-3 text-primary-500" />
+            info@valuesource.com
+          </a>
+          <div class="flex items-start text-slate-400">
+            <MapPin className="w-5 h-5 mr-3 text-primary-500 flex-shrink-0 mt-0.5" />
+            <span>
+              Atlanta Distribution Center<br />
+              Atlanta, GA
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Services Links -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Services</h3>
+        <ul class="space-y-3">
+          {footerLinks.services.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-slate-400 hover:text-primary-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Locations Links -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Locations</h3>
+        <ul class="space-y-3">
+          {footerLinks.locations.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-slate-400 hover:text-primary-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <!-- Company Links -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Company</h3>
+        <ul class="space-y-3">
+          {footerLinks.company.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-slate-400 hover:text-primary-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Bar -->
+  <div class="border-t border-slate-800">
+    <div class="container-wide py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <p class="text-sm text-slate-500">
+          &copy; {currentYear} Value Source. All rights reserved.
+        </p>
+        <div class="flex items-center space-x-6">
+          <span class="text-sm text-slate-500">
+            Serving 156 cities across 15 states
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

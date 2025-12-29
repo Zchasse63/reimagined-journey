@@ -31,7 +31,7 @@ Keep documents accessible. When implementing a component, re-read the relevant s
 Read each document **in full, from start to finish**, in this exact order:
 
 ### Step 1: Project Overview
-**File:** `README.md`
+**File:** `README-3.md`
 **What to extract:**
 - Business model and value proposition
 - Target customer segments (ghost kitchens, food trucks, catering, ethnic grocers)

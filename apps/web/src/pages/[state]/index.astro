@@ -1,0 +1,367 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { LeadForm } from '@/components/forms';
+import { Card, CardContent } from '@/components/ui';
+import {
+  getAllStates,
+  getCitiesByState,
+  type CityDataWithSlug,
+} from '@value-source/data';
+import {
+  MapPin,
+  Truck,
+  DollarSign,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  Building2,
+  Users,
+  Timer,
+} from 'lucide-react';
+
+export function getStaticPaths() {
+  const states = getAllStates();
+  return states.map((state) => ({
+    params: { state: state.slug },
+    props: {
+      stateName: state.name,
+      stateAbbr: state.abbr,
+      stateSlug: state.slug,
+    },
+  }));
+}
+
+interface Props {
+  stateName: string;
+  stateAbbr: string;
+  stateSlug: string;
+}
+
+const { stateName, stateAbbr, stateSlug } = Astro.props;
+const cities = getCitiesByState(stateSlug);
+
+// Group cities by tier
+const hubCities = cities.filter((c) => c.tier === 'Hub');
+const tier1Cities = cities.filter((c) => c.tier === 'Tier1_Route');
+const tier2Cities = cities.filter((c) => c.tier === 'Tier2_Route');
+const carrierCities = cities.filter((c) => c.tier === 'Common_Carrier');
+
+const title = `Food Service Distribution in ${stateName} | Value Source`;
+const description = `Food service distribution across ${stateName}. Serving ${cities.length} cities with disposables, proteins, custom print, and eco-friendly products. Lower minimums, competitive pricing.`;
+
+// Schema.org structured data
+const schemaData = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: `Food Service Distribution in ${stateName}`,
+  description: description,
+  provider: {
+    '@type': 'Organization',
+    name: 'Value Source',
+    url: 'https://valuesource.com',
+  },
+  areaServed: {
+    '@type': 'State',
+    name: stateName,
+  },
+  serviceType: 'Food Service Distribution',
+};
+---
+
+<Layout title={title} description={description}>
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+
+  <!-- Breadcrumbs -->
+  <nav class="bg-slate-50 border-b border-slate-200">
+    <div class="container-wide py-3">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li>
+          <a href="/" class="text-slate-500 hover:text-primary-600">Home</a>
+        </li>
+        <li class="text-slate-400">/</li>
+        <li>
+          <a href="/locations" class="text-slate-500 hover:text-primary-600">Locations</a>
+        </li>
+        <li class="text-slate-400">/</li>
+        <li class="text-slate-900 font-medium">{stateName}</li>
+      </ol>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-5"></div>
+    <div class="container-wide relative py-16 md:py-24">
+      <div class="max-w-3xl">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
+          Food Service Distribution in
+          <span class="text-primary-400"> {stateName}</span>
+        </h1>
+        <p class="text-lg md:text-xl text-slate-300 mb-8">
+          Serving {cities.length} cities across {stateName} with disposables, proteins,
+          custom printing, and eco-friendly packaging. Lower minimums, competitive pricing,
+          reliable delivery.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+          <a href="#quote" class="btn-primary px-6 py-3 text-base">
+            Get Your Quote
+            <ArrowRight className="w-5 h-5 ml-2 inline" />
+          </a>
+          <a href="#cities" class="btn-secondary px-6 py-3 text-base border-white text-white hover:bg-white/10">
+            View {stateName} Cities
+          </a>
+        </div>
+
+        <!-- Trust Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-400">{cities.length}</div>
+            <div class="text-sm text-slate-400">Cities Served</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-400">15+</div>
+            <div class="text-sm text-slate-400">Years Experience</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-400">98%</div>
+            <div class="text-sm text-slate-400">On-Time Delivery</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-primary-400">$3K+</div>
+            <div class="text-sm text-slate-400">Minimum Orders</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cities List Section -->
+  <section id="cities" class="section-padding">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+          {stateName} Service Areas
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Select your city to see delivery options, minimums, and get a custom quote
+          for your location.
+        </p>
+      </div>
+
+      <!-- Hub Cities -->
+      {hubCities.length > 0 && (
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+            <span class="w-3 h-3 bg-primary-500 rounded-full mr-3"></span>
+            Distribution Hub — Same-Day / Next-Day Delivery
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {hubCities.map((city) => (
+              <a
+                href={`/${city.state_slug}/${city.slug}`}
+                class="flex items-center justify-between p-4 bg-primary-50 rounded-lg border border-primary-200 hover:border-primary-400 hover:shadow-md transition-all"
+              >
+                <div class="flex items-center">
+                  <MapPin className="w-4 h-4 text-primary-600 mr-2" />
+                  <span class="font-medium text-slate-900">{city.city}</span>
+                </div>
+                <span class="text-xs text-primary-600 font-medium">Hub</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Tier 1 Route Cities -->
+      {tier1Cities.length > 0 && (
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+            <span class="w-3 h-3 bg-secondary-500 rounded-full mr-3"></span>
+            Weekly Route Delivery — {tier1Cities[0]?.minimum_order} Minimum
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {tier1Cities.map((city) => (
+              <a
+                href={`/${city.state_slug}/${city.slug}`}
+                class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
+              >
+                <div class="flex items-center">
+                  <MapPin className="w-4 h-4 text-primary-500 mr-2" />
+                  <span class="font-medium text-slate-900">{city.city}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Tier 2 Route Cities -->
+      {tier2Cities.length > 0 && (
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+            <span class="w-3 h-3 bg-slate-400 rounded-full mr-3"></span>
+            Bi-Weekly Route Delivery — {tier2Cities[0]?.minimum_order} Minimum
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {tier2Cities.map((city) => (
+              <a
+                href={`/${city.state_slug}/${city.slug}`}
+                class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
+              >
+                <div class="flex items-center">
+                  <MapPin className="w-4 h-4 text-primary-500 mr-2" />
+                  <span class="font-medium text-slate-900">{city.city}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <!-- Common Carrier Cities -->
+      {carrierCities.length > 0 && (
+        <div class="mb-10">
+          <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+            <span class="w-3 h-3 bg-slate-300 rounded-full mr-3"></span>
+            Freight Shipping — 3-5 Business Days — {carrierCities[0]?.minimum_order} Minimum
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {carrierCities.map((city) => (
+              <a
+                href={`/${city.state_slug}/${city.slug}`}
+                class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
+              >
+                <div class="flex items-center">
+                  <MapPin className="w-4 h-4 text-primary-500 mr-2" />
+                  <span class="font-medium text-slate-900">{city.city}</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Why Value Source Section -->
+  <section class="section-padding bg-slate-50">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+          Why {stateName} Businesses Choose Value Source
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          We serve the businesses that big distributors overlook—with better service
+          and pricing that makes sense for your operation.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-white hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <DollarSign className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Competitive Pricing</h3>
+            <p class="text-slate-600">
+              Warehouse-direct pricing with minimums starting at $3,000—lower than broadline distributors.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Truck className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Reliable Delivery</h3>
+            <p class="text-slate-600">
+              98%+ on-time delivery rate. Weekly routes and freight options across {stateName}.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Clock className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Flexible Service</h3>
+            <p class="text-slate-600">
+              Perfect for independents, food trucks, and caterers. No corporate hoops.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white hover:shadow-md transition-shadow">
+          <CardContent className="pt-6">
+            <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+              <Building2 className="w-6 h-6 text-primary-600" />
+            </div>
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">Custom Print</h3>
+            <p class="text-slate-600">
+              Brand your business with custom cups, napkins, and packaging. We handle everything.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lead Form Section -->
+  <section id="quote" class="section-padding bg-slate-900">
+    <div class="container-wide">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="text-white">
+          <h2 class="text-2xl md:text-3xl font-bold mb-6">
+            Get Your {stateName} Quote
+          </h2>
+          <p class="text-lg text-slate-300 mb-8">
+            See how our distribution network can simplify your supply chain
+            and improve your margins across {stateName}.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Timer className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">Quick Response</div>
+                <div class="text-sm text-slate-400">Quotes within 24 hours</div>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">Personal Service</div>
+                <div class="text-sm text-slate-400">Dedicated account support</div>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <MapPin className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">{cities.length} {stateName} Cities</div>
+                <div class="text-sm text-slate-400">Full statewide coverage</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xl">
+          <h3 class="text-xl font-semibold text-slate-900 mb-6 text-center">
+            Request Pricing for {stateName}
+          </h3>
+          <LeadForm
+            client:load
+            sourceState={stateName}
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

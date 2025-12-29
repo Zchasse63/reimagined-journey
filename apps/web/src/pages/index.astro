@@ -1,0 +1,260 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { LeadForm } from '@/components/forms';
+import { Card, CardContent } from '@/components/ui';
+import { getAllStates, getTotalCityCount, getHubCity } from '@value-source/data';
+import {
+  Truck,
+  DollarSign,
+  Clock,
+  Palette,
+  MapPin,
+  CheckCircle,
+  ArrowRight,
+  Building2,
+  Users,
+  Timer,
+} from 'lucide-react';
+
+const states = getAllStates();
+const totalCities = getTotalCityCount();
+const hubCity = getHubCity();
+
+const valueProps = [
+  {
+    icon: DollarSign,
+    title: 'Competitive Pricing',
+    description: 'Warehouse-direct pricing with minimums starting at $3,000—lower than broadline distributors.',
+  },
+  {
+    icon: Truck,
+    title: 'Reliable Delivery',
+    description: '98%+ on-time delivery rate. Weekly route trucks and common carrier options across 15 states.',
+  },
+  {
+    icon: Clock,
+    title: 'Flexible Minimums',
+    description: 'Perfect for independent restaurants, food trucks, and caterers. No corporate hoops to jump through.',
+  },
+  {
+    icon: Palette,
+    title: 'Custom Print Program',
+    description: 'Brand your business with custom-printed cups, napkins, and packaging. We handle everything.',
+  },
+];
+
+const trustStats = [
+  { value: '15+', label: 'Years in Business' },
+  { value: '500+', label: 'Customers Served' },
+  { value: '98%', label: 'On-Time Delivery' },
+  { value: '156', label: 'Cities Served' },
+];
+
+const productCategories = [
+  {
+    title: 'Disposables & Paper Goods',
+    items: ['Napkins & tissues', 'Plates & bowls', 'Cutlery', 'Foil pans', 'To-go containers'],
+  },
+  {
+    title: 'Custom Print Program',
+    items: ['Custom cups', 'Branded napkins', 'Logo packaging', 'To-go bags', 'Artwork assistance'],
+  },
+  {
+    title: 'Proteins',
+    items: ['Beef', 'Pork', 'Poultry', 'Seafood', 'Opportunity buys'],
+  },
+  {
+    title: 'Eco-Friendly',
+    items: ['Compostable containers', 'Paper straws', 'Bagasse products', 'Recyclable packaging'],
+  },
+];
+---
+
+<Layout
+  title="Food Service Distribution | Value Source"
+  description="Food service distribution for restaurants, caterers, food trucks, and institutions across the Southeast. Lower minimums, competitive pricing, reliable delivery."
+>
+  <!-- Hero Section -->
+  <section class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
+    <div class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-5"></div>
+    <div class="container-wide relative py-20 md:py-28">
+      <div class="max-w-3xl">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+          Food Service Distribution
+          <span class="text-primary-400"> That Works for You</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-slate-300 mb-8">
+          Lower minimums. Competitive pricing. Reliable delivery across the Southeast.
+          Built for restaurants, caterers, food trucks, and institutions.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 mb-12">
+          <a href="#quote" class="btn-primary px-8 py-4 text-lg">
+            Get Your Quote
+            <ArrowRight className="w-5 h-5 ml-2 inline" />
+          </a>
+          <a href="/locations" class="btn-secondary px-8 py-4 text-lg border-white text-white hover:bg-white/10">
+            View Service Areas
+          </a>
+        </div>
+
+        <!-- Trust Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {trustStats.map((stat) => (
+            <div class="text-center">
+              <div class="text-3xl md:text-4xl font-bold text-primary-400">{stat.value}</div>
+              <div class="text-sm text-slate-400">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Value Props Section -->
+  <section class="section-padding bg-slate-50">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          Why Choose Value Source?
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          We serve the businesses that big distributors overlook. Lower minimums,
+          better service, and pricing that makes sense for your operation.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {valueProps.map((prop) => {
+          const Icon = prop.icon;
+          return (
+            <Card className="bg-white hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                  <Icon className="w-6 h-6 text-primary-600" />
+                </div>
+                <h3 class="text-lg font-semibold text-slate-900 mb-2">{prop.title}</h3>
+                <p class="text-slate-600">{prop.description}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Categories Section -->
+  <section class="section-padding">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          What We Supply
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          From everyday disposables to custom-printed packaging, we've got your
+          food service operation covered.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {productCategories.map((category) => (
+          <Card className="hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <h3 class="text-lg font-semibold text-slate-900 mb-4">{category.title}</h3>
+              <ul class="space-y-2">
+                {category.items.map((item) => (
+                  <li class="flex items-center text-slate-600">
+                    <CheckCircle className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Areas Section -->
+  <section class="section-padding bg-slate-50">
+    <div class="container-wide">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          Serving {totalCities} Cities Across {states.length} States
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          From our Atlanta hub, we deliver throughout the Southeast via weekly route
+          trucks and common carrier freight.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        {states.map((state) => (
+          <a
+            href={`/${state.slug}`}
+            class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
+          >
+            <div class="flex items-center">
+              <MapPin className="w-4 h-4 text-primary-500 mr-2" />
+              <span class="font-medium text-slate-900">{state.name}</span>
+            </div>
+            <span class="text-sm text-slate-500">{state.cityCount}</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA / Lead Form Section -->
+  <section id="quote" class="section-padding bg-slate-900">
+    <div class="container-wide">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div class="text-white">
+          <h2 class="text-3xl md:text-4xl font-bold mb-6">
+            Ready to Simplify Your Supply Chain?
+          </h2>
+          <p class="text-lg text-slate-300 mb-8">
+            Get a custom quote tailored to your business. We'll show you how
+            warehouse-direct pricing can improve your margins.
+          </p>
+          <div class="space-y-4">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Timer className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">Quick Response</div>
+                <div class="text-sm text-slate-400">Quotes within 24 hours</div>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">Personal Service</div>
+                <div class="text-sm text-slate-400">Dedicated account support</div>
+              </div>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <div class="font-semibold">Built for Small Business</div>
+                <div class="text-sm text-slate-400">$3K-$5K minimums, not $10K+</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xl">
+          <h3 class="text-xl font-semibold text-slate-900 mb-6 text-center">
+            Get Your Custom Quote
+          </h3>
+          <LeadForm client:load />
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>

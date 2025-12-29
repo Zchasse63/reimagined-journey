@@ -1,0 +1,61 @@
+---
+import Layout from './Layout.astro';
+import type { CityDataWithSlug } from '@value-source/data';
+
+interface Props {
+  city: CityDataWithSlug;
+}
+
+const { city } = Astro.props;
+
+const title = `Food Service Distribution in ${city.city}, ${city.state_abbr} | Value Source`;
+const description = `${city.delivery_method} to ${city.city}, ${city.state}. ${city.delivery_frequency}. ${city.minimum_order} minimum. Disposables, proteins, custom print, and eco-friendly products for restaurants, caterers, and food trucks.`;
+
+// Schema.org structured data for Service
+const schemaData = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: `Food Service Distribution in ${city.city}, ${city.state}`,
+  description: description,
+  provider: {
+    '@type': 'Organization',
+    name: 'Value Source',
+    url: 'https://valuesource.com',
+  },
+  areaServed: {
+    '@type': 'City',
+    name: city.city,
+    containedInPlace: {
+      '@type': 'State',
+      name: city.state,
+    },
+  },
+  serviceType: 'Food Service Distribution',
+};
+---
+
+<Layout title={title} description={description}>
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+
+  <!-- Breadcrumbs -->
+  <nav class="bg-slate-50 border-b border-slate-200">
+    <div class="container-wide py-3">
+      <ol class="flex items-center space-x-2 text-sm">
+        <li>
+          <a href="/" class="text-slate-500 hover:text-primary-600">Home</a>
+        </li>
+        <li class="text-slate-400">/</li>
+        <li>
+          <a href={`/${city.state_slug}`} class="text-slate-500 hover:text-primary-600">
+            {city.state}
+          </a>
+        </li>
+        <li class="text-slate-400">/</li>
+        <li class="text-slate-900 font-medium">{city.city}</li>
+      </ol>
+    </div>
+  </nav>
+
+  <slot />
+</Layout>
