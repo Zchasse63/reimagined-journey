@@ -8,11 +8,8 @@
   NODE_VERSION = "20"
   NPM_FLAGS = "--legacy-peer-deps"
 
-# 404 fallback - Astro generates static pages, no SPA redirect needed
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
+# Note: Netlify automatically handles 404s for missing pages
+# No redirect rules needed for static sites
 
 # Headers for security and caching
 [[headers]]
