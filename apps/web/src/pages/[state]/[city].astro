@@ -1,37 +1,66 @@
 ---
+/**
+ * City Landing Page - Phase 6 Restructure
+ *
+ * This page displays all city-specific content with the new component structure:
+ * 1. RecallAlertBar (sticky top)
+ * 2. HeroWithMarketSnapshot (enhanced hero)
+ * 3. DeliveryInfoBar (with fuel surcharge)
+ * 4. MarketDashboard (full market intelligence)
+ * 5. CostCalculator (interactive savings calculator)
+ * 6. MultiStepLeadForm (moved up from bottom!)
+ * 7. ValuePropositions (moved down)
+ * 8. ProductCategories
+ * 9. RecallsSection (full recalls with micro-capture)
+ * 10. LocalMarketSection
+ * 11. SocialProof
+ * 12. NearbyCities
+ * 13. FooterCTA
+ *
+ * Persistent Elements:
+ * - StickyLeadCapture (React, client:idle)
+ * - ExitIntentPopup (React, client:idle)
+ */
+
+export const prerender = false; // Enable SSR for fresh data
+
+// Layout
 import CityLayout from '@/layouts/CityLayout.astro';
-import { LeadForm } from '@/components/forms';
-import { MarketInsights } from '@/components/market';
-import { Card, CardContent } from '@/components/ui';
+
+// Landing Page Components (Astro)
+import RecallAlertBar from '@/components/landing/RecallAlertBar.astro';
+import HeroWithMarketSnapshot from '@/components/landing/HeroWithMarketSnapshot.astro';
+import DeliveryInfoBar from '@/components/landing/DeliveryInfoBar.astro';
+import MarketDashboard from '@/components/landing/MarketDashboard.astro';
+import ValuePropositions from '@/components/landing/ValuePropositions.astro';
+import ProductCategories from '@/components/landing/ProductCategories.astro';
+import RecallsSection from '@/components/landing/RecallsSection.astro';
+import LocalMarketSection from '@/components/landing/LocalMarketSection.astro';
+import SocialProof from '@/components/landing/SocialProof.astro';
+import NearbyCities from '@/components/landing/NearbyCities.astro';
+import FooterCTA from '@/components/landing/FooterCTA.astro';
+
+// Landing Page Components (React)
+import CostCalculator from '@/components/landing/CostCalculator';
+import MultiStepLeadForm from '@/components/landing/MultiStepLeadForm';
+import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
+import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
+
+// Data utilities
+import { fetchMarketData, FALLBACK_MARKET_DATA } from '@/lib/market-data';
+import { fetchRecalls, FALLBACK_RECALLS } from '@/lib/recalls';
 import {
   getAllCities,
-  getCityBySlug,
   getNearbyCities,
   getTierConfig,
   type CityDataWithSlug,
 } from '@value-source/data';
-import {
-  Truck,
-  Warehouse,
-  Package,
-  DollarSign,
-  Clock,
-  Calendar,
-  CheckCircle,
-  MapPin,
-  GraduationCap,
-  Building2,
-  HeartPulse,
-  Landmark,
-  ArrowRight,
-  Users,
-  Timer,
-  Leaf,
-  Palette,
-  Star,
-  Route,
-} from 'lucide-react';
 
+// Types
+import type { MarketData } from '@/types/market-data';
+import type { Recall } from '@/types/recalls';
+
+// Static paths generation
 export function getStaticPaths() {
   const cities = getAllCities();
   return cities.map((city) => ({
@@ -43,481 +72,153 @@ export function getStaticPaths() {
   }));
 }
 
+// Props interface
 interface Props {
   city: CityDataWithSlug;
 }
 
+// Get city data from props
 const { city } = Astro.props;
 const tierConfig = getTierConfig(city.tier);
 const nearbyCities = getNearbyCities(city, 4);
 
-// Determine icon based on delivery type
-const getDeliveryIcon = (tier: string) => {
-  switch (tier) {
-    case 'Hub':
-      return Warehouse;
-    case 'Tier1_Route':
-    case 'Tier2_Route':
-      return Truck;
-    case 'Common_Carrier':
-      return Package;
-    default:
-      return Truck;
+// Parse distance from Atlanta for calculations
+const distanceFromAtlanta = parseInt(
+  city.distance_from_atlanta?.replace(/[^0-9]/g, '') || '0'
+);
+
+// Determine delivery icon based on tier
+const deliveryIcon: 'warehouse' | 'truck' | 'freight' =
+  city.tier === 'Hub'
+    ? 'warehouse'
+    : city.tier.includes('Route')
+      ? 'truck'
+      : 'freight';
+
+// Fetch dynamic data with fallbacks
+let marketData: MarketData = FALLBACK_MARKET_DATA;
+let recalls: Recall[] = FALLBACK_RECALLS;
+
+try {
+  const marketResponse = await fetchMarketData();
+  if (marketResponse.data) {
+    marketData = marketResponse.data;
   }
+} catch (e) {
+  console.error('Market data fetch failed:', e);
+}
+
+try {
+  const recallsResponse = await fetchRecalls(city.state_abbr);
+  if (recallsResponse.recalls) {
+    recalls = recallsResponse.recalls;
+  }
+} catch (e) {
+  console.error('Recalls fetch failed:', e);
+}
+
+// Trust badges configuration
+const trustBadges = {
+  yearsInBusiness: 15,
+  customersServed: 500,
+  onTimeRate: '98%',
 };
 
-const DeliveryIcon = getDeliveryIcon(city.tier);
-
-// Value props based on tier
-const valueProps = [
-  {
-    icon: DollarSign,
-    title: 'Competitive Pricing',
-    description: tierConfig.valueProps.pricing,
-  },
-  {
-    icon: Clock,
-    title: 'Reliable Service',
-    description: tierConfig.valueProps.reliability,
-  },
-  {
-    icon: Users,
-    title: 'Flexible Minimums',
-    description: tierConfig.valueProps.flexibility,
-  },
-  {
-    icon: Palette,
-    title: 'Custom Print Program',
-    description:
-      'Brand your business with custom-printed cups, napkins, to-go containers, and packaging. We handle artwork, production, and delivery—one source for stock and custom disposables.',
-  },
-];
-
-// Product categories
-const productCategories = [
-  {
-    title: 'Disposables & Paper Goods',
-    items: ['Napkins & tissues', 'Plates & bowls', 'Cutlery & utensils', 'Foil pans', 'To-go containers'],
-  },
-  {
-    title: 'Custom Print Program',
-    items: ['Custom cups', 'Branded napkins', 'Logo packaging', 'To-go bags', 'Artwork assistance'],
-  },
-  {
-    title: 'Proteins',
-    items: ['Beef & pork', 'Poultry', 'Seafood', 'Opportunity buys', 'Closeouts'],
-  },
-  {
-    title: 'Eco-Friendly',
-    items: ['Compostable containers', 'Paper straws', 'Bagasse products', 'Recyclable packaging'],
-    highlight: city.eco_emphasis === 'High',
-  },
-];
-
-// Check for institutional anchors
-const hasInstitutionalAnchors =
-  city.military_bases || city.universities || city.hospital_systems || city.tourism_attractions;
+// Phone number configuration
+const phoneNumber = '(800) 555-1234';
 ---
 
 <CityLayout city={city}>
-  <!-- Hero Section -->
-  <section class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white overflow-hidden">
-    <div class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-5"></div>
-    <div class="container-wide relative py-16 md:py-24">
-      <div class="max-w-3xl">
-        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4">
-          Food Service Distribution in {city.city},
-          <span class="text-primary-400"> {city.state}</span>
-        </h1>
-        <p class="text-lg md:text-xl text-slate-300 mb-8">
-          {tierConfig.heroSubhead}
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 mb-8">
-          <a href="#quote" class="btn-primary px-6 py-3 text-base">
-            Get Your Quote
-            <ArrowRight className="w-5 h-5 ml-2 inline" />
-          </a>
-          <a
-            href={`/${city.state_slug}`}
-            class="btn-secondary px-6 py-3 text-base border-white text-white hover:bg-white/10"
-          >
-            View All {city.state} Locations
-          </a>
-        </div>
+  <!-- 1. RecallAlertBar (sticky top) -->
+  <RecallAlertBar recalls={recalls} state={city.state} />
 
-        <!-- Trust Stats -->
-        <div class="flex flex-wrap gap-6 text-sm">
-          <div class="flex items-center">
-            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
-            <span>15+ Years in Business</span>
-          </div>
-          <div class="flex items-center">
-            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
-            <span>500+ Customers Served</span>
-          </div>
-          <div class="flex items-center">
-            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
-            <span>98% On-Time Delivery</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- 2. HeroWithMarketSnapshot -->
+  <HeroWithMarketSnapshot
+    city={city.city}
+    state={city.state}
+    stateAbbr={city.state_abbr}
+    subheadline={tierConfig.heroSubhead}
+    trustBadges={trustBadges}
+    marketData={marketData}
+  />
 
-  <!-- Delivery Info Bar -->
-  <section class="bg-white border-b border-slate-200">
-    <div class="container-wide py-6">
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-        <div class="flex items-center">
-          <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
-            <DeliveryIcon className="w-5 h-5 text-primary-600" />
-          </div>
-          <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wide">Delivery</div>
-            <div class="font-medium text-slate-900">{tierConfig.deliveryInfo.method}</div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
-            <Calendar className="w-5 h-5 text-primary-600" />
-          </div>
-          <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wide">Frequency</div>
-            <div class="font-medium text-slate-900">{tierConfig.deliveryInfo.frequency}</div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
-            <Clock className="w-5 h-5 text-primary-600" />
-          </div>
-          <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wide">Lead Time</div>
-            <div class="font-medium text-slate-900">{tierConfig.deliveryInfo.leadTime}</div>
-          </div>
-        </div>
-        <div class="flex items-center">
-          <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
-            <DollarSign className="w-5 h-5 text-primary-600" />
-          </div>
-          <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wide">Minimum</div>
-            <div class="font-medium text-slate-900">{city.minimum_order}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- 3. DeliveryInfoBar -->
+  <DeliveryInfoBar
+    deliveryMethod={tierConfig.deliveryInfo.method}
+    deliveryIcon={deliveryIcon}
+    deliveryFrequency={tierConfig.deliveryInfo.frequency}
+    leadTime={tierConfig.deliveryInfo.leadTime}
+    minimumOrder={city.minimum_order}
+    dieselPrice={marketData.diesel?.price || 3.5}
+  />
 
-  <!-- Value Props Section -->
-  <section class="section-padding bg-slate-50">
-    <div class="container-wide">
-      <div class="text-center mb-12">
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-          Why Choose Value Source in {city.city}?
-        </h2>
-        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-          We serve the businesses that big distributors overlook—with better service
-          and pricing that makes sense for your operation.
-        </p>
-      </div>
+  <!-- 4. MarketDashboard (with anchor for navigation) -->
+  <div id="market-data">
+    <MarketDashboard
+      city={city.city}
+      marketData={marketData}
+      distanceFromAtlanta={distanceFromAtlanta}
+    />
+  </div>
 
-      <div class="grid md:grid-cols-2 gap-6">
-        {valueProps.map((prop) => {
-          const Icon = prop.icon;
-          return (
-            <Card className="bg-white hover:shadow-md transition-shadow">
-              <CardContent className="pt-6">
-                <div class="flex items-start">
-                  <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                    <Icon className="w-6 h-6 text-primary-600" />
-                  </div>
-                  <div>
-                    <h3 class="text-lg font-semibold text-slate-900 mb-2">{prop.title}</h3>
-                    <p class="text-slate-600">{prop.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
-  </section>
+  <!-- 5. CostCalculator (React component) -->
+  <div id="calculator">
+    <CostCalculator
+      client:visible
+      city={city.city}
+      state={city.state}
+      distanceFromAtlanta={distanceFromAtlanta}
+      dieselPrice={marketData.diesel?.price || 3.5}
+    />
+  </div>
 
-  <!-- Product Categories Section -->
-  <section class="section-padding">
-    <div class="container-wide">
-      <div class="text-center mb-12">
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
-          What We Supply to {city.city}
-        </h2>
-        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-          From everyday disposables to custom-printed packaging—everything your
-          food service operation needs.
-        </p>
-      </div>
+  <!-- 6. MultiStepLeadForm (React component, moved up!) -->
+  <div id="lead-form">
+    <MultiStepLeadForm
+      client:visible
+      city={city.city}
+      state={city.state}
+      minimumOrder={city.minimum_order}
+    />
+  </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {productCategories.map((category) => (
-          <Card className={`hover:shadow-md transition-shadow ${category.highlight ? 'ring-2 ring-primary-500' : ''}`}>
-            <CardContent className="pt-6">
-              {category.highlight && (
-                <div class="inline-flex items-center text-xs font-medium text-primary-600 bg-primary-100 rounded-full px-2 py-1 mb-3">
-                  <Leaf className="w-3 h-3 mr-1" />
-                  Recommended for {city.state}
-                </div>
-              )}
-              <h3 class="text-lg font-semibold text-slate-900 mb-4">{category.title}</h3>
-              <ul class="space-y-2">
-                {category.items.map((item) => (
-                  <li class="flex items-center text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-primary-500 mr-2 flex-shrink-0" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
-  </section>
+  <!-- 7. ValuePropositions -->
+  <ValuePropositions city={city.city} tier={city.tier} tierConfig={tierConfig} />
 
-  <!-- Local Market Section -->
-  <section class="section-padding bg-slate-50">
-    <div class="container-wide">
-      <div class="grid lg:grid-cols-2 gap-12">
-        <!-- Service Area Info -->
-        <div>
-          <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6">
-            Serving {city.city} & Surrounding Areas
-          </h2>
+  <!-- 8. ProductCategories -->
+  <ProductCategories
+    city={city.city}
+    state={city.state}
+    ecoEmphasis={city.eco_emphasis}
+  />
 
-          <div class="space-y-4 mb-8">
-            {city.tier !== 'Hub' && city.distance_from_atlanta && (
-              <div class="flex items-start">
-                <Route className="w-5 h-5 text-primary-600 mr-3 mt-1" />
-                <div>
-                  <div class="font-medium text-slate-900">Distance from Atlanta Hub</div>
-                  <div class="text-slate-600">{city.distance_from_atlanta}</div>
-                </div>
-              </div>
-            )}
+  <!-- 9. RecallsSection (with anchor for navigation) -->
+  <div id="recalls-section">
+    <RecallsSection recalls={recalls} state={city.state} />
+  </div>
 
-            {city.interstate_corridors && (
-              <div class="flex items-start">
-                <MapPin className="w-5 h-5 text-primary-600 mr-3 mt-1" />
-                <div>
-                  <div class="font-medium text-slate-900">Major Corridors</div>
-                  <div class="text-slate-600">{city.interstate_corridors}</div>
-                </div>
-              </div>
-            )}
+  <!-- 10. LocalMarketSection -->
+  <LocalMarketSection city={city} tierConfig={tierConfig} />
 
-            <div class="flex items-start">
-              <Calendar className="w-5 h-5 text-primary-600 mr-3 mt-1" />
-              <div>
-                <div class="font-medium text-slate-900">Delivery Schedule</div>
-                <div class="text-slate-600">{city.delivery_frequency}. {city.lead_time}.</div>
-              </div>
-            </div>
-          </div>
+  <!-- 11. SocialProof -->
+  <SocialProof state={city.state} />
 
-          {/* Compliance Note for High Eco States */}
-          {city.eco_emphasis === 'High' && (
-            <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
-              <div class="flex items-start">
-                <Leaf className="w-5 h-5 text-primary-600 mr-3 mt-0.5" />
-                <div>
-                  <div class="font-medium text-slate-900">{city.state} Packaging Compliance</div>
-                  <p class="text-sm text-slate-600 mt-1">
-                    {city.state} has active packaging regulations. We stock compliant alternatives
-                    that meet current and upcoming requirements. Ask about our eco-friendly options.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+  <!-- 12. NearbyCities -->
+  <NearbyCities
+    currentCity={city.city}
+    stateSlug={city.state_slug}
+    nearbyCities={nearbyCities}
+  />
 
-        <!-- Institutional Anchors -->
-        {hasInstitutionalAnchors && (
-          <div>
-            <h3 class="text-xl font-semibold text-slate-900 mb-6">
-              Serving {city.city}'s Major Institutions
-            </h3>
-            <div class="space-y-4">
-              {city.military_bases && (
-                <div class="flex items-start">
-                  <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
-                    <Landmark className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div>
-                    <div class="font-medium text-slate-900">Military & Government</div>
-                    <div class="text-slate-600">{city.military_bases}</div>
-                  </div>
-                </div>
-              )}
+  <!-- 13. FooterCTA -->
+  <div id="quote">
+    <FooterCTA phoneNumber={phoneNumber} />
+  </div>
 
-              {city.universities && (
-                <div class="flex items-start">
-                  <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
-                    <GraduationCap className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div>
-                    <div class="font-medium text-slate-900">Higher Education</div>
-                    <div class="text-slate-600">{city.universities}</div>
-                  </div>
-                </div>
-              )}
+  <!-- Persistent Elements -->
+  <!-- StickyLeadCapture - shows after scrolling past hero, hides near footer -->
+  <StickyLeadCapture client:idle phoneNumber={phoneNumber} />
 
-              {city.hospital_systems && (
-                <div class="flex items-start">
-                  <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
-                    <HeartPulse className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div>
-                    <div class="font-medium text-slate-900">Healthcare</div>
-                    <div class="text-slate-600">{city.hospital_systems}</div>
-                  </div>
-                </div>
-              )}
-
-              {city.tourism_attractions && (
-                <div class="flex items-start">
-                  <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
-                    <Building2 className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <div>
-                    <div class="font-medium text-slate-900">Tourism & Hospitality</div>
-                    <div class="text-slate-600">{city.tourism_attractions}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  </section>
-
-  <!-- Market Insights Section -->
-  <section class="section-padding">
-    <div class="container-wide">
-      <MarketInsights client:load state={city.state} />
-    </div>
-  </section>
-
-  <!-- Social Proof Section -->
-  <section class="section-padding bg-slate-50">
-    <div class="container-wide">
-      <div class="max-w-3xl mx-auto text-center">
-        <div class="flex justify-center mb-4">
-          {[1, 2, 3, 4, 5].map(() => (
-            <Star className="w-6 h-6 text-secondary-400 fill-current" />
-          ))}
-        </div>
-        <blockquote class="text-xl md:text-2xl text-slate-700 italic mb-6">
-          "We switched from Sysco two years ago and haven't looked back. The pricing is better,
-          the service is more personal, and when we have an emergency need, they actually answer the phone.
-          For an independent restaurant, that matters."
-        </blockquote>
-        <div class="text-slate-600">
-          <span class="font-semibold text-slate-900">Marcus T.</span> — Restaurant Owner
-          <br />
-          <span class="text-sm">Independent Restaurant | {city.state}</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Nearby Cities Section -->
-  {nearbyCities.length > 0 && (
-    <section class="section-padding">
-      <div class="container-wide">
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6 text-center">
-          Also Serving Nearby Areas
-        </h2>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {nearbyCities.map((nearbyCity) => (
-            <a
-              href={`/${nearbyCity.state_slug}/${nearbyCity.slug}`}
-              class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
-            >
-              <div class="flex items-center">
-                <MapPin className="w-4 h-4 text-primary-500 mr-2" />
-                <span class="font-medium text-slate-900">{nearbyCity.city}</span>
-              </div>
-              <span class="text-sm text-slate-500">{nearbyCity.state_abbr}</span>
-            </a>
-          ))}
-        </div>
-        <div class="text-center mt-6">
-          <a
-            href={`/${city.state_slug}`}
-            class="text-primary-600 hover:text-primary-700 font-medium"
-          >
-            View all {city.state} locations →
-          </a>
-        </div>
-      </div>
-    </section>
-  )}
-
-  <!-- Lead Form Section -->
-  <section id="quote" class="section-padding bg-slate-900">
-    <div class="container-wide">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div class="text-white">
-          <h2 class="text-2xl md:text-3xl font-bold mb-6">
-            Get Your {city.city} Quote
-          </h2>
-          <p class="text-lg text-slate-300 mb-8">
-            See how {city.delivery_method.toLowerCase()} can simplify your supply chain
-            and improve your margins.
-          </p>
-          <div class="space-y-4">
-            <div class="flex items-center">
-              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
-                <Timer className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div class="font-semibold">Quick Response</div>
-                <div class="text-sm text-slate-400">Quotes within 24 hours</div>
-              </div>
-            </div>
-            <div class="flex items-center">
-              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
-                <Users className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div class="font-semibold">Personal Service</div>
-                <div class="text-sm text-slate-400">Dedicated account support</div>
-              </div>
-            </div>
-            <div class="flex items-center">
-              <div class="w-10 h-10 bg-primary-600 rounded-full flex items-center justify-center mr-4">
-                <DollarSign className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <div class="font-semibold">{city.minimum_order} Minimum</div>
-                <div class="text-sm text-slate-400">Lower than broadline distributors</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-white rounded-2xl p-6 md:p-8 shadow-xl">
-          <h3 class="text-xl font-semibold text-slate-900 mb-6 text-center">
-            Request Pricing for {city.city}
-          </h3>
-          <LeadForm
-            client:load
-            sourceCity={city.city}
-            sourceState={city.state}
-          />
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- ExitIntentPopup - shows when user moves mouse towards closing tab -->
+  <ExitIntentPopup client:idle city={city.city} />
 </CityLayout>

@@ -1,0 +1,121 @@
+---
+/**
+ * RecallAlertBar.astro
+ * Sticky top banner showing active recalls affecting a specific state
+ *
+ * Props:
+ * - recalls: Recall[] - Array of recall objects
+ * - state: string - The state to display for
+ */
+import type { Recall } from '@/types/recalls';
+import { AlertTriangle, AlertCircle, CheckCircle, ChevronDown } from 'lucide-react';
+
+interface Props {
+  recalls: Recall[];
+  state: string;
+}
+
+const { recalls, state } = Astro.props;
+
+// Count recalls by classification
+const classOneCount = recalls.filter(r => r.classification === 'Class I').length;
+const classTwoCount = recalls.filter(r => r.classification === 'Class II').length;
+const totalCount = recalls.length;
+
+// Determine severity level and styling
+const hasClassOne = classOneCount > 0;
+const hasClassTwo = classTwoCount > 0;
+const hasRecalls = totalCount > 0;
+
+// Background colors based on severity
+const bgClass = hasClassOne
+  ? 'bg-red-600 text-white'
+  : hasClassTwo
+    ? 'bg-amber-500 text-amber-950'
+    : 'bg-green-600 text-white';
+
+// Icon based on severity
+const IconComponent = hasClassOne
+  ? AlertTriangle
+  : hasClassTwo
+    ? AlertCircle
+    : CheckCircle;
+
+// Format the date for display
+const today = new Date();
+const dateStr = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+// Generate recall summary text
+const getSummaryText = () => {
+  if (!hasRecalls) {
+    return `No active recalls affecting ${state} food service`;
+  }
+
+  const parts: string[] = [];
+  if (classOneCount > 0) {
+    parts.push(`${classOneCount} Class I`);
+  }
+  if (classTwoCount > 0) {
+    parts.push(`${classTwoCount} Class II`);
+  }
+
+  return `${totalCount} Active Recall${totalCount !== 1 ? 's' : ''} Affecting ${state} Food Service`;
+};
+---
+
+<div class={`sticky top-0 z-50 ${bgClass}`}>
+  <!-- Desktop View -->
+  <div class="hidden md:block">
+    <div class="container-wide py-2">
+      <a href="#recalls-section" class="flex items-center justify-center gap-3 hover:opacity-90 transition-opacity">
+        <IconComponent className="w-5 h-5 flex-shrink-0" />
+        <span class="font-medium">
+          {getSummaryText()}
+        </span>
+        <span class="opacity-75">—</span>
+        <span class="opacity-75">Updated {dateStr}</span>
+        {hasRecalls && (
+          <span class="inline-flex items-center text-sm font-semibold ml-1">
+            View Details
+            <ChevronDown className="w-4 h-4 ml-1" />
+          </span>
+        )}
+      </a>
+    </div>
+  </div>
+
+  <!-- Mobile View - Collapsed -->
+  <div class="md:hidden">
+    <a href="#recalls-section" class="block py-2 px-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <IconComponent className="w-5 h-5 flex-shrink-0" />
+          {hasRecalls ? (
+            <span class="font-medium">{totalCount} Recall{totalCount !== 1 ? 's' : ''}</span>
+          ) : (
+            <span class="font-medium">No Recalls</span>
+          )}
+        </div>
+        {hasRecalls && (
+          <span class="text-sm flex items-center gap-1">
+            Details
+            <ChevronDown className="w-4 h-4" />
+          </span>
+        )}
+      </div>
+
+      <!-- Mobile expanded details (shown on tap via CSS) -->
+      <div class="recall-details hidden mt-2 pt-2 border-t border-current/20 text-sm">
+        <p>{getSummaryText()}</p>
+        <p class="opacity-75 mt-1">Updated {dateStr}</p>
+      </div>
+    </a>
+  </div>
+</div>
+
+<style>
+  /* Mobile tap to expand - handled via JS or can use checkbox hack */
+  .md\:hidden:focus-within .recall-details {
+    display: block;
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+/**
+ * SocialProof.astro
+ * Testimonial section extracted from city page
+ *
+ * Props:
+ * - state: string - State name for contextual location display
+ */
+
+import { Star } from 'lucide-react';
+
+interface Props {
+  state: string;
+}
+
+const { state } = Astro.props;
+---
+
+<section class="section-padding bg-slate-50">
+  <div class="container-wide">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="flex justify-center mb-4">
+        {[1, 2, 3, 4, 5].map(() => (
+          <Star className="w-6 h-6 text-secondary-400 fill-current" />
+        ))}
+      </div>
+      <blockquote class="text-xl md:text-2xl text-slate-700 italic mb-6">
+        "We switched from Sysco two years ago and haven't looked back. The pricing is better,
+        the service is more personal, and when we have an emergency need, they actually answer the phone.
+        For an independent restaurant, that matters."
+      </blockquote>
+      <div class="text-slate-600">
+        <span class="font-semibold text-slate-900">Marcus T.</span> — Restaurant Owner
+        <br />
+        <span class="text-sm">Independent Restaurant | {state}</span>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,119 @@
+---
+/**
+ * DeliveryInfoBar.astro
+ * Enhanced delivery info bar with fuel surcharge calculation
+ *
+ * Props:
+ * - deliveryMethod: string - Description of delivery method
+ * - deliveryIcon: 'warehouse' | 'truck' | 'freight' - Icon to display
+ * - deliveryFrequency: string - Delivery frequency (e.g., "Weekly", "2x Weekly")
+ * - leadTime: string - Lead time (e.g., "3-5 business days")
+ * - minimumOrder: string - Minimum order amount (e.g., "$500")
+ * - dieselPrice: number - Current diesel price per gallon
+ * - baseDieselPrice?: number - Base diesel price for surcharge calc (default: 2.50)
+ */
+import { Warehouse, Truck, Package, Calendar, Clock, DollarSign, Fuel } from 'lucide-react';
+
+interface Props {
+  deliveryMethod: string;
+  deliveryIcon: 'warehouse' | 'truck' | 'freight';
+  deliveryFrequency: string;
+  leadTime: string;
+  minimumOrder: string;
+  dieselPrice: number;
+  baseDieselPrice?: number;
+}
+
+const {
+  deliveryMethod,
+  deliveryIcon,
+  deliveryFrequency,
+  leadTime,
+  minimumOrder,
+  dieselPrice,
+  baseDieselPrice = 2.50,
+} = Astro.props;
+
+// Calculate fuel surcharge percentage
+const fuelSurcharge = ((dieselPrice - baseDieselPrice) / baseDieselPrice) * 100;
+const fuelSurchargeDisplay = fuelSurcharge > 0 ? `${fuelSurcharge.toFixed(1)}%` : '0%';
+const dieselPriceDisplay = `$${dieselPrice.toFixed(2)}/gal`;
+
+// Map icon prop to component
+const iconMap = {
+  warehouse: Warehouse,
+  truck: Truck,
+  freight: Package,
+};
+
+const DeliveryIcon = iconMap[deliveryIcon] || Truck;
+
+// Info items configuration
+const infoItems = [
+  {
+    icon: DeliveryIcon,
+    label: 'Delivery',
+    value: deliveryMethod,
+  },
+  {
+    icon: Calendar,
+    label: 'Frequency',
+    value: deliveryFrequency,
+  },
+  {
+    icon: Clock,
+    label: 'Lead Time',
+    value: leadTime,
+  },
+  {
+    icon: DollarSign,
+    label: 'Minimum',
+    value: minimumOrder,
+  },
+  {
+    icon: Fuel,
+    label: 'Fuel',
+    value: fuelSurchargeDisplay,
+    subValue: dieselPriceDisplay,
+    highlight: fuelSurcharge > 10, // Highlight if surcharge is high
+  },
+];
+---
+
+<section class="bg-slate-100 border-y border-slate-200">
+  <div class="container-wide py-4 md:py-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+      {infoItems.map((item, index) => {
+        const Icon = item.icon;
+        return (
+          <div
+            class={`flex items-center ${index === infoItems.length - 1 ? 'col-span-2 md:col-span-1' : ''}`}
+          >
+            <div
+              class={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 flex-shrink-0 ${
+                item.highlight ? 'bg-amber-100' : 'bg-primary-100'
+              }`}
+            >
+              <Icon
+                className={`w-5 h-5 ${item.highlight ? 'text-amber-600' : 'text-primary-600'}`}
+              />
+            </div>
+            <div>
+              <div class="text-xs text-slate-500 uppercase tracking-wide">
+                {item.label}
+              </div>
+              <div class={`font-medium ${item.highlight ? 'text-amber-700' : 'text-slate-900'}`}>
+                {item.value}
+                {item.subValue && (
+                  <span class="text-xs text-slate-500 font-normal ml-1">
+                    ({item.subValue})
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</section>

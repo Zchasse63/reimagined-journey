@@ -1,0 +1,89 @@
+---
+/**
+ * CommodityCard.astro
+ * A reusable card for displaying commodity prices with trend indicators
+ *
+ * Props:
+ * - title: string - Category name (e.g., "Poultry")
+ * - icon: string - Emoji icon (e.g., "🍗")
+ * - items: Array<{ name: string, price: number, unit: string, change: number }>
+ * - source: string - Data source attribution (e.g., "USDA LMPR")
+ */
+import { getPriceTrend, formatPriceOnly } from '@/lib/market-data';
+
+interface CommodityItem {
+  name: string;
+  price: number;
+  unit: string;
+  change: number;
+}
+
+interface Props {
+  title: string;
+  icon: string;
+  items: CommodityItem[];
+  source: string;
+}
+
+const { title, icon, items, source } = Astro.props;
+
+// Helper to get trend display (green for drops = good for buyers, red for increases)
+const getTrendDisplay = (change: number) => {
+  const trend = getPriceTrend(change);
+  if (trend === 'down') {
+    return {
+      arrow: '\u2193', // Down arrow
+      colorClass: 'text-green-600',
+      bgClass: 'bg-green-100',
+    };
+  }
+  if (trend === 'up') {
+    return {
+      arrow: '\u2191', // Up arrow
+      colorClass: 'text-red-600',
+      bgClass: 'bg-red-100',
+    };
+  }
+  return {
+    arrow: '\u2192', // Right arrow (stable)
+    colorClass: 'text-slate-500',
+    bgClass: 'bg-slate-100',
+  };
+};
+---
+
+<div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
+  <div class="flex items-center gap-2 mb-4">
+    <span class="text-2xl" aria-hidden="true">{icon}</span>
+    <h3 class="text-lg font-semibold text-slate-900">{title}</h3>
+  </div>
+
+  <div class="space-y-3">
+    {items.map((item) => {
+      const trend = getTrendDisplay(item.change);
+      return (
+        <div class="flex items-center justify-between py-2 border-b border-slate-200 last:border-b-0">
+          <div class="text-slate-700 font-medium">{item.name}</div>
+          <div class="flex items-center gap-2">
+            <span class="text-slate-900 font-semibold tabular-nums">
+              {formatPriceOnly(item.price)}
+              <span class="text-slate-500 text-sm font-normal">/{item.unit}</span>
+            </span>
+            <span
+              class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-sm font-medium ${trend.bgClass} ${trend.colorClass}`}
+              title={`${item.change >= 0 ? '+' : ''}${item.change.toFixed(1)}% vs last week`}
+            >
+              {trend.arrow} {Math.abs(item.change).toFixed(1)}%
+            </span>
+          </div>
+        </div>
+      );
+    })}
+  </div>
+
+  <div class="mt-4 pt-3 border-t border-slate-200">
+    <p class="text-xs text-slate-500">
+      Source: {source}
+    </p>
+  </div>
+</div>

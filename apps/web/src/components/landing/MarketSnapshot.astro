@@ -1,0 +1,116 @@
+---
+/**
+ * MarketSnapshot.astro
+ * A card showing live market prices for the hero section
+ *
+ * Props:
+ * - data: { chicken: CommodityItem, cookingOil: CommodityItem, diesel: DieselData, updatedAt: string }
+ */
+import type { CommodityItem, DieselData } from '@/types/market-data';
+import { formatLastUpdated, getPriceTrend, formatPriceOnly, calculateDieselChange } from '@/lib/market-data';
+
+interface Props {
+  data: {
+    chicken: CommodityItem;
+    cookingOil: CommodityItem;
+    diesel: DieselData;
+    updatedAt: string;
+  };
+}
+
+const { data } = Astro.props;
+const { chicken, cookingOil, diesel, updatedAt } = data;
+
+// Calculate diesel change percentage
+const dieselChange = calculateDieselChange(diesel.price, diesel.previousWeek);
+
+// Helper to get trend arrow and color
+// Note: For buyers, price drops are GOOD (green arrow down), price increases are BAD (red arrow up)
+const getTrendDisplay = (change: number) => {
+  const trend = getPriceTrend(change);
+  if (trend === 'down') {
+    return {
+      arrow: String.fromCodePoint(0x2193), // Down arrow
+      colorClass: 'text-green-400',
+      bgClass: 'bg-green-400/20',
+    };
+  }
+  if (trend === 'up') {
+    return {
+      arrow: String.fromCodePoint(0x2191), // Up arrow
+      colorClass: 'text-red-400',
+      bgClass: 'bg-red-400/20',
+    };
+  }
+  return {
+    arrow: String.fromCodePoint(0x2192), // Right arrow (stable)
+    colorClass: 'text-slate-400',
+    bgClass: 'bg-slate-400/20',
+  };
+};
+
+// Market data rows
+const marketRows = [
+  {
+    emoji: String.fromCodePoint(0x1F414), // Chicken emoji
+    name: 'Chicken',
+    price: formatPriceOnly(chicken.price),
+    unit: `/${chicken.unit}`,
+    change: chicken.change,
+    trend: getTrendDisplay(chicken.change),
+  },
+  {
+    emoji: String.fromCodePoint(0x1FAD2), // Olive emoji (for oil)
+    name: 'Soybean Oil',
+    price: formatPriceOnly(cookingOil.price),
+    unit: `/${cookingOil.unit}`,
+    change: cookingOil.change,
+    trend: getTrendDisplay(cookingOil.change),
+  },
+  {
+    emoji: String.fromCodePoint(0x26FD), // Fuel pump emoji
+    name: 'Diesel',
+    price: formatPriceOnly(diesel.price),
+    unit: `/${diesel.unit}`,
+    change: dieselChange,
+    trend: getTrendDisplay(dieselChange),
+  },
+];
+
+const formattedTime = formatLastUpdated(updatedAt);
+---
+
+<div class="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+  <div class="flex items-center justify-between mb-4">
+    <h3 class="text-lg font-semibold text-white">Today's Market</h3>
+    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse" title="Live data"></div>
+  </div>
+
+  <div class="space-y-3">
+    {marketRows.map((row) => (
+      <div class="flex items-center justify-between py-2 border-b border-white/10 last:border-b-0">
+        <div class="flex items-center gap-2">
+          <span class="text-xl" aria-hidden="true">{row.emoji}</span>
+          <span class="text-white/90 font-medium">{row.name}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-white font-semibold tabular-nums">
+            {row.price}<span class="text-white/60 text-sm font-normal">{row.unit}</span>
+          </span>
+          <span
+            class={`inline-flex items-center justify-center w-6 h-6 rounded ${row.trend.bgClass} ${row.trend.colorClass} text-sm font-medium`}
+            title={`${row.change >= 0 ? '+' : ''}${row.change.toFixed(1)}% vs last week`}
+          >
+            {row.trend.arrow}
+          </span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <div class="mt-4 pt-3 border-t border-white/10">
+    <p class="text-xs text-white/50 text-center">
+      Updated: {formattedTime}
+    </p>
+  </div>
+</div>

@@ -1,0 +1,63 @@
+---
+/**
+ * NearbyCities.astro
+ * Nearby cities navigation section extracted from city page
+ *
+ * Props:
+ * - currentCity: string - Current city name for the header
+ * - stateSlug: string - State slug for the "view all" link
+ * - nearbyCities: Array of nearby city objects with city, slug, state_slug, state_abbr
+ */
+
+import { MapPin } from 'lucide-react';
+
+interface NearbyCity {
+  city: string;
+  slug: string;
+  state_slug: string;
+  state_abbr: string;
+}
+
+interface Props {
+  currentCity: string;
+  stateSlug: string;
+  nearbyCities: NearbyCity[];
+}
+
+const { currentCity, stateSlug, nearbyCities } = Astro.props;
+
+// Only render if there are nearby cities
+const hasNearbyCities = nearbyCities && nearbyCities.length > 0;
+---
+
+{hasNearbyCities && (
+  <section class="section-padding">
+    <div class="container-wide">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6 text-center">
+        Also Serving Nearby Areas
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {nearbyCities.map((nearbyCity) => (
+          <a
+            href={`/${nearbyCity.state_slug}/${nearbyCity.slug}`}
+            class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
+          >
+            <div class="flex items-center">
+              <MapPin className="w-4 h-4 text-primary-500 mr-2" />
+              <span class="font-medium text-slate-900">{nearbyCity.city}</span>
+            </div>
+            <span class="text-sm text-slate-500">{nearbyCity.state_abbr}</span>
+          </a>
+        ))}
+      </div>
+      <div class="text-center mt-6">
+        <a
+          href={`/${stateSlug}`}
+          class="text-primary-600 hover:text-primary-700 font-medium"
+        >
+          View all locations in this state &rarr;
+        </a>
+      </div>
+    </div>
+  </section>
+)}

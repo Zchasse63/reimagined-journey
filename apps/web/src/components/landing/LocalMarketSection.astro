@@ -1,0 +1,151 @@
+---
+/**
+ * LocalMarketSection.astro
+ * Local market information section extracted from city page
+ * Displays service area info and institutional anchors
+ *
+ * Props:
+ * - city: CityDataWithSlug - The full city data object
+ * - tierConfig: TierConfig - The tier configuration
+ */
+
+import type { CityDataWithSlug, TierConfig } from '@value-source/data';
+import {
+  Route,
+  MapPin,
+  Calendar,
+  Leaf,
+  Landmark,
+  GraduationCap,
+  HeartPulse,
+  Building2,
+} from 'lucide-react';
+
+interface Props {
+  city: CityDataWithSlug;
+  tierConfig: TierConfig;
+}
+
+const { city, tierConfig } = Astro.props;
+
+// Check for institutional anchors
+const hasInstitutionalAnchors =
+  city.military_bases || city.universities || city.hospital_systems || city.tourism_attractions;
+---
+
+<section class="section-padding bg-slate-50">
+  <div class="container-wide">
+    <div class="grid lg:grid-cols-2 gap-12">
+      <!-- Service Area Info -->
+      <div>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6">
+          Serving {city.city} & Surrounding Areas
+        </h2>
+
+        <div class="space-y-4 mb-8">
+          {city.tier !== 'Hub' && city.distance_from_atlanta && (
+            <div class="flex items-start">
+              <Route className="w-5 h-5 text-primary-600 mr-3 mt-1" />
+              <div>
+                <div class="font-medium text-slate-900">Distance from Atlanta Hub</div>
+                <div class="text-slate-600">{city.distance_from_atlanta}</div>
+              </div>
+            </div>
+          )}
+
+          {city.interstate_corridors && (
+            <div class="flex items-start">
+              <MapPin className="w-5 h-5 text-primary-600 mr-3 mt-1" />
+              <div>
+                <div class="font-medium text-slate-900">Major Corridors</div>
+                <div class="text-slate-600">{city.interstate_corridors}</div>
+              </div>
+            </div>
+          )}
+
+          <div class="flex items-start">
+            <Calendar className="w-5 h-5 text-primary-600 mr-3 mt-1" />
+            <div>
+              <div class="font-medium text-slate-900">Delivery Schedule</div>
+              <div class="text-slate-600">{city.delivery_frequency}. {city.lead_time}.</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Compliance Note for High Eco States */}
+        {city.eco_emphasis === 'High' && (
+          <div class="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <div class="flex items-start">
+              <Leaf className="w-5 h-5 text-primary-600 mr-3 mt-0.5" />
+              <div>
+                <div class="font-medium text-slate-900">{city.state} Packaging Compliance</div>
+                <p class="text-sm text-slate-600 mt-1">
+                  {city.state} has active packaging regulations. We stock compliant alternatives
+                  that meet current and upcoming requirements. Ask about our eco-friendly options.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Institutional Anchors -->
+      {hasInstitutionalAnchors && (
+        <div>
+          <h3 class="text-xl font-semibold text-slate-900 mb-6">
+            Serving {city.city}'s Major Institutions
+          </h3>
+          <div class="space-y-4">
+            {city.military_bases && (
+              <div class="flex items-start">
+                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
+                  <Landmark className="w-5 h-5 text-slate-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-slate-900">Military & Government</div>
+                  <div class="text-slate-600">{city.military_bases}</div>
+                </div>
+              </div>
+            )}
+
+            {city.universities && (
+              <div class="flex items-start">
+                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
+                  <GraduationCap className="w-5 h-5 text-slate-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-slate-900">Higher Education</div>
+                  <div class="text-slate-600">{city.universities}</div>
+                </div>
+              </div>
+            )}
+
+            {city.hospital_systems && (
+              <div class="flex items-start">
+                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
+                  <HeartPulse className="w-5 h-5 text-slate-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-slate-900">Healthcare</div>
+                  <div class="text-slate-600">{city.hospital_systems}</div>
+                </div>
+              </div>
+            )}
+
+            {city.tourism_attractions && (
+              <div class="flex items-start">
+                <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center mr-4">
+                  <Building2 className="w-5 h-5 text-slate-600" />
+                </div>
+                <div>
+                  <div class="font-medium text-slate-900">Tourism & Hospitality</div>
+                  <div class="text-slate-600">{city.tourism_attractions}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</section>

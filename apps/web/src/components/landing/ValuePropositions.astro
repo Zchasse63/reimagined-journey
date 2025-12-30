@@ -1,0 +1,88 @@
+---
+/**
+ * ValuePropositions.astro
+ * Value propositions section extracted from city page
+ *
+ * Props:
+ * - city: string - City name for contextual messaging
+ * - tier: string - Tier for determining delivery icon
+ * - tierConfig: object with valueProps containing pricing, reliability, flexibility strings
+ */
+
+import { Card, CardContent } from '@/components/ui';
+import { DollarSign, Clock, Users, Palette } from 'lucide-react';
+
+interface Props {
+  city: string;
+  tier: string;
+  tierConfig: {
+    valueProps: {
+      pricing: string;
+      reliability: string;
+      flexibility: string;
+    };
+  };
+}
+
+const { city, tierConfig } = Astro.props;
+
+// Value props based on tier config
+const valueProps = [
+  {
+    icon: DollarSign,
+    title: 'Competitive Pricing',
+    description: tierConfig.valueProps.pricing,
+  },
+  {
+    icon: Clock,
+    title: 'Reliable Service',
+    description: tierConfig.valueProps.reliability,
+  },
+  {
+    icon: Users,
+    title: 'Flexible Minimums',
+    description: tierConfig.valueProps.flexibility,
+  },
+  {
+    icon: Palette,
+    title: 'Custom Print Program',
+    description:
+      'Brand your business with custom-printed cups, napkins, to-go containers, and packaging. We handle artwork, production, and delivery—one source for stock and custom disposables.',
+  },
+];
+---
+
+<section class="section-padding bg-slate-50">
+  <div class="container-wide">
+    <div class="text-center mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+        Why Choose Value Source in {city}?
+      </h2>
+      <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+        We serve the businesses that big distributors overlook—with better service
+        and pricing that makes sense for your operation.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-6">
+      {valueProps.map((prop) => {
+        const Icon = prop.icon;
+        return (
+          <Card className="bg-white hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div class="flex items-start">
+                <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
+                  <Icon className="w-6 h-6 text-primary-600" />
+                </div>
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900 mb-2">{prop.title}</h3>
+                  <p class="text-slate-600">{prop.description}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  </div>
+</section>

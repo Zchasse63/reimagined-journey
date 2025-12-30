@@ -1,0 +1,115 @@
+---
+/**
+ * HeroWithMarketSnapshot.astro
+ * Split hero with city info on left, market snapshot on right
+ *
+ * Props:
+ * - city: string - City name
+ * - state: string - Full state name
+ * - stateAbbr: string - State abbreviation
+ * - subheadline: string - Subheadline text
+ * - trustBadges: { yearsInBusiness: number, customersServed: number, onTimeRate: string }
+ * - marketData: MarketData - Market data from API/fallback
+ */
+import type { MarketData, CommodityItem } from '@/types/market-data';
+import MarketSnapshot from './MarketSnapshot.astro';
+import { CheckCircle, ArrowRight, ChevronDown } from 'lucide-react';
+
+interface Props {
+  city: string;
+  state: string;
+  stateAbbr: string;
+  subheadline: string;
+  trustBadges: {
+    yearsInBusiness: number;
+    customersServed: number;
+    onTimeRate: string;
+  };
+  marketData: MarketData;
+}
+
+const { city, state, stateAbbr, subheadline, trustBadges, marketData } = Astro.props;
+
+// Extract the first chicken item and first cooking oil item for the snapshot
+const chicken: CommodityItem = marketData.poultry.items[0] || {
+  name: 'Whole Chicken',
+  price: 1.12,
+  unit: 'lb',
+  change: 0,
+};
+
+const cookingOil: CommodityItem = marketData.cookingOil.items[0] || {
+  name: 'Soybean Oil',
+  price: 0.52,
+  unit: 'lb',
+  change: 0,
+};
+
+// Prepare data for MarketSnapshot
+const snapshotData = {
+  chicken,
+  cookingOil,
+  diesel: marketData.diesel,
+  updatedAt: marketData.updatedAt,
+};
+---
+
+<section class="relative bg-gradient-to-br from-slate-900 to-slate-800 text-white overflow-hidden">
+  <!-- Background pattern overlay -->
+  <div class="absolute inset-0 bg-[url('/images/pattern.svg')] opacity-5"></div>
+
+  <div class="container-wide relative py-16 md:py-20 lg:py-24">
+    <div class="grid lg:grid-cols-5 gap-8 lg:gap-12 items-center">
+      <!-- Left side: City info and CTAs (60% = 3/5) -->
+      <div class="lg:col-span-3">
+        <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-4 text-balance">
+          Food Service Distribution in {city},
+          <span class="text-primary-400"> {state}</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-slate-300 mb-8 max-w-2xl">
+          {subheadline}
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8">
+          <a href="#quote" class="btn-primary px-6 py-3 text-base inline-flex items-center justify-center">
+            Get Custom Pricing
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </a>
+          <a
+            href="#market-data"
+            class="btn-secondary px-6 py-3 text-base border-white text-white hover:bg-white/10 inline-flex items-center justify-center"
+          >
+            See Full Market Data
+            <ChevronDown className="w-5 h-5 ml-2" />
+          </a>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="flex flex-wrap gap-6 text-sm">
+          <div class="flex items-center">
+            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
+            <span>{trustBadges.yearsInBusiness}+ Years in Business</span>
+          </div>
+          <div class="flex items-center">
+            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
+            <span>{trustBadges.customersServed}+ Customers Served</span>
+          </div>
+          <div class="flex items-center">
+            <CheckCircle className="w-5 h-5 text-primary-400 mr-2" />
+            <span>{trustBadges.onTimeRate} On-Time Delivery</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Market Snapshot (40% = 2/5) -->
+      <div class="lg:col-span-2">
+        <MarketSnapshot data={snapshotData} />
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative gradient fade at bottom -->
+  <div class="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+</section>
