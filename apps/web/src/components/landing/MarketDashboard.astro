@@ -1,7 +1,7 @@
 ---
 /**
  * MarketDashboard.astro
- * Full market intelligence section with commodity cards, freight info, and email capture
+ * Full market intelligence section with commodity cards, freight info, tariffs, and email capture
  *
  * Props:
  * - city: string - Target city name
@@ -21,9 +21,9 @@ interface Props {
 
 const { city, marketData, distanceFromAtlanta } = Astro.props;
 
-// Trucking cost calculation
-const COST_PER_MILE = 2.50;
-const truckingEstimate = distanceFromAtlanta * COST_PER_MILE;
+// Trucking cost calculation using live data
+const truckingRatePerMile = marketData.trucking?.ratePerMile || 2.26;
+const truckingEstimate = distanceFromAtlanta * truckingRatePerMile;
 const formattedTruckingEstimate = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -31,27 +31,11 @@ const formattedTruckingEstimate = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0,
 }).format(truckingEstimate);
 
-// Ocean freight mock data (realistic rates for container shipping)
-const oceanFreightRoutes = [
-  {
-    route: 'China \u2192 Savannah',
-    rate: 2850,
-    change: -4.2,
-    unit: '40ft',
-  },
-  {
-    route: 'Vietnam \u2192 Savannah',
-    rate: 3120,
-    change: 1.8,
-    unit: '40ft',
-  },
-];
-
 // Format the last updated time
 const formattedTime = formatLastUpdated(marketData.updatedAt);
 
-// Helper to get trend display for ocean freight
-const getFreightTrendDisplay = (change: number) => {
+// Helper to get trend display for prices
+const getTrendDisplay = (change: number) => {
   if (change < -0.5) {
     return {
       arrow: '\u2193',
@@ -73,8 +57,10 @@ const getFreightTrendDisplay = (change: number) => {
   };
 };
 
-// Check if sugar data is available (placeholder for future expansion)
-const hasSugarData = false; // Set to true when sugar data is added to MarketData
+// Check if new data sections are available
+const hasSugarData = marketData.sugar?.items?.length > 0;
+const hasOceanFreightData = marketData.oceanFreight?.routes?.length > 0;
+const hasTariffData = marketData.tariffs?.examples?.length > 0;
 ---
 
 <section class="bg-white py-16">
@@ -85,13 +71,13 @@ const hasSugarData = false; // Set to true when sugar data is added to MarketDat
         Today's Market Intelligence for {city} Food Service
       </h2>
       <p class="text-lg text-slate-600 max-w-3xl mx-auto">
-        Real-time commodity prices and logistics costs that impact your bottom line.
-        Updated daily from USDA, EIA, and industry sources.
+        Real-time commodity prices, freight rates, and import costs that impact your bottom line.
+        Updated daily from USDA, EIA, Freightos, and USITC sources.
       </p>
     </div>
 
-    <!-- Cards Grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+    <!-- Commodity Cards Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <!-- Poultry Card -->
       <CommodityCard
         title="Poultry"
@@ -116,101 +102,214 @@ const hasSugarData = false; // Set to true when sugar data is added to MarketDat
         source={marketData.cookingOil.source}
       />
 
-      <!-- Sugar Card (conditionally rendered) -->
+      <!-- Sugar Card -->
       {hasSugarData && (
         <CommodityCard
-          title="Sugar"
+          title="Sugar & Sweeteners"
           icon={'\u{1F36C}'}
-          items={[
-            { name: 'Granulated', price: 0.45, unit: 'lb', change: -0.8 },
-            { name: 'Brown', price: 0.52, unit: 'lb', change: 0.3 },
-          ]}
-          source="USDA ERS"
+          items={marketData.sugar.items}
+          source={marketData.sugar.source}
         />
       )}
+    </div>
 
-      <!-- Ocean Freight Card (custom) -->
-      <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-2xl" aria-hidden="true">{'\u{1F6A2}'}</span>
-          <h3 class="text-lg font-semibold text-slate-900">Ocean Freight</h3>
-        </div>
+    <!-- Freight & Logistics Section -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+        <span class="text-2xl">📦</span> Freight & Logistics
+      </h3>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Ocean Freight Card -->
+        {hasOceanFreightData && (
+          <div class="bg-gradient-to-br from-blue-50 to-slate-50 rounded-xl p-6 border border-blue-200">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-2xl" aria-hidden="true">{'\u{1F6A2}'}</span>
+              <h4 class="text-lg font-semibold text-slate-900">Ocean Freight</h4>
+            </div>
 
-        <div class="space-y-3">
-          {oceanFreightRoutes.map((route) => {
-            const trend = getFreightTrendDisplay(route.change);
-            return (
-              <div class="flex items-center justify-between py-2 border-b border-slate-200 last:border-b-0">
-                <div class="text-slate-700 font-medium text-sm">{route.route}</div>
-                <div class="flex items-center gap-2">
-                  <span class="text-slate-900 font-semibold tabular-nums">
-                    ${route.rate.toLocaleString()}
-                    <span class="text-slate-500 text-xs font-normal">/{route.unit}</span>
-                  </span>
-                  <span
-                    class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-sm font-medium ${trend.bgClass} ${trend.colorClass}`}
-                    title={`${route.change >= 0 ? '+' : ''}${route.change.toFixed(1)}% vs last week`}
-                  >
-                    {trend.arrow} {Math.abs(route.change).toFixed(1)}%
-                  </span>
-                </div>
+            <div class="space-y-3">
+              {marketData.oceanFreight.routes.slice(0, 4).map((route) => {
+                const trend = getTrendDisplay(route.change);
+                return (
+                  <div class="flex items-center justify-between py-2 border-b border-slate-200 last:border-b-0">
+                    <div>
+                      <div class="text-slate-700 font-medium text-sm">
+                        {route.origin.split(',')[0]} → {route.destination.split(',')[0]}
+                      </div>
+                      {route.transitDays && (
+                        <div class="text-xs text-slate-500">{route.transitDays} days</div>
+                      )}
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="text-slate-900 font-semibold tabular-nums text-sm">
+                        ${route.price.toLocaleString()}
+                      </span>
+                      <span
+                        class={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${trend.bgClass} ${trend.colorClass}`}
+                        title={`${route.change >= 0 ? '+' : ''}${route.change.toFixed(1)}% vs last week`}
+                      >
+                        {trend.arrow}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-200">
+              <p class="text-xs text-slate-500">
+                Source: {marketData.oceanFreight.source}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <!-- Trucking Card -->
+        <div class="bg-gradient-to-br from-amber-50 to-slate-50 rounded-xl p-6 border border-amber-200">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl" aria-hidden="true">{'\u{1F69A}'}</span>
+            <h4 class="text-lg font-semibold text-slate-900">Ground Freight</h4>
+          </div>
+
+          <div class="space-y-4">
+            <div class="bg-white rounded-lg p-4 border border-slate-200">
+              <div class="text-sm text-slate-600 mb-1">Atlanta → {city}</div>
+              <div class="text-2xl font-bold text-slate-900">
+                ~{formattedTruckingEstimate}
               </div>
-            );
-          })}
-        </div>
-
-        <div class="mt-4 pt-3 border-t border-slate-200">
-          <p class="text-xs text-slate-500">
-            Source: Freightos Baltic Index
-          </p>
-        </div>
-      </div>
-
-      <!-- Trucking Card (custom) -->
-      <div class="bg-slate-50 rounded-xl p-6 border border-slate-200">
-        <div class="flex items-center gap-2 mb-4">
-          <span class="text-2xl" aria-hidden="true">{'\u{1F69A}'}</span>
-          <h3 class="text-lg font-semibold text-slate-900">Trucking Estimate</h3>
-        </div>
-
-        <div class="space-y-4">
-          <div class="bg-white rounded-lg p-4 border border-slate-200">
-            <div class="text-sm text-slate-600 mb-1">Atlanta {'\u2192'} {city}</div>
-            <div class="text-2xl font-bold text-slate-900">
-              ~{formattedTruckingEstimate}
+              <div class="text-sm text-slate-500 mt-1">
+                {distanceFromAtlanta.toLocaleString()} miles
+              </div>
             </div>
-            <div class="text-sm text-slate-500 mt-1">
-              {distanceFromAtlanta.toLocaleString()} miles
+
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-slate-600 block">Rate/mile</span>
+                <span class="font-semibold text-slate-900">${truckingRatePerMile.toFixed(2)}</span>
+              </div>
+              <div>
+                <span class="text-slate-600 block">Fuel surcharge</span>
+                <span class="font-semibold text-slate-900">
+                  {marketData.trucking?.fuelSurchargePercent?.toFixed(1) || '43.2'}%
+                </span>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-slate-600">Rate per mile</span>
-            <span class="font-medium text-slate-900">${COST_PER_MILE.toFixed(2)}</span>
-          </div>
-
-          <div class="flex items-center justify-between text-sm">
-            <span class="text-slate-600">Current diesel</span>
-            <span class="font-medium text-slate-900">
-              ${marketData.diesel.price.toFixed(2)}/gal
-            </span>
+          <div class="mt-4 pt-3 border-t border-slate-200">
+            <p class="text-xs text-slate-500">
+              Source: {marketData.trucking?.source || 'ATRI / DAT Freight Analytics'}
+            </p>
           </div>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-200">
-          <p class="text-xs text-slate-500">
-            Estimate based on DAT Freight & Analytics
-          </p>
+        <!-- Diesel Card -->
+        <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl" aria-hidden="true">⛽</span>
+            <h4 class="text-lg font-semibold text-slate-900">Diesel Fuel</h4>
+          </div>
+
+          <div class="space-y-4">
+            <div class="text-center py-4">
+              <div class="text-4xl font-bold text-slate-900">
+                ${marketData.diesel.price.toFixed(2)}
+                <span class="text-lg font-normal text-slate-500">/gal</span>
+              </div>
+              {(() => {
+                const dieselChange = ((marketData.diesel.price - marketData.diesel.previousWeek) / marketData.diesel.previousWeek * 100);
+                const trend = getTrendDisplay(dieselChange);
+                return (
+                  <div class={`mt-2 inline-flex items-center gap-1 px-2 py-1 rounded ${trend.bgClass} ${trend.colorClass}`}>
+                    {trend.arrow} {Math.abs(dieselChange).toFixed(1)}% vs last week
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div class="text-sm text-center text-slate-600">
+              {marketData.diesel.region}
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-200">
+            <p class="text-xs text-slate-500">
+              Source: EIA Weekly Petroleum Status Report
+            </p>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Import Tariffs Section -->
+    {hasTariffData && (
+      <div class="mb-8">
+        <h3 class="text-xl font-semibold text-slate-800 mb-4 flex items-center gap-2">
+          <span class="text-2xl">🏛️</span> Import Tariffs (Food Service Products)
+        </h3>
+        <div class="bg-gradient-to-br from-purple-50 to-slate-50 rounded-xl border border-purple-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead class="bg-purple-100/50">
+                <tr>
+                  <th class="px-4 py-3 text-left font-semibold text-slate-700">Product</th>
+                  <th class="px-4 py-3 text-left font-semibold text-slate-700 hidden md:table-cell">HTS Code</th>
+                  <th class="px-4 py-3 text-left font-semibold text-slate-700">Origin</th>
+                  <th class="px-4 py-3 text-right font-semibold text-slate-700 hidden lg:table-cell">General</th>
+                  <th class="px-4 py-3 text-right font-semibold text-slate-700 hidden lg:table-cell">Sec. 301</th>
+                  <th class="px-4 py-3 text-right font-semibold text-slate-700">AD/CVD</th>
+                  <th class="px-4 py-3 text-right font-semibold text-slate-700 bg-purple-100">Total</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                {marketData.tariffs.examples.map((tariff, index) => (
+                  <tr class={index % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+                    <td class="px-4 py-3 font-medium text-slate-900">
+                      <div>{tariff.product}</div>
+                      {tariff.notes && (
+                        <div class="text-xs text-slate-500 mt-0.5">{tariff.notes}</div>
+                      )}
+                    </td>
+                    <td class="px-4 py-3 text-slate-600 font-mono text-xs hidden md:table-cell">{tariff.htsCode}</td>
+                    <td class="px-4 py-3 text-slate-600">{tariff.countryOfOrigin}</td>
+                    <td class="px-4 py-3 text-right text-slate-600 hidden lg:table-cell">{tariff.generalRate}</td>
+                    <td class="px-4 py-3 text-right text-slate-600 hidden lg:table-cell">
+                      {tariff.section301Rate === 'N/A' ? (
+                        <span class="text-slate-400">—</span>
+                      ) : (
+                        <span class="text-red-600">{tariff.section301Rate}</span>
+                      )}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                      {tariff.adCvdRate === 'N/A' ? (
+                        <span class="text-slate-400">—</span>
+                      ) : (
+                        <span class="text-orange-600 font-medium">{tariff.adCvdRate}</span>
+                      )}
+                    </td>
+                    <td class={`px-4 py-3 text-right font-bold ${tariff.totalRate === 'Free' ? 'text-green-600' : parseFloat(tariff.totalRate) > 100 ? 'text-red-700' : 'text-slate-900'}`}>
+                      {tariff.totalRate}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div class="px-4 py-3 bg-slate-50 border-t border-slate-200">
+            <p class="text-xs text-slate-500">
+              Source: {marketData.tariffs.source} | Effective: {marketData.tariffs.effectiveDate}
+            </p>
+          </div>
+        </div>
+      </div>
+    )}
 
     <!-- Footer with sources and email capture -->
     <div class="space-y-6">
       <!-- Sources and timestamp -->
       <div class="text-center">
         <p class="text-sm text-slate-500">
-          Last updated: {formattedTime} | Data sources: USDA LMPR, USDA ERS, EIA, Freightos Baltic Index, DAT
+          Last updated: {formattedTime} | Data sources: USDA LMPR, USDA ERS, EIA, Freightos Baltic Index, ATRI, USITC
         </p>
       </div>
 

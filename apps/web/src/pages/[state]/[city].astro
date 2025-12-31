@@ -162,25 +162,21 @@ const phoneNumber = '(800) 555-1234';
   </div>
 
   <!-- 5. CostCalculator (React component) -->
-  <div id="calculator">
-    <CostCalculator
-      client:visible
-      city={city.city}
-      state={city.state}
-      distanceFromAtlanta={distanceFromAtlanta}
-      dieselPrice={marketData.diesel?.price || 3.5}
-    />
-  </div>
+  <CostCalculator
+    client:visible
+    city={city.city}
+    state={city.state}
+    distanceFromAtlanta={distanceFromAtlanta}
+    dieselPrice={marketData.diesel?.price || 3.5}
+  />
 
   <!-- 6. MultiStepLeadForm (React component, moved up!) -->
-  <div id="lead-form">
-    <MultiStepLeadForm
-      client:visible
-      city={city.city}
-      state={city.state}
-      minimumOrder={city.minimum_order}
-    />
-  </div>
+  <MultiStepLeadForm
+    client:visible
+    city={city.city}
+    state={city.state}
+    minimumOrder={city.minimum_order}
+  />
 
   <!-- 7. ValuePropositions -->
   <ValuePropositions city={city.city} tier={city.tier} tierConfig={tierConfig} />

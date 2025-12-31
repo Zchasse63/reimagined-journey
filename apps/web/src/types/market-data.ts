@@ -1,6 +1,6 @@
 /**
  * Market Data Types
- * Types for commodity prices, fuel costs, and market data aggregation
+ * Types for commodity prices, fuel costs, freight, tariffs, and market data aggregation
  */
 
 /**
@@ -10,8 +10,74 @@ export interface MarketData {
   poultry: CommodityData;
   beef: CommodityData;
   cookingOil: CommodityData;
+  sugar: SugarData;
   diesel: DieselData;
+  oceanFreight: OceanFreightData;
+  trucking: TruckingData;
+  tariffs: TariffData;
   updatedAt: string;
+}
+
+/**
+ * Sugar market data
+ */
+export interface SugarData {
+  items: CommodityItem[];
+  source: string;
+}
+
+/**
+ * Ocean freight route data
+ */
+export interface FreightRoute {
+  origin: string;
+  destination: string;
+  price: number;
+  unit: string;
+  change: number;
+  transitDays?: number;
+}
+
+/**
+ * Ocean freight data from Freightos Baltic Index
+ */
+export interface OceanFreightData {
+  routes: FreightRoute[];
+  source: string;
+  lastUpdated: string;
+}
+
+/**
+ * Trucking/ground freight data
+ */
+export interface TruckingData {
+  ratePerMile: number;
+  nationalAverage: number;
+  fuelSurchargePercent: number;
+  source: string;
+}
+
+/**
+ * Tariff example for common food service imports
+ */
+export interface TariffExample {
+  product: string;
+  htsCode: string;
+  generalRate: string;
+  section301Rate?: string;
+  adCvdRate?: string;
+  totalRate: string;
+  countryOfOrigin: string;
+  notes?: string;
+}
+
+/**
+ * Tariff data from USITC
+ */
+export interface TariffData {
+  examples: TariffExample[];
+  source: string;
+  effectiveDate: string;
 }
 
 /**

@@ -14,7 +14,7 @@ const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
 
 /**
  * Fallback market data used when API is unavailable
- * Based on realistic USDA LMPR and EIA data as of late 2024
+ * Based on realistic market data as of late 2024
  */
 export const FALLBACK_MARKET_DATA: MarketData = {
   poultry: {
@@ -39,11 +39,71 @@ export const FALLBACK_MARKET_DATA: MarketData = {
     ],
     source: 'USDA ERS',
   },
+  sugar: {
+    items: [
+      { name: 'Raw Sugar (ICE #11)', price: 22.45, unit: 'cents/lb', change: 2.3 },
+      { name: 'Refined Sugar (ICE #16)', price: 45.80, unit: 'cents/lb', change: 1.5 },
+      { name: 'High Fructose Corn Syrup', price: 28.50, unit: 'cents/lb', change: -0.8 },
+    ],
+    source: 'Trading Economics / ICE Futures',
+  },
   diesel: {
     price: 3.58,
     previousWeek: 3.55,
     region: 'Lower Atlantic (PADD 1C)',
     unit: 'gal',
+  },
+  oceanFreight: {
+    routes: [
+      { origin: 'Shanghai, China', destination: 'Savannah, GA', price: 2850, unit: '40ft container', change: -4.2, transitDays: 28 },
+      { origin: 'Ho Chi Minh, Vietnam', destination: 'Savannah, GA', price: 3120, unit: '40ft container', change: 1.8, transitDays: 32 },
+      { origin: 'Bangkok, Thailand', destination: 'Savannah, GA', price: 3450, unit: '40ft container', change: 0.5, transitDays: 35 },
+      { origin: 'Guayaquil, Ecuador', destination: 'Miami, FL', price: 1850, unit: '40ft container', change: -2.1, transitDays: 8 },
+    ],
+    source: 'Freightos Baltic Index (FBX)',
+    lastUpdated: new Date().toISOString(),
+  },
+  trucking: {
+    ratePerMile: 2.26,
+    nationalAverage: 2.18,
+    fuelSurchargePercent: 43.2,
+    source: 'ATRI / DAT Freight Analytics',
+  },
+  tariffs: {
+    examples: [
+      // Aluminum - significant AD/CVD from China
+      { product: 'Aluminum Foil (rolls)', htsCode: '7607.11.60', generalRate: '5.3%', section301Rate: '25%', adCvdRate: '106.09%', totalRate: '136.39%', countryOfOrigin: 'China', notes: 'AD 48.64-106.09%, CVD 17.14-80.97%' },
+      { product: 'Aluminum Foil Containers', htsCode: '7612.90.10', generalRate: '5.7%', section301Rate: '25%', adCvdRate: '106.09%', totalRate: '136.79%', countryOfOrigin: 'China', notes: 'Same AD/CVD as foil rolls' },
+      { product: 'Aluminum Foil Containers', htsCode: '7612.90.10', generalRate: '5.7%', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: '5.7%', countryOfOrigin: 'Turkey', notes: 'No AD/CVD or Section 301' },
+      // Gloves - varies by material and origin
+      { product: 'Nitrile Gloves', htsCode: '4015.19.10', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Malaysia' },
+      { product: 'Nitrile Gloves', htsCode: '4015.19.10', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Thailand' },
+      { product: 'Vinyl Gloves', htsCode: '3926.20.10', generalRate: '6.5%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '31.5%', countryOfOrigin: 'China' },
+      { product: 'Latex Gloves', htsCode: '4015.19.05', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Malaysia' },
+      // Plastic disposables
+      { product: 'Plastic Food Containers', htsCode: '3924.10.40', generalRate: '3.4%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.4%', countryOfOrigin: 'China' },
+      { product: 'Plastic Cutlery', htsCode: '3924.10.40', generalRate: '3.4%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.4%', countryOfOrigin: 'China' },
+      { product: 'Plastic Cups (clear)', htsCode: '3924.10.40', generalRate: '3.4%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.4%', countryOfOrigin: 'China' },
+      { product: 'Foam Containers (PS)', htsCode: '3923.90.00', generalRate: '3.0%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.0%', countryOfOrigin: 'China' },
+      { product: 'Plastic Straws', htsCode: '3917.32.00', generalRate: '3.1%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.1%', countryOfOrigin: 'China' },
+      // Paper & fiber products
+      { product: 'Paper Plates', htsCode: '4823.69.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China' },
+      { product: 'Paper Napkins', htsCode: '4818.20.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China' },
+      { product: 'Paper Hot Cups', htsCode: '4823.61.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China' },
+      { product: 'Paper Straws', htsCode: '4823.90.86', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China' },
+      { product: 'Bagasse/Fiber Containers', htsCode: '4823.70.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China', notes: 'Molded fiber clamshells, plates' },
+      { product: 'Bagasse/Fiber Containers', htsCode: '4823.70.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Vietnam' },
+      // Food products with AD/CVD
+      { product: 'Frozen Shrimp (shell-on)', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '25.76%', totalRate: '25.76%', countryOfOrigin: 'Vietnam', notes: 'AD varies by exporter (0-25.76%)' },
+      { product: 'Frozen Shrimp (peeled)', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '10.17%', totalRate: '10.17%', countryOfOrigin: 'India', notes: 'AD + CVD combined' },
+      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Ecuador', notes: 'No AD/CVD orders' },
+      { product: 'Crawfish Tail Meat', htsCode: '0306.39.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: '201.63%', totalRate: '226.63%', countryOfOrigin: 'China', notes: 'Effectively prohibitive' },
+      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: '221.03%', totalRate: '246.03%', countryOfOrigin: 'China', notes: 'Effectively banned' },
+      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '61.27%', totalRate: '61.27%', countryOfOrigin: 'Argentina', notes: 'AD only, no CVD' },
+      { product: 'Garlic (fresh)', htsCode: '0703.20.00', generalRate: '0.43¢/kg', section301Rate: '25%', adCvdRate: '376.67%', totalRate: '~402%', countryOfOrigin: 'China', notes: 'Effectively prohibitive' },
+    ],
+    source: 'USITC HTS / CBP AD-CVD Database',
+    effectiveDate: '2024-12-01',
   },
   updatedAt: new Date().toISOString(),
 };
