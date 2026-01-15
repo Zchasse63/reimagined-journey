@@ -179,7 +179,8 @@ test.describe('Lead Form Submission', () => {
   });
 });
 
-test.describe('Email Capture Forms', () => {
+// Email capture removed per business decision - not doing email lists currently
+test.describe.skip('Email Capture Forms', () => {
   test('market dashboard email capture works', async ({ page }) => {
     await page.goto('/georgia/atlanta');
 

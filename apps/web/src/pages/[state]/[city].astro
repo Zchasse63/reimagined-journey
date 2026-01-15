@@ -61,25 +61,21 @@ import {
 import type { MarketData } from '@/types/market-data';
 import type { Recall } from '@/types/recalls';
 
-// Static paths generation
-export function getStaticPaths() {
-  const cities = getAllCities();
-  return cities.map((city) => ({
-    params: {
-      state: city.state_slug,
-      city: city.slug,
-    },
-    props: { city },
-  }));
+// In SSR mode (prerender = false), we look up city data from params
+// getStaticPaths is not used in SSR mode
+const { state, city: citySlug } = Astro.params;
+
+// Look up city data from the data package
+const allCities = getAllCities();
+const city = allCities.find(
+  (c) => c.state_slug === state && c.slug === citySlug
+);
+
+// Return 404 if city not found
+if (!city) {
+  return Astro.redirect('/404');
 }
 
-// Props interface
-interface Props {
-  city: CityDataWithSlug;
-}
-
-// Get city data from props
-const { city } = Astro.props;
 const tierConfig = getTierConfig(city.tier);
 const nearbyCities = getNearbyCities(city, 4);
 

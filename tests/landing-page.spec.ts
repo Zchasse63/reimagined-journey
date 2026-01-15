@@ -189,7 +189,8 @@ test.describe('Market Dashboard', () => {
     await expect(beefHeading).toBeAttached();
   });
 
-  test('email capture form exists', async ({ page }) => {
+  // Email capture removed per business decision - not doing email lists currently
+  test.skip('email capture form exists', async ({ page }) => {
     await page.goto('/georgia/atlanta');
 
     const dashboard = page.locator('#market-data').first();
