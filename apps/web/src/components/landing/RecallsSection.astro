@@ -1,7 +1,7 @@
 ---
 /**
  * RecallsSection.astro
- * Full recalls section with recall cards and email capture for alerts
+ * Full recalls section with recall cards
  *
  * Props:
  * - recalls: Recall[] - Array of recalls to display
@@ -10,7 +10,6 @@
 
 import type { Recall } from '@/types/recalls';
 import RecallCard from './RecallCard.astro';
-import MicroEmailCapture from './MicroEmailCapture.astro';
 
 interface Props {
   recalls: Recall[];
@@ -58,16 +57,6 @@ const hasRecalls = recalls && recalls.length > 0;
         </div>
       </div>
     )}
-
-    <!-- Email Alert Signup -->
-    <div class="mb-8">
-      <MicroEmailCapture
-        headline="Get Instant Recall Alerts"
-        subtext="Be the first to know when recalls affect your area. We monitor FDA and USDA announcements daily."
-        buttonText="Subscribe"
-        source="recalls"
-      />
-    </div>
 
     <!-- Sources Footer -->
     <div class="text-center">

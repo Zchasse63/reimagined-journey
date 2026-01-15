@@ -11,14 +11,13 @@ const USDA_BASE_URL = 'https://mpr.datamart.ams.usda.gov/services/v1.1/reports';
 const CACHE_KEY = 'usda_protein_prices';
 const CACHE_TTL_MINUTES = 60 * 4; // 4 hours - USDA updates daily around 3 PM CT
 
-// Key USDA report slugs for protein pricing
+// USDA report slug IDs (numeric IDs, not report names)
+// API requires: /reports/{slug_id}/{section_name}
 const REPORTS = {
-  // Boxed Beef
-  LM_XB403: 'National Daily Boxed Beef Cutout and Boxed Beef Cuts',
-  // Pork Cutout
-  LM_PK602: 'National Daily Pork - Negotiated',
-  // Chicken
-  AJ_PY004: 'National Weekly Whole Broiler/Fryer Report',
+  // Boxed Beef - LM_XB403
+  BEEF_CUTOUT: { id: '2453', section: 'Current Cutout Values' },
+  // Pork Cutout - LM_PK602
+  PORK_CUTOUT: { id: '2498', section: 'Cutout and Primal Values' },
 };
 
 interface ProteinPrice {
@@ -51,9 +50,9 @@ serve(async (req) => {
 
     const results: ProteinPrice[] = [];
 
-    // Fetch Boxed Beef data
+    // Fetch Boxed Beef data using correct API structure
     try {
-      const beefUrl = `${USDA_BASE_URL}/LM_XB403`;
+      const beefUrl = `${USDA_BASE_URL}/${REPORTS.BEEF_CUTOUT.id}/${encodeURIComponent(REPORTS.BEEF_CUTOUT.section)}`;
       const beefResponse = await fetch(beefUrl);
 
       if (beefResponse.ok) {
@@ -64,28 +63,28 @@ serve(async (req) => {
         if (beefResults.length > 0) {
           const latestReport = beefResults[0];
 
-          // Choice Cutout
-          if (latestReport.choice_600_900_wt) {
+          // Choice Cutout (field: choice_600_900_current)
+          if (latestReport.choice_600_900_current) {
             results.push({
               commodity: 'Beef',
               cutType: 'Choice Cutout',
-              priceAvg: parseFloat(latestReport.choice_600_900_wt) || 0,
-              priceLow: parseFloat(latestReport.choice_600_900_low) || 0,
-              priceHigh: parseFloat(latestReport.choice_600_900_high) || 0,
+              priceAvg: parseFloat(latestReport.choice_600_900_current) || 0,
+              priceLow: 0,
+              priceHigh: 0,
               unit: 'cwt',
               reportDate: latestReport.report_date,
               changeFromPrior: null,
             });
           }
 
-          // Select Cutout
-          if (latestReport.select_600_900_wt) {
+          // Select Cutout (field: select_600_900_current)
+          if (latestReport.select_600_900_current) {
             results.push({
               commodity: 'Beef',
               cutType: 'Select Cutout',
-              priceAvg: parseFloat(latestReport.select_600_900_wt) || 0,
-              priceLow: parseFloat(latestReport.select_600_900_low) || 0,
-              priceHigh: parseFloat(latestReport.select_600_900_high) || 0,
+              priceAvg: parseFloat(latestReport.select_600_900_current) || 0,
+              priceLow: 0,
+              priceHigh: 0,
               unit: 'cwt',
               reportDate: latestReport.report_date,
               changeFromPrior: null,
@@ -97,9 +96,9 @@ serve(async (req) => {
       console.error('Error fetching beef data:', e);
     }
 
-    // Fetch Pork data
+    // Fetch Pork data using correct API structure
     try {
-      const porkUrl = `${USDA_BASE_URL}/LM_PK602`;
+      const porkUrl = `${USDA_BASE_URL}/${REPORTS.PORK_CUTOUT.id}/${encodeURIComponent(REPORTS.PORK_CUTOUT.section)}`;
       const porkResponse = await fetch(porkUrl);
 
       if (porkResponse.ok) {
@@ -109,13 +108,42 @@ serve(async (req) => {
         if (porkResults.length > 0) {
           const latestReport = porkResults[0];
 
-          if (latestReport.wtd_avg) {
+          // Pork Carcass Cutout
+          if (latestReport.pork_carcass) {
             results.push({
               commodity: 'Pork',
               cutType: 'Carcass Cutout',
-              priceAvg: parseFloat(latestReport.wtd_avg) || 0,
-              priceLow: parseFloat(latestReport.low_price) || 0,
-              priceHigh: parseFloat(latestReport.high_price) || 0,
+              priceAvg: parseFloat(latestReport.pork_carcass) || 0,
+              priceLow: 0,
+              priceHigh: 0,
+              unit: 'cwt',
+              reportDate: latestReport.report_date,
+              changeFromPrior: null,
+            });
+          }
+
+          // Pork Loin
+          if (latestReport.pork_loin) {
+            results.push({
+              commodity: 'Pork',
+              cutType: 'Loin',
+              priceAvg: parseFloat(latestReport.pork_loin) || 0,
+              priceLow: 0,
+              priceHigh: 0,
+              unit: 'cwt',
+              reportDate: latestReport.report_date,
+              changeFromPrior: null,
+            });
+          }
+
+          // Pork Belly
+          if (latestReport.pork_belly) {
+            results.push({
+              commodity: 'Pork',
+              cutType: 'Belly',
+              priceAvg: parseFloat(latestReport.pork_belly) || 0,
+              priceLow: 0,
+              priceHigh: 0,
               unit: 'cwt',
               reportDate: latestReport.report_date,
               changeFromPrior: null,

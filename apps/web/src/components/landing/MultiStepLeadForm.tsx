@@ -193,8 +193,8 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
             </p>
             <p className="text-sm text-slate-500">
               Questions? Call us at{' '}
-              <a href="tel:+1XXXXXXXXXX" className="text-orange-600 font-medium hover:underline">
-                (XXX) XXX-XXXX
+              <a href="tel:+18005551234" className="text-orange-600 font-medium hover:underline">
+                (800) 555-1234
               </a>
             </p>
           </div>

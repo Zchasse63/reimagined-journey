@@ -19,7 +19,6 @@
  *
  * Persistent Elements:
  * - StickyLeadCapture (React, client:idle)
- * - ExitIntentPopup (React, client:idle)
  */
 
 export const prerender = false; // Enable SSR for fresh data
@@ -42,9 +41,11 @@ import FooterCTA from '@/components/landing/FooterCTA.astro';
 
 // Landing Page Components (React)
 import CostCalculator from '@/components/landing/CostCalculator';
+import FreightCalculator from '@/components/landing/FreightCalculator';
+import HistoricalCharts from '@/components/landing/HistoricalCharts';
+import SeasonalInsights from '@/components/landing/SeasonalInsights';
 import MultiStepLeadForm from '@/components/landing/MultiStepLeadForm';
 import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
-import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
 
 // Data utilities
 import { fetchMarketData, FALLBACK_MARKET_DATA } from '@/lib/market-data';
@@ -161,6 +162,29 @@ const phoneNumber = '(800) 555-1234';
     />
   </div>
 
+  <!-- 4b. FreightCalculator (interactive freight estimation) -->
+  <FreightCalculator
+    client:visible
+    defaultOrigin="Atlanta, GA"
+    defaultDestination={`${city.city}, ${city.state_abbr}`}
+    defaultDistance={distanceFromAtlanta}
+    dryVanRatePerMile={marketData.trucking?.ratePerMile || 2.26}
+    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
+    dieselPrice={marketData.diesel?.price || 3.50}
+  />
+
+  <!-- 4c. HistoricalCharts (30/60/90 day trends) -->
+  <HistoricalCharts
+    client:visible
+    dryVanRate={marketData.trucking?.ratePerMile || 2.26}
+    reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}
+    dieselPrice={marketData.diesel?.price || 3.50}
+    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
+  />
+
+  <!-- 4d. SeasonalInsights -->
+  <SeasonalInsights client:visible />
+
   <!-- 5. CostCalculator (React component) -->
   <CostCalculator
     client:visible
@@ -214,7 +238,4 @@ const phoneNumber = '(800) 555-1234';
   <!-- Persistent Elements -->
   <!-- StickyLeadCapture - shows after scrolling past hero, hides near footer -->
   <StickyLeadCapture client:idle phoneNumber={phoneNumber} />
-
-  <!-- ExitIntentPopup - shows when user moves mouse towards closing tab -->
-  <ExitIntentPopup client:idle city={city.city} />
 </CityLayout>

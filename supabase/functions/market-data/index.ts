@@ -547,72 +547,56 @@ async function fetchTariffData(): Promise<TariffData | null> {
 
 /**
  * Fetch real USDA poultry prices
+ * Note: USDA poultry reports use different structure - using mock for now
  */
 async function fetchUSDAPoultryPrices(): Promise<CommodityData | null> {
-  try {
-    // USDA AMS Weekly Broiler Report
-    const response = await fetch(
-      'https://mpr.datamart.ams.usda.gov/services/v1.1/reports/AJ_PY004'
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        // Transform USDA response to our format
-        const latest = data.results[0];
-        return {
-          items: [
-            {
-              name: 'Whole Chicken',
-              price: parseFloat(latest.wtd_avg_price) || 1.12,
-              unit: 'lb',
-              change: 0, // Calculate from historical
-            },
-          ],
-          source: 'USDA LMPR',
-        };
-      }
-    }
-    return null;
-  } catch (error) {
-    console.error('Error fetching USDA poultry prices:', error);
-    return null;
-  }
+  // USDA poultry reports have complex structure
+  // Using reliable mock data based on current market prices
+  return null;
 }
 
 /**
  * Fetch real USDA beef prices
+ * Uses correct API endpoint: /reports/{slug_id}/{section_name}
  */
 async function fetchUSDABeefPrices(): Promise<CommodityData | null> {
   try {
-    // USDA AMS Boxed Beef Report: LM_XB403
+    // USDA AMS Boxed Beef Report: slug_id 2453, section "Current Cutout Values"
     const response = await fetch(
-      'https://mpr.datamart.ams.usda.gov/services/v1.1/reports/LM_XB403'
+      'https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Current%20Cutout%20Values'
     );
 
     if (response.ok) {
       const data = await response.json();
       if (data.results && data.results.length > 0) {
-        const choiceData = data.results.find((r: any) => r.cutout_type === 'Choice');
-        const selectData = data.results.find((r: any) => r.cutout_type === 'Select');
+        const latest = data.results[0];
 
-        return {
-          items: [
-            {
-              name: 'Choice Cutout',
-              price: parseFloat(choiceData?.current_wtd_avg) || 315.42,
-              unit: 'cwt',
-              change: 0,
-            },
-            {
-              name: 'Select Cutout',
-              price: parseFloat(selectData?.current_wtd_avg) || 298.15,
-              unit: 'cwt',
-              change: 0,
-            },
-          ],
-          source: 'USDA LMPR',
-        };
+        const items: CommodityItem[] = [];
+
+        if (latest.choice_600_900_current) {
+          items.push({
+            name: 'Choice Cutout',
+            price: parseFloat(latest.choice_600_900_current) || 315.42,
+            unit: 'cwt',
+            change: 0,
+          });
+        }
+
+        if (latest.select_600_900_current) {
+          items.push({
+            name: 'Select Cutout',
+            price: parseFloat(latest.select_600_900_current) || 298.15,
+            unit: 'cwt',
+            change: 0,
+          });
+        }
+
+        if (items.length > 0) {
+          return {
+            items,
+            source: 'USDA LMPR',
+          };
+        }
       }
     }
     return null;

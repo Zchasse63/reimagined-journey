@@ -6,7 +6,6 @@ import { Step1BusinessType } from './Step1BusinessType';
 import { Step2ServiceInfo } from './Step2ServiceInfo';
 import { Step3ContactDetails } from './Step3ContactDetails';
 import { ProgressIndicator } from './ProgressIndicator';
-import { supabase } from '@/lib/supabase';
 import { CheckCircle } from 'lucide-react';
 
 interface LeadFormProps {
@@ -67,18 +66,24 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
         utm_campaign: urlParams.get('utm_campaign'),
       };
 
-      const { error: insertError } = await supabase
-        .from('leads')
-        .insert([leadData]);
+      const response = await fetch('/api/submit-lead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(leadData),
+      });
 
-      if (insertError) {
-        throw insertError;
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to submit lead');
       }
 
       setIsSuccess(true);
     } catch (err) {
       console.error('Error submitting lead:', err);
-      setError('There was an error submitting your request. Please try again or call us directly.');
+      setError('There was an error submitting your request. Please try again or call us directly at (800) 555-1234.');
     } finally {
       setIsSubmitting(false);
     }
@@ -98,8 +103,8 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
         </p>
         <p className="text-sm text-slate-500">
           Need immediate assistance? Call us at{' '}
-          <a href="tel:+1XXXXXXXXXX" className="text-primary-600 font-medium hover:underline">
-            (XXX) XXX-XXXX
+          <a href="tel:+18005551234" className="text-primary-600 font-medium hover:underline">
+            (800) 555-1234
           </a>
         </p>
       </div>

@@ -16,9 +16,45 @@ import {
   Timer,
 } from 'lucide-react';
 
+// Market data components
+import MarketDashboard from '@/components/landing/MarketDashboard.astro';
+import FreightCalculator from '@/components/landing/FreightCalculator';
+import HistoricalCharts from '@/components/landing/HistoricalCharts';
+import SeasonalInsights from '@/components/landing/SeasonalInsights';
+import RecallsSection from '@/components/landing/RecallsSection.astro';
+
+// Data utilities
+import { fetchMarketData, FALLBACK_MARKET_DATA } from '@/lib/market-data';
+import { fetchRecalls, FALLBACK_RECALLS } from '@/lib/recalls';
+import type { MarketData } from '@/types/market-data';
+import type { Recall } from '@/types/recalls';
+
 const states = getAllStates();
 const totalCities = getTotalCityCount();
 const hubCity = getHubCity();
+
+// Fetch dynamic data with fallbacks
+let marketData: MarketData = FALLBACK_MARKET_DATA;
+let recalls: Recall[] = FALLBACK_RECALLS;
+
+try {
+  const marketResponse = await fetchMarketData();
+  if (marketResponse.data) {
+    marketData = marketResponse.data;
+  }
+} catch (e) {
+  console.error('Market data fetch failed:', e);
+}
+
+try {
+  // Fetch recalls for Georgia (hub state)
+  const recallsResponse = await fetchRecalls('GA');
+  if (recallsResponse.recalls) {
+    recalls = recallsResponse.recalls;
+  }
+} catch (e) {
+  console.error('Recalls fetch failed:', e);
+}
 
 const valueProps = [
   {
@@ -92,8 +128,8 @@ const productCategories = [
             Get Your Quote
             <ArrowRight className="w-5 h-5 ml-2 inline" />
           </a>
-          <a href="/locations" class="btn-secondary px-8 py-4 text-lg border-white text-white hover:bg-white/10">
-            View Service Areas
+          <a href="#market-data" class="btn-secondary px-8 py-4 text-lg border-white text-white hover:bg-white/10">
+            View Market Data
           </a>
         </div>
 
@@ -141,6 +177,39 @@ const productCategories = [
       </div>
     </div>
   </section>
+
+  <!-- Market Dashboard Section -->
+  <div id="market-data">
+    <MarketDashboard
+      city="Southeast"
+      marketData={marketData}
+      distanceFromAtlanta={0}
+    />
+  </div>
+
+  <!-- Freight Calculator Section -->
+  <FreightCalculator
+    client:visible
+    defaultOrigin="Atlanta, GA"
+    dryVanRatePerMile={marketData.trucking?.ratePerMile || 2.26}
+    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
+    dieselPrice={marketData.diesel?.price || 3.50}
+  />
+
+  <!-- Historical Charts Section -->
+  <HistoricalCharts
+    client:visible
+    dryVanRate={marketData.trucking?.ratePerMile || 2.26}
+    reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}
+    dieselPrice={marketData.diesel?.price || 3.50}
+    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
+  />
+
+  <!-- Seasonal Insights Section -->
+  <SeasonalInsights client:visible />
+
+  <!-- Recalls Section -->
+  <RecallsSection recalls={recalls} state="Georgia" />
 
   <!-- Product Categories Section -->
   <section class="section-padding">

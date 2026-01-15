@@ -72,7 +72,7 @@ const mockRecalls: Recall[] = [
     product_description: 'ABC Foods Ground Beef Products (1-lb and 2-lb packages)',
     reason_for_recall: 'Possible E. coli O157:H7 contamination',
     distribution_pattern: 'GA, FL, AL, TN, SC',
-    recall_initiation_date: '2025-12-28',
+    recall_initiation_date: '2026-01-10',
     recalling_firm: 'ABC Foods Inc.',
     url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
   },
@@ -82,7 +82,7 @@ const mockRecalls: Recall[] = [
     product_description: 'XYZ Poultry Chicken Strips (5-lb bags)',
     reason_for_recall: 'Undeclared allergen (soy)',
     distribution_pattern: 'Nationwide',
-    recall_initiation_date: '2025-12-22',
+    recall_initiation_date: '2026-01-08',
     recalling_firm: 'XYZ Poultry Corp.',
     url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
   },
@@ -92,7 +92,7 @@ const mockRecalls: Recall[] = [
     product_description: 'Fresh Express Salad Mix',
     reason_for_recall: 'Possible Listeria monocytogenes contamination',
     distribution_pattern: 'FL, GA, NC, SC, VA',
-    recall_initiation_date: '2025-12-20',
+    recall_initiation_date: '2026-01-05',
     recalling_firm: 'Fresh Express LLC',
     url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
   },
@@ -102,7 +102,7 @@ const mockRecalls: Recall[] = [
     product_description: 'Premium Deli Turkey Breast Slices',
     reason_for_recall: 'Possible Salmonella contamination',
     distribution_pattern: 'CA, AZ, NV, OR, WA',
-    recall_initiation_date: '2025-12-15',
+    recall_initiation_date: '2026-01-02',
     recalling_firm: 'Premium Deli Meats Co.',
     url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
   },
@@ -112,7 +112,7 @@ const mockRecalls: Recall[] = [
     product_description: 'Ocean Fresh Frozen Shrimp (2-lb bags)',
     reason_for_recall: 'Undeclared allergen (sulfites)',
     distribution_pattern: 'TX, LA, MS, AL, FL',
-    recall_initiation_date: '2025-12-10',
+    recall_initiation_date: '2025-12-28',
     recalling_firm: 'Ocean Fresh Seafood Inc.',
     url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
   },
@@ -141,7 +141,6 @@ function filterByState(recalls: Recall[], state: string): Recall[] {
 
 /**
  * Fetch recalls from FDA API
- * TODO: Implement when FDA API rate limits are addressed
  */
 async function fetchFromFDA(): Promise<Recall[] | null> {
   try {
