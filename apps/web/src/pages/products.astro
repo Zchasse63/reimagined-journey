@@ -1,0 +1,116 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Package, Utensils, Beef, Leaf, Printer, ChefHat } from 'lucide-react';
+
+const products = [
+  {
+    icon: 'Utensils',
+    title: 'Disposables',
+    description: 'Full line of food service disposables including containers, cups, cutlery, napkins, and bags.',
+    items: ['To-go containers', 'Cups & lids', 'Cutlery', 'Napkins & tissue', 'Bags & wraps'],
+  },
+  {
+    icon: 'Beef',
+    title: 'Proteins',
+    description: 'Quality proteins sourced from trusted suppliers with competitive pricing.',
+    items: ['Beef products', 'Poultry', 'Pork', 'Seafood', 'Plant-based alternatives'],
+  },
+  {
+    icon: 'Leaf',
+    title: 'Eco-Friendly Products',
+    description: 'Sustainable and compostable options for environmentally conscious operations.',
+    items: ['Compostable containers', 'Paper straws', 'Bamboo cutlery', 'Recycled materials', 'Biodegradable bags'],
+  },
+  {
+    icon: 'Printer',
+    title: 'Custom Print',
+    description: 'Brand your packaging with custom printed disposables and supplies.',
+    items: ['Custom cups', 'Branded bags', 'Logo napkins', 'Printed containers', 'Custom labels'],
+  },
+  {
+    icon: 'ChefHat',
+    title: 'Kitchen Supplies',
+    description: 'Essential supplies for commercial kitchens and food preparation.',
+    items: ['Gloves', 'Aprons', 'Cleaning supplies', 'Food storage', 'Kitchen tools'],
+  },
+  {
+    icon: 'Package',
+    title: 'Packaging Solutions',
+    description: 'Complete packaging solutions for delivery, takeout, and catering.',
+    items: ['Catering trays', 'Insulated bags', 'Delivery packaging', 'Portion cups', 'Tamper-evident seals'],
+  },
+];
+
+const iconMap: Record<string, any> = {
+  Utensils,
+  Beef,
+  Leaf,
+  Printer,
+  ChefHat,
+  Package,
+};
+---
+
+<Layout
+  title="Products | Value Source Food Service Distribution"
+  description="Browse our full line of food service products including disposables, proteins, eco-friendly options, custom print, and kitchen supplies."
+>
+  <!-- Hero Section -->
+  <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 md:py-24">
+    <div class="container-wide text-center">
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-6">
+        Our Products
+      </h1>
+      <p class="text-xl text-slate-300 max-w-3xl mx-auto">
+        Quality food service supplies at competitive prices. From disposables to proteins,
+        we have everything your operation needs.
+      </p>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container-wide">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product) => {
+          const IconComponent = iconMap[product.icon];
+          return (
+            <div class="bg-slate-50 rounded-2xl p-8 hover:shadow-lg transition-shadow">
+              <div class="w-14 h-14 bg-primary-100 rounded-xl flex items-center justify-center mb-6">
+                <IconComponent className="w-7 h-7 text-primary-600" />
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900 mb-3">{product.title}</h2>
+              <p class="text-slate-600 mb-6">{product.description}</p>
+              <ul class="space-y-2">
+                {product.items.map((item) => (
+                  <li class="flex items-center text-slate-700">
+                    <span class="w-1.5 h-1.5 bg-primary-500 rounded-full mr-3"></span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 bg-primary-600">
+    <div class="container-wide text-center">
+      <h2 class="text-3xl font-bold text-white mb-4">
+        Ready to Get Started?
+      </h2>
+      <p class="text-xl text-primary-100 mb-8 max-w-2xl mx-auto">
+        Contact us for custom pricing on any of our products. Lower minimums and competitive rates for all business sizes.
+      </p>
+      <a
+        href="/#lead-form"
+        class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold bg-white text-primary-600 rounded-xl hover:bg-primary-50 transition-colors"
+      >
+        Get Custom Quote
+      </a>
+    </div>
+  </section>
+</Layout>
