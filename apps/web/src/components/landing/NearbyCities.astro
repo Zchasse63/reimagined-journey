@@ -39,7 +39,7 @@ const hasNearbyCities = nearbyCities && nearbyCities.length > 0;
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         {nearbyCities.map((nearbyCity) => (
           <a
-            href={`/${nearbyCity.state_slug}/${nearbyCity.slug}`}
+            href={`/${nearbyCity.state_slug}/${nearbyCity.slug}/`}
             class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
           >
             <div class="flex items-center">
@@ -52,7 +52,7 @@ const hasNearbyCities = nearbyCities && nearbyCities.length > 0;
       </div>
       <div class="text-center mt-6">
         <a
-          href={`/${stateSlug}`}
+          href={`/${stateSlug}/`}
           class="text-primary-600 hover:text-primary-700 font-medium"
         >
           View all locations in this state &rarr;

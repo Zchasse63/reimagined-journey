@@ -81,7 +81,7 @@ const schemaData = {
         </li>
         <li class="text-slate-400">/</li>
         <li>
-          <a href="/locations" class="text-slate-500 hover:text-primary-600">Locations</a>
+          <a href="/locations/" class="text-slate-500 hover:text-primary-600">Locations</a>
         </li>
         <li class="text-slate-400">/</li>
         <li class="text-slate-900 font-medium">{stateName}</li>
@@ -159,7 +159,7 @@ const schemaData = {
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {hubCities.map((city) => (
               <a
-                href={`/${city.state_slug}/${city.slug}`}
+                href={`/${city.state_slug}/${city.slug}/`}
                 class="flex items-center justify-between p-4 bg-primary-50 rounded-lg border border-primary-200 hover:border-primary-400 hover:shadow-md transition-all"
               >
                 <div class="flex items-center">
@@ -183,7 +183,7 @@ const schemaData = {
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {tier1Cities.map((city) => (
               <a
-                href={`/${city.state_slug}/${city.slug}`}
+                href={`/${city.state_slug}/${city.slug}/`}
                 class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
               >
                 <div class="flex items-center">
@@ -206,7 +206,7 @@ const schemaData = {
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {tier2Cities.map((city) => (
               <a
-                href={`/${city.state_slug}/${city.slug}`}
+                href={`/${city.state_slug}/${city.slug}/`}
                 class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
               >
                 <div class="flex items-center">
@@ -229,7 +229,7 @@ const schemaData = {
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {carrierCities.map((city) => (
               <a
-                href={`/${city.state_slug}/${city.slug}`}
+                href={`/${city.state_slug}/${city.slug}/`}
                 class="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200 hover:border-primary-300 hover:shadow-sm transition-all"
               >
                 <div class="flex items-center">
