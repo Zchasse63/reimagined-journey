@@ -21,33 +21,6 @@ interface FreightCalculatorProps {
   dieselPrice?: number;
 }
 
-// Major city coordinates for distance estimation
-const CITY_COORDS: Record<string, { lat: number; lng: number; zip: string }> = {
-  'atlanta': { lat: 33.749, lng: -84.388, zip: '30301' },
-  'nashville': { lat: 36.162, lng: -86.781, zip: '37201' },
-  'birmingham': { lat: 33.520, lng: -86.802, zip: '35201' },
-  'charlotte': { lat: 35.227, lng: -80.843, zip: '28201' },
-  'jacksonville': { lat: 30.332, lng: -81.655, zip: '32099' },
-  'orlando': { lat: 28.538, lng: -81.379, zip: '32801' },
-  'miami': { lat: 25.761, lng: -80.191, zip: '33101' },
-  'tampa': { lat: 27.950, lng: -82.457, zip: '33601' },
-  'new orleans': { lat: 29.951, lng: -90.071, zip: '70112' },
-  'memphis': { lat: 35.149, lng: -90.048, zip: '38101' },
-  'louisville': { lat: 38.252, lng: -85.758, zip: '40201' },
-  'knoxville': { lat: 35.960, lng: -83.920, zip: '37901' },
-  'charleston': { lat: 32.776, lng: -79.931, zip: '29401' },
-  'savannah': { lat: 32.083, lng: -81.099, zip: '31401' },
-  'raleigh': { lat: 35.779, lng: -78.638, zip: '27601' },
-  'columbia': { lat: 34.000, lng: -81.034, zip: '29201' },
-  'chattanooga': { lat: 35.045, lng: -85.309, zip: '37401' },
-  'mobile': { lat: 30.694, lng: -88.042, zip: '36601' },
-  'montgomery': { lat: 32.377, lng: -86.300, zip: '36101' },
-  'jackson': { lat: 32.298, lng: -90.184, zip: '39201' },
-  'little rock': { lat: 34.746, lng: -92.289, zip: '72201' },
-  'shreveport': { lat: 32.525, lng: -93.750, zip: '71101' },
-  'baton rouge': { lat: 30.458, lng: -91.140, zip: '70801' },
-};
-
 // Comprehensive ZIP code prefix to approximate coordinates (first 3 digits)
 // Covers all major US regions for accurate distance estimates
 const ZIP_REGIONS: Record<string, { lat: number; lng: number; city: string }> = {

@@ -41,14 +41,15 @@ export const step2Schema = z.object({
 
 // Step 3: Contact Details
 export const step3Schema = z.object({
-  company_name: z.string().min(2, 'Company name is required'),
-  first_name: z.string().min(2, 'First name is required'),
-  last_name: z.string().min(2, 'Last name is required'),
-  email: z.string().email('Please enter a valid email address'),
-  phone: z.string().optional(),
-  current_distributor: z.string().optional(),
-  // Honeypot field - should always be empty
-  website: z.string().max(0, 'This field should be empty').optional(),
+  company_name: z.string().min(2, 'Company name is required').max(200, 'Company name too long'),
+  first_name: z.string().min(2, 'First name is required').max(100, 'First name too long'),
+  last_name: z.string().max(100, 'Last name too long'),
+  email: z.string().email('Please enter a valid email address').max(255, 'Email too long'),
+  phone: z.string().max(20, 'Phone number too long').optional(),
+  current_distributor: z.string().max(200, 'Distributor name too long').optional(),
+  // Honeypot field - accepts any string, actual validation happens in API endpoints
+  // We check it before schema validation to catch bots without revealing the honeypot
+  website: z.string().optional(),
 });
 
 // Combined schema for the full form

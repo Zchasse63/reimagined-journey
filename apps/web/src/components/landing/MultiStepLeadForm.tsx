@@ -23,6 +23,7 @@ interface LeadFormData {
   contactName: string;
   email: string;
   phone: string;
+  website: string;
 
   // Meta
   city: string;
@@ -71,6 +72,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
     contactName: '',
     email: '',
     phone: '',
+    website: '',
     city,
     state,
     source: 'direct',
@@ -121,8 +123,8 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
   // Validation functions
   const canProceedStep1 = formData.businessType !== null;
   const canProceedStep2 = formData.productInterests.length > 0 && formData.estimatedSpend !== null;
-  const canSubmit = formData.businessName.trim() !== '' &&
-                    formData.contactName.trim() !== '' &&
+  const canSubmit = formData.businessName.trim().length >= 2 &&
+                    formData.contactName.trim().length >= 2 &&
                     formData.email.trim() !== '' &&
                     formData.email.includes('@');
 
@@ -142,6 +144,13 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
 
   // Form submission handler
   const handleSubmit = async () => {
+    // Honeypot check
+    if (formData.website && formData.website.length > 0) {
+      // Bot detected, fake success and return
+      setIsSuccess(true);
+      return;
+    }
+
     if (!canSubmit) return;
 
     setIsSubmitting(true);
@@ -193,8 +202,8 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
             </p>
             <p className="text-sm text-slate-500">
               Questions? Call us at{' '}
-              <a href="tel:+18005551234" className="text-orange-600 font-medium hover:underline">
-                (800) 555-1234
+              <a href="tel:+14045551234" className="text-orange-600 font-medium hover:underline">
+                (404) 555-1234
               </a>
             </p>
           </div>
@@ -415,6 +424,18 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                     placeholder="(555) 123-4567"
                   />
                 </div>
+
+                {/* Honeypot field - hidden from users */}
+                <input
+                  type="text"
+                  name="website"
+                  value={formData.website}
+                  onChange={(e) => setFormData(prev => ({ ...prev, website: e.target.value }))}
+                  className="hidden"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
               </div>
 
               {/* Error message */}

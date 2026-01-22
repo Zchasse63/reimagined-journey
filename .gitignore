@@ -12,6 +12,7 @@ dist/
 .env.local
 .env.*.local
 .env.production
+.env.test
 
 # IDE
 .vscode/
@@ -34,3 +35,7 @@ supabase/.temp/
 # Misc
 *.tsbuildinfo
 .netlify/
+
+# Playwright
+playwright-report/
+test-results/

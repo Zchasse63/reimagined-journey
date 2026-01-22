@@ -12,14 +12,18 @@ interface FormData {
   businessName: string;
   email: string;
   phone: string;
+  contactName: string;
+  businessType: string;
 }
 
-export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: StickyLeadCaptureProps) {
+export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: StickyLeadCaptureProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     businessName: '',
     email: '',
     phone: '',
+    contactName: '',
+    businessType: 'other',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -40,7 +44,8 @@ export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: St
   }, []);
 
   const canSubmit =
-    formData.businessName.trim() !== '' &&
+    formData.businessName.trim().length >= 2 &&
+    formData.contactName.trim().length >= 2 &&
     formData.email.trim() !== '' &&
     formData.email.includes('@');
 
@@ -56,7 +61,12 @@ export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: St
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          businessType: formData.businessType,
+          businessName: formData.businessName,
+          contactName: formData.contactName,
+          email: formData.email,
+          phone: formData.phone,
+          productInterests: ['disposables'], // Default interest for quick capture
           source: 'sticky_sidebar',
         }),
       });
@@ -99,6 +109,22 @@ export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: St
             <h3 className="text-lg font-bold text-slate-900">Get Your Quote</h3>
 
             <div className="space-y-1">
+              <Label htmlFor="sticky-contactName" className="text-xs text-slate-600">
+                Your Name
+              </Label>
+              <Input
+                id="sticky-contactName"
+                type="text"
+                value={formData.contactName}
+                onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))}
+                placeholder="John Doe"
+                className="h-9 text-sm"
+                required
+                minLength={2}
+              />
+            </div>
+
+            <div className="space-y-1">
               <Label htmlFor="sticky-businessName" className="text-xs text-slate-600">
                 Business Name
               </Label>
@@ -110,6 +136,7 @@ export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: St
                 placeholder="Your business"
                 className="h-9 text-sm"
                 required
+                minLength={2}
               />
             </div>
 
@@ -130,7 +157,7 @@ export default function StickyLeadCapture({ phoneNumber = '(800) 555-1234' }: St
 
             <div className="space-y-1">
               <Label htmlFor="sticky-phone" className="text-xs text-slate-600">
-                Phone
+                Phone (optional)
               </Label>
               <Input
                 id="sticky-phone"

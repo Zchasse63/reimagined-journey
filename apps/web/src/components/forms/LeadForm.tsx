@@ -83,7 +83,7 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
       setIsSuccess(true);
     } catch (err) {
       console.error('Error submitting lead:', err);
-      setError('There was an error submitting your request. Please try again or call us directly at (800) 555-1234.');
+      setError('There was an error submitting your request. Please try again or call us directly at (404) 555-1234.');
     } finally {
       setIsSubmitting(false);
     }
@@ -103,8 +103,8 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
         </p>
         <p className="text-sm text-slate-500">
           Need immediate assistance? Call us at{' '}
-          <a href="tel:+18005551234" className="text-primary-600 font-medium hover:underline">
-            (800) 555-1234
+          <a href="tel:+14045551234" className="text-primary-600 font-medium hover:underline">
+            (404) 555-1234
           </a>
         </p>
       </div>

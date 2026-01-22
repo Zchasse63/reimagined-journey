@@ -12,6 +12,14 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus, Calendar } from 'lucide-react';
 
+interface HistoricalDataPoint {
+  date: string;
+  fullDate: string;
+  dryVan: number;
+  reefer: number;
+  diesel: number;
+}
+
 interface HistoricalChartsProps {
   /** Current dry van rate per mile */
   dryVanRate?: number;
@@ -80,14 +88,17 @@ const generateHistoricalData = (
 };
 
 // Calculate trend from historical data
-const calculateTrend = (data: { value: number }[], field: string) => {
+const calculateTrend = (
+  data: HistoricalDataPoint[],
+  field: 'dryVan' | 'reefer' | 'diesel'
+) => {
   if (data.length < 2) return { direction: 'stable', percent: 0 };
 
   const recent = data.slice(-7); // Last 7 days
   const earlier = data.slice(0, 7); // First 7 days
 
-  const recentAvg = recent.reduce((sum, d) => sum + (d as any)[field], 0) / recent.length;
-  const earlierAvg = earlier.reduce((sum, d) => sum + (d as any)[field], 0) / earlier.length;
+  const recentAvg = recent.reduce((sum, d) => sum + d[field], 0) / recent.length;
+  const earlierAvg = earlier.reduce((sum, d) => sum + d[field], 0) / earlier.length;
 
   const percentChange = ((recentAvg - earlierAvg) / earlierAvg) * 100;
 
@@ -142,28 +153,27 @@ export default function HistoricalCharts({
   dryVanRate = 2.26,
   reeferRate = 2.83,
   dieselPrice = 3.50,
-  fuelSurchargePercent = 43.2,
 }: HistoricalChartsProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
   const [activeChart, setActiveChart] = useState<'trucking' | 'diesel'>('trucking');
 
   const days = timeRange === '30d' ? 30 : timeRange === '60d' ? 60 : 90;
 
-  const historicalData = useMemo(
+  const historicalData: HistoricalDataPoint[] = useMemo(
     () => generateHistoricalData(dryVanRate, reeferRate, dieselPrice, days),
     [dryVanRate, reeferRate, dieselPrice, days]
   );
 
   const dryVanTrend = useMemo(
-    () => calculateTrend(historicalData as any, 'dryVan'),
+    () => calculateTrend(historicalData, 'dryVan'),
     [historicalData]
   );
   const reeferTrend = useMemo(
-    () => calculateTrend(historicalData as any, 'reefer'),
+    () => calculateTrend(historicalData, 'reefer'),
     [historicalData]
   );
   const dieselTrend = useMemo(
-    () => calculateTrend(historicalData as any, 'diesel'),
+    () => calculateTrend(historicalData, 'diesel'),
     [historicalData]
   );
 
@@ -233,6 +243,10 @@ export default function HistoricalCharts({
 
             {/* Chart */}
             <div className="p-6">
+              <div className="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-md mb-3 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>Illustrative Data – Trends based on market models, not live historical data</span>
+              </div>
               <div className="h-[300px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   {activeChart === 'trucking' ? (

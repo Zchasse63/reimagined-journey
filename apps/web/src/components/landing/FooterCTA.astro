@@ -13,7 +13,7 @@ interface Props {
   phoneNumber?: string;
 }
 
-const { phoneNumber = '(800) 555-0123' } = Astro.props;
+const { phoneNumber = '(404) 555-1234' } = Astro.props;
 
 // Format phone number for tel: link (remove non-digits)
 const phoneLink = phoneNumber.replace(/\D/g, '');

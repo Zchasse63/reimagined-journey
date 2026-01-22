@@ -1,13 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { getEnv } from './env';
 
-const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
-const supabasePublishableKey = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+const env = getEnv();
 
-if (!supabaseUrl || !supabasePublishableKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-export const supabase = createClient(supabaseUrl, supabasePublishableKey);
+export const supabase = createClient(env.PUBLIC_SUPABASE_URL, env.PUBLIC_SUPABASE_ANON_KEY);
 
 // Server-side client with secret key (for Edge Functions)
 export function createServerClient() {
@@ -15,5 +11,5 @@ export function createServerClient() {
   if (!secretKey) {
     throw new Error('Missing SUPABASE_SECRET_KEY');
   }
-  return createClient(supabaseUrl, secretKey);
+  return createClient(env.PUBLIC_SUPABASE_URL, secretKey);
 }

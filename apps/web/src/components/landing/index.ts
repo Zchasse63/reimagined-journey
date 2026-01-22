@@ -74,7 +74,7 @@ export { default as ExitIntentPopup } from './ExitIntentPopup';
 //
 // Phase 5 React component usage:
 // import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
-// <StickyLeadCapture client:load phoneNumber="(800) 555-1234" />
+// <StickyLeadCapture client:load phoneNumber="(404) 555-1234" />
 //
 // import ExitIntentPopup from '@/components/landing/ExitIntentPopup';
 // <ExitIntentPopup client:load city="Miami" />

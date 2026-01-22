@@ -11,6 +11,13 @@
 # Note: Netlify automatically handles 404s for missing pages
 # No redirect rules needed for static sites
 
+# HTTPS redirect
+[[redirects]]
+  from = "http://*"
+  to = "https://:splat"
+  status = 301
+  force = true
+
 # Headers for security and caching
 [[headers]]
   for = "/*"
@@ -19,6 +26,7 @@
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.eia.gov https://api.fda.gov; font-src 'self' data:; frame-ancestors 'none';"
 
 [[headers]]
   for = "/*.js"
@@ -40,9 +48,9 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
-# Edge functions for SSR pages (if needed)
-[functions]
-  directory = "apps/web/.netlify/functions"
+# Edge functions for SSR pages
+# Note: The @astrojs/netlify adapter v5+ generates functions in .netlify/v1/functions
+# Netlify automatically detects this location, so no explicit directory config needed
 
 # Context-specific settings
 [context.production]
