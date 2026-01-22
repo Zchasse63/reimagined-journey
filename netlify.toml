@@ -54,10 +54,10 @@
 
 # Context-specific settings
 [context.production]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
 
 [context.deploy-preview]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
 
 [context.branch-deploy]
-  command = "npm run build"
+  command = "cd ../.. && npm install && npm run build"
