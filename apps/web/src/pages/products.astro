@@ -49,12 +49,39 @@ const iconMap: Record<string, any> = {
   ChefHat,
   Package,
 };
+
+const siteUrl = 'https://valuesource.com';
+
+// ItemList schema for product categories
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Food Service Products',
+  description: 'Full line of food service supplies including disposables, proteins, eco-friendly options, and custom print products.',
+  itemListElement: products.map((product, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    item: {
+      '@type': 'Product',
+      name: product.title,
+      description: product.description,
+      category: 'Food Service Supplies',
+      brand: {
+        '@type': 'Brand',
+        name: 'Value Source',
+      },
+    },
+  })),
+};
 ---
 
 <Layout
   title="Products | Value Source Food Service Distribution"
   description="Browse our full line of food service products including disposables, proteins, eco-friendly options, custom print, and kitchen supplies."
 >
+  <!-- Product Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+
   <!-- Hero Section -->
   <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 md:py-24">
     <div class="container-wide text-center">

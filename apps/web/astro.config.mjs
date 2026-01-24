@@ -33,7 +33,7 @@ export default defineConfig({
     inlineStylesheets: 'auto',
   },
   prefetch: {
-    prefetchAll: true,
+    prefetchAll: false,
     defaultStrategy: 'viewport',
   },
 });

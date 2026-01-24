@@ -47,3 +47,9 @@ verify_jwt = false
 
 [functions.market-insights]
 verify_jwt = false
+
+[functions.recalls]
+verify_jwt = false
+
+[functions.market-data]
+verify_jwt = false

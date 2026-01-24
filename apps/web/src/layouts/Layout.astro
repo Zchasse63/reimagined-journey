@@ -22,6 +22,33 @@ const {
 const currentPath = Astro.url.pathname;
 const siteUrl = 'https://valuesource.com';
 const fullCanonical = canonical || `${siteUrl}${currentPath}`;
+
+// LocalBusiness schema (organization-wide)
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${siteUrl}/#organization`,
+  name: 'Value Source',
+  description: 'Food service distribution for restaurants, caterers, food trucks, and institutions',
+  url: siteUrl,
+  telephone: '(404) 555-1234',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Atlanta',
+    addressRegion: 'GA',
+    addressCountry: 'US',
+  },
+  areaServed: [
+    { '@type': 'State', name: 'Georgia' },
+    { '@type': 'State', name: 'Florida' },
+    { '@type': 'State', name: 'Alabama' },
+    { '@type': 'State', name: 'Tennessee' },
+    { '@type': 'State', name: 'South Carolina' },
+    { '@type': 'State', name: 'North Carolina' },
+  ],
+  priceRange: '$3,000+',
+  openingHours: 'Mo-Fr 08:00-17:00',
+};
 ---
 
 <!doctype html>
@@ -65,6 +92,9 @@ const fullCanonical = canonical || `${siteUrl}${currentPath}`;
 
     <!-- Preload critical assets -->
     <link rel="preload" as="style" href="/fonts/inter.css" />
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
   </head>
   <body class="min-h-screen flex flex-col">
     <Header currentPath={currentPath} />

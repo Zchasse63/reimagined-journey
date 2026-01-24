@@ -1,0 +1,107 @@
+---
+/**
+ * FAQ Section with FAQPage Schema
+ * Dynamic FAQs based on city/tier context
+ */
+
+interface Props {
+  city: string;
+  state: string;
+  minimumOrder: string;
+  deliveryMethod: string;
+  deliveryFrequency: string;
+  tier: string;
+}
+
+const { city, state, minimumOrder, deliveryMethod, deliveryFrequency, tier } = Astro.props;
+
+// Determine delivery time based on tier
+const deliveryTime = tier === 'Hub'
+  ? 'same-day or next-day'
+  : tier.includes('Route')
+    ? '1-3 business days on scheduled routes'
+    : '3-5 business days via freight';
+
+// Build FAQ items with city-specific context
+const faqItems = [
+  {
+    question: `What is the minimum order for ${city}, ${state}?`,
+    answer: `The minimum order for ${city} is ${minimumOrder}. This minimum applies per delivery and helps us keep freight costs manageable while offering competitive pricing on disposables, proteins, and other food service supplies.`,
+  },
+  {
+    question: `How long does delivery take to ${city}?`,
+    answer: `Delivery to ${city} typically takes ${deliveryTime}. ${deliveryFrequency}. We maintain a 98%+ on-time delivery rate across our service area.`,
+  },
+  {
+    question: 'What products does Value Source supply?',
+    answer: 'We supply a full range of food service products including disposables (napkins, plates, cutlery, to-go containers), proteins (beef, pork, poultry, seafood), custom-printed products (cups, napkins, bags with your logo), and eco-friendly alternatives. We focus on warehouse-direct pricing to help independent restaurants, caterers, and food trucks compete with larger operations.',
+  },
+  {
+    question: "What's the difference between hub, route, and freight delivery?",
+    answer: 'Hub delivery is available for businesses near our Atlanta distribution center with same-day or next-day service and lower minimums ($3,000). Route delivery serves cities on our weekly truck routes with $3,500-$4,000 minimums. Freight delivery via common carrier reaches more distant locations with $5,000 minimums and 3-5 day delivery times.',
+  },
+  {
+    question: 'Do you offer custom printing on disposables?',
+    answer: 'Yes! Our custom print program lets you brand your business with custom cups, napkins, to-go bags, and packaging. We handle artwork, setup, and production. Custom print orders typically have higher minimums but we offer competitive pricing on repeat orders.',
+  },
+  {
+    question: 'How do I get started with Value Source?',
+    answer: `Getting started is simple: fill out our quote request form with your business type, product interests, and estimated monthly spend. We'll respond within 24 hours (usually same day) with pricing tailored to your ${city} location. There's no obligation and no corporate hoops to jump through.`,
+  },
+  {
+    question: 'What makes Value Source different from broadline distributors?',
+    answer: 'Unlike major broadline distributors like Sysco or US Foods, we specialize in serving smaller independent operators. Our minimums start at $3,000 (vs. $10,000+), we offer dedicated personal service, and our warehouse-direct model means competitive pricing without corporate bureaucracy.',
+  },
+];
+
+// Build FAQPage schema
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqItems.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<section class="py-16 bg-slate-50">
+  <div class="container mx-auto px-4 max-w-4xl">
+    <div class="text-center mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+        Frequently Asked Questions
+      </h2>
+      <p class="text-lg text-slate-600">
+        Common questions about food service distribution in {city}
+      </p>
+    </div>
+
+    <div class="space-y-4">
+      {faqItems.map((item, index) => (
+        <details
+          class="group bg-white rounded-lg border border-slate-200 overflow-hidden"
+          open={index === 0}
+        >
+          <summary class="flex items-center justify-between p-5 cursor-pointer hover:bg-slate-50 transition-colors">
+            <span class="font-medium text-slate-900 pr-4">{item.question}</span>
+            <span class="flex-shrink-0 w-5 h-5 text-slate-500 group-open:rotate-180 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-600 leading-relaxed">
+            {item.answer}
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+
+  <!-- FAQ Schema -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</section>

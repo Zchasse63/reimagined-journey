@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Phone, ArrowRight } from 'lucide-react';
+import { Phone, ArrowRight, X } from 'lucide-react';
+
+const DISMISS_STORAGE_KEY = 'stickyLeadCaptureDismissed';
 
 interface StickyLeadCaptureProps {
   phoneNumber?: string;
@@ -18,6 +20,7 @@ interface FormData {
 
 export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: StickyLeadCaptureProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isDismissed, setIsDismissed] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     businessName: '',
     email: '',
@@ -28,6 +31,14 @@ export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: St
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check if previously dismissed this session
+  useEffect(() => {
+    const wasDismissed = sessionStorage.getItem(DISMISS_STORAGE_KEY) === 'true';
+    if (wasDismissed) {
+      setIsDismissed(true);
+    }
+  }, []);
 
   // Scroll detection
   useEffect(() => {
@@ -42,6 +53,11 @@ export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: St
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const handleDismiss = () => {
+    setIsDismissed(true);
+    sessionStorage.setItem(DISMISS_STORAGE_KEY, 'true');
+  };
 
   const canSubmit =
     formData.businessName.trim().length >= 2 &&
@@ -87,13 +103,23 @@ export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: St
     document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Don't render if not visible
-  if (!isVisible) return null;
+  // Don't render if not visible or dismissed
+  if (!isVisible || isDismissed) return null;
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop Sidebar - hidden on tablets (md), shown on lg+ */}
       <div className="hidden lg:block fixed right-4 top-1/2 -translate-y-1/2 w-64 bg-white rounded-xl shadow-2xl p-4 z-40">
+        {/* Close button */}
+        <button
+          type="button"
+          onClick={handleDismiss}
+          className="absolute -top-2 -right-2 w-6 h-6 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-slate-700 transition-colors shadow-sm"
+          aria-label="Close quote form"
+        >
+          <X className="w-4 h-4" />
+        </button>
+
         {isSuccess ? (
           <div className="text-center py-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
@@ -106,7 +132,7 @@ export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: St
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-            <h3 className="text-lg font-bold text-slate-900">Get Your Quote</h3>
+            <h3 className="text-lg font-bold text-slate-900">Quick Quote</h3>
 
             <div className="space-y-1">
               <Label htmlFor="sticky-contactName" className="text-xs text-slate-600">
@@ -179,7 +205,7 @@ export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: St
               className="w-full bg-orange-500 hover:bg-orange-600"
               size="sm"
             >
-              {isSubmitting ? 'Sending...' : 'Get Quote'}
+              {isSubmitting ? 'Sending...' : 'Get Started'}
               {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4" />}
             </Button>
 

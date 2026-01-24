@@ -157,10 +157,20 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
     setError(null);
 
     try {
+      // Get UTM params from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const leadData = {
+        ...formData,
+        source_page: window.location.pathname,
+        utm_source: urlParams.get('utm_source'),
+        utm_medium: urlParams.get('utm_medium'),
+        utm_campaign: urlParams.get('utm_campaign'),
+      };
+
       const response = await fetch('/api/submit-lead', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(leadData)
       });
 
       if (response.ok) {
@@ -460,7 +470,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                   disabled={!canSubmit || isSubmitting}
                   className="bg-orange-500 hover:bg-orange-600"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Get My Custom Quote'}
+                  {isSubmitting ? 'Submitting...' : 'Submit Request'}
                   {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4" />}
                 </Button>
               </div>

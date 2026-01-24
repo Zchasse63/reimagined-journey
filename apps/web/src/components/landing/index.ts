@@ -4,7 +4,6 @@
  */
 
 // React Components (Phase 3A+)
-export { default as CostCalculator } from './CostCalculator';
 export { default as MultiStepLeadForm } from './MultiStepLeadForm';
 
 // Phase 5 Components (React)
@@ -26,10 +25,7 @@ export { default as ExitIntentPopup } from './ExitIntentPopup';
 // - MicroEmailCapture: ./MicroEmailCapture.astro
 // - MarketDashboard: ./MarketDashboard.astro
 
-// Phase 3A Components (React):
-// - CostCalculator: ./CostCalculator.tsx
-
-// Phase 3B Components (React):
+// Phase 3 Components (React):
 // - MultiStepLeadForm: ./MultiStepLeadForm.tsx
 
 // Phase 4 Components (Astro):
@@ -56,9 +52,6 @@ export { default as ExitIntentPopup } from './ExitIntentPopup';
 // import MarketDashboard from '@/components/landing/MarketDashboard.astro';
 //
 // For React components in Astro:
-// import CostCalculator from '@/components/landing/CostCalculator';
-// <CostCalculator client:load city="Miami" state="FL" distanceFromAtlanta={662} dieselPrice={3.45} />
-//
 // import MultiStepLeadForm from '@/components/landing/MultiStepLeadForm';
 // <MultiStepLeadForm client:load city="Miami" state="FL" minimumOrder="$500" />
 //

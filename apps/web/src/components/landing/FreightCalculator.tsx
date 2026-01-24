@@ -793,7 +793,7 @@ export default function FreightCalculator({
                       className="w-full bg-amber-500 hover:bg-amber-600"
                       size="lg"
                     >
-                      Get Exact Quote
+                      Request Pricing
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Button>
 
