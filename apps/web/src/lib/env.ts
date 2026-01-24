@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   PUBLIC_SUPABASE_URL: z.string().url(),
-  PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
 });
 
 let cachedEnv: z.infer<typeof envSchema> | null = null;
@@ -12,7 +12,7 @@ function validateEnv() {
 
   const result = envSchema.safeParse({
     PUBLIC_SUPABASE_URL: import.meta.env.PUBLIC_SUPABASE_URL,
-    PUBLIC_SUPABASE_ANON_KEY: import.meta.env.PUBLIC_SUPABASE_ANON_KEY,
+    PUBLIC_SUPABASE_PUBLISHABLE_KEY: import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   });
 
   if (!result.success) {

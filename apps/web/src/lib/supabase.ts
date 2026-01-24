@@ -3,7 +3,7 @@ import { getEnv } from './env';
 
 const env = getEnv();
 
-export const supabase = createClient(env.PUBLIC_SUPABASE_URL, env.PUBLIC_SUPABASE_ANON_KEY);
+export const supabase = createClient(env.PUBLIC_SUPABASE_URL, env.PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 
 // Server-side client with secret key (for Edge Functions)
 export function createServerClient() {
