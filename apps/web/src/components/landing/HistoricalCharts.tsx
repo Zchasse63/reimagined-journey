@@ -342,9 +342,9 @@ export default function HistoricalCharts({
                   </div>
                 )
               ) : (
-                <div className="text-xs text-amber-600 bg-amber-50 px-3 py-1.5 rounded-md mb-3 flex items-center gap-2">
-                  <span>⚠️</span>
-                  <span>Estimated Data – Trucking rates based on ATRI averages and seasonal patterns. Historical rates not tracked.</span>
+                <div className="text-xs text-amber-700 bg-amber-100 border border-amber-300 px-3 py-2 rounded-md mb-3 flex items-center gap-2">
+                  <span className="text-base">⚠️</span>
+                  <span><strong>Illustrative Only</strong> – This chart shows estimated trends based on ATRI averages and seasonal patterns. It does not represent actual historical rates. Contact us for current market pricing.</span>
                 </div>
               )}
 

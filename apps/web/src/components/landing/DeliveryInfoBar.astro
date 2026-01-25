@@ -12,7 +12,7 @@
  * - dieselPrice: number - Current diesel price per gallon
  * - baseDieselPrice?: number - Base diesel price for surcharge calc (default: 2.50)
  */
-import { Warehouse, Truck, Package, Calendar, Clock, DollarSign, Fuel } from 'lucide-react';
+import { Warehouse, Truck, Package, Calendar, Clock, DollarSign, Fuel, Info } from 'lucide-react';
 
 interface Props {
   deliveryMethod: string;
@@ -72,10 +72,11 @@ const infoItems = [
   },
   {
     icon: Fuel,
-    label: 'Fuel',
+    label: 'Fuel Surcharge',
     value: fuelSurchargeDisplay,
     subValue: dieselPriceDisplay,
     highlight: fuelSurcharge > 10, // Highlight if surcharge is high
+    tooltip: `Fuel surcharge applied to freight costs based on DOE diesel index. Current diesel: ${dieselPriceDisplay}. Calculated from base price of $${baseDieselPrice.toFixed(2)}/gal.`,
   },
 ];
 ---
@@ -99,8 +100,13 @@ const infoItems = [
               />
             </div>
             <div>
-              <div class="text-xs text-slate-500 uppercase tracking-wide">
+              <div class="text-xs text-slate-500 uppercase tracking-wide flex items-center gap-1">
                 {item.label}
+                {item.tooltip && (
+                  <span title={item.tooltip} class="cursor-help">
+                    <Info className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+                  </span>
+                )}
               </div>
               <div class={`font-medium ${item.highlight ? 'text-amber-700' : 'text-slate-900'}`}>
                 {item.value}

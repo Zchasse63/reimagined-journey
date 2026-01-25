@@ -2,27 +2,25 @@
 /**
  * MarketSnapshot.astro
  * A card showing live market prices for the hero section
+ * Shows food commodities only (no fuel/diesel) to keep focus on food service buyers
  *
  * Props:
- * - data: { chicken: CommodityItem, cookingOil: CommodityItem, diesel: DieselData, updatedAt: string }
+ * - data: { chicken: CommodityItem, cookingOil: CommodityItem, beef: CommodityItem, updatedAt: string }
  */
-import type { CommodityItem, DieselData } from '@/types/market-data';
-import { formatLastUpdated, getPriceTrend, formatPriceOnly, calculateDieselChange } from '@/lib/market-data';
+import type { CommodityItem } from '@/types/market-data';
+import { formatLastUpdated, getPriceTrend, formatPriceOnly } from '@/lib/market-data';
 
 interface Props {
   data: {
     chicken: CommodityItem;
     cookingOil: CommodityItem;
-    diesel: DieselData;
+    beef: CommodityItem;
     updatedAt: string;
   };
 }
 
 const { data } = Astro.props;
-const { chicken, cookingOil, diesel, updatedAt } = data;
-
-// Calculate diesel change percentage
-const dieselChange = calculateDieselChange(diesel.price, diesel.previousWeek);
+const { chicken, cookingOil, beef, updatedAt } = data;
 
 // Helper to get trend arrow and color
 // Note: For buyers, price drops are GOOD (green arrow down), price increases are BAD (red arrow up)
@@ -49,7 +47,7 @@ const getTrendDisplay = (change: number) => {
   };
 };
 
-// Market data rows
+// Market data rows - food commodities only
 const marketRows = [
   {
     emoji: String.fromCodePoint(0x1F414), // Chicken emoji
@@ -60,20 +58,20 @@ const marketRows = [
     trend: getTrendDisplay(chicken.change),
   },
   {
+    emoji: String.fromCodePoint(0x1F969), // Cut of meat emoji (beef)
+    name: 'Beef',
+    price: formatPriceOnly(beef.price),
+    unit: `/${beef.unit}`,
+    change: beef.change,
+    trend: getTrendDisplay(beef.change),
+  },
+  {
     emoji: String.fromCodePoint(0x1FAD2), // Olive emoji (for oil)
     name: 'Soybean Oil',
     price: formatPriceOnly(cookingOil.price),
     unit: `/${cookingOil.unit}`,
     change: cookingOil.change,
     trend: getTrendDisplay(cookingOil.change),
-  },
-  {
-    emoji: String.fromCodePoint(0x26FD), // Fuel pump emoji
-    name: 'Diesel',
-    price: formatPriceOnly(diesel.price),
-    unit: `/${diesel.unit}`,
-    change: dieselChange,
-    trend: getTrendDisplay(dieselChange),
   },
 ];
 

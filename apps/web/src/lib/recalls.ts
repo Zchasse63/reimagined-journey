@@ -27,41 +27,11 @@ const US_STATES = [
 ];
 
 /**
- * Fallback recall data used when API is unavailable
- * This ensures the UI always has data to display
+ * Empty fallback when API is unavailable
+ * We no longer use fake mock data to avoid misleading users
+ * The UI will show "No current recalls" when this is used
  */
-export const FALLBACK_RECALLS: Recall[] = [
-  {
-    id: 'F-2024-001',
-    classification: 'Class I',
-    product_description: 'ABC Foods Ground Beef Products (1-lb and 2-lb packages)',
-    reason_for_recall: 'Possible E. coli O157:H7 contamination',
-    distribution_pattern: 'GA, FL, AL, TN, SC',
-    recall_initiation_date: '2026-01-10',
-    recalling_firm: 'ABC Foods Inc.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-002',
-    classification: 'Class II',
-    product_description: 'XYZ Poultry Chicken Strips (5-lb bags)',
-    reason_for_recall: 'Undeclared allergen (soy)',
-    distribution_pattern: 'Nationwide',
-    recall_initiation_date: '2026-01-08',
-    recalling_firm: 'XYZ Poultry Corp.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-003',
-    classification: 'Class II',
-    product_description: 'Fresh Express Salad Mix',
-    reason_for_recall: 'Possible Listeria monocytogenes contamination',
-    distribution_pattern: 'FL, GA, NC, SC, VA',
-    recall_initiation_date: '2026-01-05',
-    recalling_firm: 'Fresh Express LLC',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-];
+export const FALLBACK_RECALLS: Recall[] = [];
 
 /**
  * Fetch recalls from the Supabase Edge Function

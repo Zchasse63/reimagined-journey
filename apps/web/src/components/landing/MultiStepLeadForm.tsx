@@ -5,6 +5,10 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, ArrowRight, ArrowLeft, Lock, Phone } from 'lucide-react';
 
+// TODO: Consolidate validation logic with @/components/forms/lead-form-schema.ts
+// This component uses manual validation while LeadForm uses Zod.
+// Consider migrating to react-hook-form + Zod for consistency.
+
 // Types
 type BusinessType = 'restaurant' | 'food_truck' | 'caterer' | 'institution' | 'grocery' | 'other';
 type ProductCategory = 'disposables' | 'custom_print' | 'proteins' | 'eco_friendly';

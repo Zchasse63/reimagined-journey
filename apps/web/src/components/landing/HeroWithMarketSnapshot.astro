@@ -45,11 +45,19 @@ const cookingOil: CommodityItem = marketData.cookingOil.items[0] || {
   change: 0,
 };
 
-// Prepare data for MarketSnapshot
+// Extract the first beef item for the snapshot (replaces diesel for food-focused display)
+const beef: CommodityItem = marketData.beef.items[0] || {
+  name: 'Ground Beef',
+  price: 3.15,
+  unit: 'lb',
+  change: 0,
+};
+
+// Prepare data for MarketSnapshot - now shows food commodities only (no diesel)
 const snapshotData = {
   chicken,
   cookingOil,
-  diesel: marketData.diesel,
+  beef,
   updatedAt: marketData.updatedAt,
 };
 ---

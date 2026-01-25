@@ -86,9 +86,9 @@ const tierConfig = getTierConfig(city.tier);
 const nearbyCities = getNearbyCities(city, 4);
 
 // Parse distance from Atlanta for calculations
-const distanceFromAtlanta = parseInt(
-  city.distance_from_atlanta?.replace(/[^0-9]/g, '') || '0'
-);
+// parseInt naturally stops at the first non-numeric character,
+// so "230 miles / 3.5 hours" correctly parses as 230
+const distanceFromAtlanta = parseInt(city.distance_from_atlanta || '0', 10);
 
 // Determine delivery icon based on tier
 const deliveryIcon: 'warehouse' | 'truck' | 'freight' =

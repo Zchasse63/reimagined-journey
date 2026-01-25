@@ -60,12 +60,58 @@ const breadcrumbSchema = {
     },
   ],
 };
+
+// LocalBusiness schema for local SEO
+const localBusinessSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'LocalBusiness',
+  '@id': `${siteUrl}/#organization`,
+  name: 'Value Source',
+  description: 'Food service distribution company serving restaurants, caterers, and food trucks with disposables, proteins, custom print products, and eco-friendly packaging.',
+  url: siteUrl,
+  telephone: '+1-404-555-1234',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: '1234 Distribution Way',
+    addressLocality: 'Atlanta',
+    addressRegion: 'GA',
+    postalCode: '30301',
+    addressCountry: 'US',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 33.749,
+    longitude: -84.388,
+  },
+  areaServed: {
+    '@type': 'City',
+    name: city.city,
+    containedInPlace: {
+      '@type': 'State',
+      name: city.state,
+    },
+  },
+  priceRange: '$$',
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '08:00',
+      closes: '17:00',
+    },
+  ],
+  sameAs: [
+    'https://www.facebook.com/valuesource',
+    'https://www.linkedin.com/company/valuesource',
+  ],
+};
 ---
 
 <Layout title={title} description={description}>
   <!-- Structured Data -->
   <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(localBusinessSchema)} />
 
   <!-- Breadcrumbs -->
   <nav class="bg-slate-50 border-b border-slate-200">

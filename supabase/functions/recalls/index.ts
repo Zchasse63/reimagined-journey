@@ -62,61 +62,10 @@ const FOOD_SERVICE_KEYWORDS = [
 ];
 
 /**
- * Mock recall data for development/testing
- * Structured for easy replacement with real FDA API data
+ * Empty fallback when FDA API is unavailable
+ * We no longer use fake mock data to avoid misleading users
  */
-const mockRecalls: Recall[] = [
-  {
-    id: 'F-2024-001',
-    classification: 'Class I',
-    product_description: 'ABC Foods Ground Beef Products (1-lb and 2-lb packages)',
-    reason_for_recall: 'Possible E. coli O157:H7 contamination',
-    distribution_pattern: 'GA, FL, AL, TN, SC',
-    recall_initiation_date: '2026-01-10',
-    recalling_firm: 'ABC Foods Inc.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-002',
-    classification: 'Class II',
-    product_description: 'XYZ Poultry Chicken Strips (5-lb bags)',
-    reason_for_recall: 'Undeclared allergen (soy)',
-    distribution_pattern: 'Nationwide',
-    recall_initiation_date: '2026-01-08',
-    recalling_firm: 'XYZ Poultry Corp.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-003',
-    classification: 'Class II',
-    product_description: 'Fresh Express Salad Mix',
-    reason_for_recall: 'Possible Listeria monocytogenes contamination',
-    distribution_pattern: 'FL, GA, NC, SC, VA',
-    recall_initiation_date: '2026-01-05',
-    recalling_firm: 'Fresh Express LLC',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-004',
-    classification: 'Class I',
-    product_description: 'Premium Deli Turkey Breast Slices',
-    reason_for_recall: 'Possible Salmonella contamination',
-    distribution_pattern: 'CA, AZ, NV, OR, WA',
-    recall_initiation_date: '2026-01-02',
-    recalling_firm: 'Premium Deli Meats Co.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-  {
-    id: 'F-2024-005',
-    classification: 'Class II',
-    product_description: 'Ocean Fresh Frozen Shrimp (2-lb bags)',
-    reason_for_recall: 'Undeclared allergen (sulfites)',
-    distribution_pattern: 'TX, LA, MS, AL, FL',
-    recall_initiation_date: '2025-12-28',
-    recalling_firm: 'Ocean Fresh Seafood Inc.',
-    url: 'https://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts',
-  },
-];
+const EMPTY_RECALLS: Recall[] = [];
 
 /**
  * Check if a product is relevant to food service distribution
@@ -208,10 +157,10 @@ async function getRecalls(
   // Try to fetch from FDA API
   let recalls = await fetchFromFDA();
 
-  // Fall back to mock data if FDA API fails
+  // Return empty array if FDA API fails (no fake mock data)
   if (!recalls) {
-    console.log('Using mock recall data (FDA API unavailable or rate limited)');
-    recalls = mockRecalls;
+    console.log('FDA API unavailable - returning empty recalls list');
+    recalls = EMPTY_RECALLS;
   }
 
   // Filter by state if provided
@@ -278,8 +227,8 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in recalls function:', error);
 
-    // Return mock data even on error to ensure UI always has data
-    const fallbackResponse = buildResponse(mockRecalls, false);
+    // Return empty recalls on error (no fake mock data)
+    const fallbackResponse = buildResponse(EMPTY_RECALLS, false);
 
     return new Response(
       JSON.stringify({
