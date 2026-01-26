@@ -45,7 +45,7 @@ import FooterCTA from '@/components/landing/FooterCTA.astro';
 
 // Landing Page Components (React)
 import FreightCalculator from '@/components/landing/FreightCalculator';
-import HistoricalCharts from '@/components/landing/HistoricalCharts';
+import HistoricalChartsLazy from '@/components/landing/HistoricalChartsLazy';
 import SeasonalInsights from '@/components/landing/SeasonalInsights';
 import MultiStepLeadForm from '@/components/landing/MultiStepLeadForm';
 import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
@@ -185,8 +185,8 @@ const phoneNumber = '(404) 555-1234';
     dieselPrice={marketData.diesel?.price || 3.50}
   />
 
-  <!-- 7. HistoricalCharts (30/60/90 day trends) -->
-  <HistoricalCharts
+  <!-- 7. HistoricalCharts (30/60/90 day trends - lazy loaded) -->
+  <HistoricalChartsLazy
     client:visible
     dryVanRate={marketData.trucking?.ratePerMile || 2.26}
     reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}

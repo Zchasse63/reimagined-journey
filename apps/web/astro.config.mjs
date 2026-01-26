@@ -28,6 +28,24 @@ export default defineConfig({
         '@layouts': '/src/layouts',
       },
     },
+    build: {
+      // Recharts is expected to be large (~475KB), suppress warning
+      chunkSizeWarningLimit: 500,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            // Split recharts and d3 into separate chunks for better caching
+            // These are lazy-loaded only when HistoricalCharts becomes visible
+            if (id.includes('node_modules/recharts')) {
+              return 'recharts';
+            }
+            if (id.includes('node_modules/d3-')) {
+              return 'd3-libs';
+            }
+          },
+        },
+      },
+    },
   },
   build: {
     inlineStylesheets: 'auto',

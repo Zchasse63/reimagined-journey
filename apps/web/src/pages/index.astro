@@ -19,7 +19,7 @@ import {
 // Market data components
 import MarketDashboard from '@/components/landing/MarketDashboard.astro';
 import FreightCalculator from '@/components/landing/FreightCalculator';
-import HistoricalCharts from '@/components/landing/HistoricalCharts';
+import HistoricalChartsLazy from '@/components/landing/HistoricalChartsLazy';
 import SeasonalInsights from '@/components/landing/SeasonalInsights';
 import RecallsSection from '@/components/landing/RecallsSection.astro';
 
@@ -196,8 +196,8 @@ const productCategories = [
     dieselPrice={marketData.diesel?.price || 3.50}
   />
 
-  <!-- Historical Charts Section -->
-  <HistoricalCharts
+  <!-- Historical Charts Section (lazy loaded to reduce initial bundle) -->
+  <HistoricalChartsLazy
     client:visible
     dryVanRate={marketData.trucking?.ratePerMile || 2.26}
     reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}
