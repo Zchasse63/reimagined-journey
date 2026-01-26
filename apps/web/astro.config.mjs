@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 import netlify from '@astrojs/netlify';
 
 export default defineConfig({
-  site: 'https://valuesource.com',
+  site: 'https://valuesource.co',
   trailingSlash: 'always',
   adapter: netlify({
     edgeMiddleware: false,

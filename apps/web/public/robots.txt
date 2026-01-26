@@ -3,4 +3,4 @@ Allow: /
 
 Disallow: /api/
 
-Sitemap: https://valuesource.com/sitemap-index.xml
+Sitemap: https://valuesource.co/sitemap-index.xml
