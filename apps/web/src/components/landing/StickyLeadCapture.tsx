@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Phone, ArrowRight, X } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 const DISMISS_STORAGE_KEY = 'stickyLeadCaptureDismissed';
 
@@ -18,7 +19,7 @@ interface FormData {
   businessType: string;
 }
 
-export default function StickyLeadCapture({ phoneNumber = '(404) 555-1234' }: StickyLeadCaptureProps) {
+export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.phone }: StickyLeadCaptureProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [formData, setFormData] = useState<FormData>({

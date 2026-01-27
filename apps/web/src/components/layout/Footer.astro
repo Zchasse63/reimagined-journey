@@ -1,15 +1,10 @@
 ---
 import { Phone, Mail, MapPin } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
-  services: [
-    { href: '/services/disposables/', label: 'Disposables' },
-    { href: '/services/custom-print/', label: 'Custom Print' },
-    { href: '/services/proteins/', label: 'Proteins' },
-    { href: '/services/eco-friendly/', label: 'Eco-Friendly' },
-  ],
   locations: [
     { href: '/georgia/', label: 'Georgia' },
     { href: '/florida/', label: 'Florida' },
@@ -19,8 +14,6 @@ const footerLinks = {
   ],
   company: [
     { href: '/about/', label: 'About Us' },
-    { href: '/contact/', label: 'Contact' },
-    { href: '/careers/', label: 'Careers' },
     { href: '/privacy/', label: 'Privacy Policy' },
     { href: '/terms/', label: 'Terms of Service' },
   ],
@@ -30,7 +23,7 @@ const footerLinks = {
 <footer class="bg-slate-900 text-slate-300">
   <!-- Main Footer -->
   <div class="container-wide py-12 md:py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
       <!-- Brand Column -->
       <div class="lg:col-span-2">
         <a href="/" class="flex items-center space-x-2 mb-4">
@@ -45,44 +38,27 @@ const footerLinks = {
         </p>
         <div class="space-y-3">
           <a
-            href="tel:+14045551234"
+            href={`tel:${SITE_CONFIG.company.phoneRaw}`}
             class="flex items-center text-slate-300 hover:text-primary-400 transition-colors"
           >
             <Phone className="w-5 h-5 mr-3 text-primary-500" />
-            (404) 555-1234
+            {SITE_CONFIG.company.phone}
           </a>
           <a
-            href="mailto:info@valuesource.co"
+            href={`mailto:${SITE_CONFIG.company.email}`}
             class="flex items-center text-slate-300 hover:text-primary-400 transition-colors"
           >
             <Mail className="w-5 h-5 mr-3 text-primary-500" />
-            info@valuesource.co
+            {SITE_CONFIG.company.email}
           </a>
           <div class="flex items-start text-slate-400">
             <MapPin className="w-5 h-5 mr-3 text-primary-500 flex-shrink-0 mt-0.5" />
             <span>
-              Atlanta Distribution Center<br />
-              Atlanta, GA
+              {SITE_CONFIG.company.address.label}<br />
+              {SITE_CONFIG.company.address.city}, {SITE_CONFIG.company.address.state}
             </span>
           </div>
         </div>
-      </div>
-
-      <!-- Services Links -->
-      <div>
-        <h3 class="text-white font-semibold mb-4">Services</h3>
-        <ul class="space-y-3">
-          {footerLinks.services.map((link) => (
-            <li>
-              <a
-                href={link.href}
-                class="text-slate-400 hover:text-primary-400 transition-colors"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-        </ul>
       </div>
 
       <!-- Locations Links -->

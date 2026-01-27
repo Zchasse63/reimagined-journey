@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, ArrowRight, ArrowLeft, Lock, Phone } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 // TODO: Consolidate validation logic with @/components/forms/lead-form-schema.ts
 // This component uses manual validation while LeadForm uses Zod.
@@ -216,8 +217,8 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
             </p>
             <p className="text-sm text-slate-500">
               Questions? Call us at{' '}
-              <a href="tel:+14045551234" className="text-orange-600 font-medium hover:underline">
-                (404) 555-1234
+              <a href={`tel:${SITE_CONFIG.company.phoneRaw}`} className="text-orange-600 font-medium hover:underline">
+                {SITE_CONFIG.company.phone}
               </a>
             </p>
           </div>

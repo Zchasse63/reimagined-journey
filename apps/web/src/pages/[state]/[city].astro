@@ -53,6 +53,7 @@ import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
 // Data utilities
 import { fetchMarketData, FALLBACK_MARKET_DATA } from '@/lib/market-data';
 import { fetchRecalls, FALLBACK_RECALLS } from '@/lib/recalls';
+import { SITE_CONFIG } from '@/lib/site-config';
 import {
   getAllCities,
   getNearbyCities,
@@ -128,7 +129,7 @@ const trustBadges = {
 };
 
 // Phone number configuration
-const phoneNumber = '(404) 555-1234';
+const phoneNumber = SITE_CONFIG.company.phone;
 ---
 
 <CityLayout city={city}>
@@ -155,16 +156,7 @@ const phoneNumber = '(404) 555-1234';
     dieselPrice={marketData.diesel?.price || 3.5}
   />
 
-  <!-- 4. MarketDashboard (with anchor for navigation) -->
-  <div id="market-data">
-    <MarketDashboard
-      city={city.city}
-      marketData={marketData}
-      distanceFromAtlanta={distanceFromAtlanta}
-    />
-  </div>
-
-  <!-- 5. MultiStepLeadForm (moved higher for better conversion!) -->
+  <!-- 4. MultiStepLeadForm (moved higher for better conversion!) -->
   <div id="lead-form">
     <MultiStepLeadForm
       client:visible
@@ -174,7 +166,26 @@ const phoneNumber = '(404) 555-1234';
     />
   </div>
 
-  <!-- 6. FreightCalculator (interactive freight estimation) -->
+  <!-- 5. ValuePropositions -->
+  <ValuePropositions city={city.city} tier={city.tier} tierConfig={tierConfig} />
+
+  <!-- 6. ProductCategories -->
+  <ProductCategories
+    city={city.city}
+    state={city.state}
+    ecoEmphasis={city.eco_emphasis}
+  />
+
+  <!-- 7. MarketDashboard (with anchor for navigation) -->
+  <div id="market-data">
+    <MarketDashboard
+      city={city.city}
+      marketData={marketData}
+      distanceFromAtlanta={distanceFromAtlanta}
+    />
+  </div>
+
+  <!-- 8. FreightCalculator (interactive freight estimation) -->
   <FreightCalculator
     client:visible
     defaultOrigin="Atlanta, GA"
@@ -185,7 +196,7 @@ const phoneNumber = '(404) 555-1234';
     dieselPrice={marketData.diesel?.price || 3.50}
   />
 
-  <!-- 7. HistoricalCharts (30/60/90 day trends - lazy loaded) -->
+  <!-- 9. HistoricalCharts (30/60/90 day trends - lazy loaded) -->
   <HistoricalChartsLazy
     client:visible
     dryVanRate={marketData.trucking?.ratePerMile || 2.26}
@@ -194,31 +205,21 @@ const phoneNumber = '(404) 555-1234';
     fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
   />
 
-  <!-- 8. SeasonalInsights -->
+  <!-- 10. SeasonalInsights -->
   <SeasonalInsights client:visible />
 
-  <!-- 9. ValuePropositions -->
-  <ValuePropositions city={city.city} tier={city.tier} tierConfig={tierConfig} />
-
-  <!-- 8. ProductCategories -->
-  <ProductCategories
-    city={city.city}
-    state={city.state}
-    ecoEmphasis={city.eco_emphasis}
-  />
-
-  <!-- 9. RecallsSection (with anchor for navigation) -->
+  <!-- 11. RecallsSection (with anchor for navigation) -->
   <div id="recalls-section">
     <RecallsSection recalls={recalls} state={city.state} />
   </div>
 
-  <!-- 10. LocalMarketSection -->
+  <!-- 12. LocalMarketSection -->
   <LocalMarketSection city={city} tierConfig={tierConfig} />
 
-  <!-- 11. SocialProof -->
+  <!-- 13. SocialProof -->
   <SocialProof state={city.state} />
 
-  <!-- 12. FAQSection -->
+  <!-- 14. FAQSection -->
   <FAQSection
     city={city.city}
     state={city.state}
@@ -228,14 +229,14 @@ const phoneNumber = '(404) 555-1234';
     tier={city.tier}
   />
 
-  <!-- 13. NearbyCities -->
+  <!-- 15. NearbyCities -->
   <NearbyCities
     currentCity={city.city}
     stateSlug={city.state_slug}
     nearbyCities={nearbyCities}
   />
 
-  <!-- 13. FooterCTA -->
+  <!-- 16. FooterCTA -->
   <div id="quote">
     <FooterCTA phoneNumber={phoneNumber} />
   </div>

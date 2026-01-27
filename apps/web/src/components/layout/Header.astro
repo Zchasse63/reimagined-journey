@@ -1,5 +1,6 @@
 ---
 import { Menu, X, Phone } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 interface Props {
   currentPath?: string;
@@ -46,11 +47,11 @@ const navLinks = [
       <!-- Desktop CTA -->
       <div class="hidden md:flex items-center space-x-4">
         <a
-          href="tel:+14045551234"
+          href={`tel:${SITE_CONFIG.company.phoneRaw}`}
           class="flex items-center text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors"
         >
           <Phone className="w-4 h-4 mr-2" />
-          <span class="hidden lg:inline">(404) 555-1234</span>
+          <span class="hidden lg:inline">{SITE_CONFIG.company.phone}</span>
         </a>
         <a
           href="#quote"
@@ -95,11 +96,11 @@ const navLinks = [
       </nav>
       <div class="pt-4 border-t border-slate-200 space-y-3">
         <a
-          href="tel:+14045551234"
+          href={`tel:${SITE_CONFIG.company.phoneRaw}`}
           class="flex items-center text-base font-medium text-slate-700"
         >
           <Phone className="w-5 h-5 mr-3 text-primary-600" />
-          (404) 555-1234
+          {SITE_CONFIG.company.phone}
         </a>
         <a
           href="#quote"

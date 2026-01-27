@@ -7,6 +7,7 @@ import { Step2ServiceInfo } from './Step2ServiceInfo';
 import { Step3ContactDetails } from './Step3ContactDetails';
 import { ProgressIndicator } from './ProgressIndicator';
 import { CheckCircle } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 interface LeadFormProps {
   sourceCity?: string;
@@ -83,7 +84,7 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
       setIsSuccess(true);
     } catch (err) {
       console.error('Error submitting lead:', err);
-      setError('There was an error submitting your request. Please try again or call us directly at (404) 555-1234.');
+      setError(`There was an error submitting your request. Please try again or call us directly at ${SITE_CONFIG.company.phone}.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -103,8 +104,8 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
         </p>
         <p className="text-sm text-slate-500">
           Need immediate assistance? Call us at{' '}
-          <a href="tel:+14045551234" className="text-primary-600 font-medium hover:underline">
-            (404) 555-1234
+          <a href={`tel:${SITE_CONFIG.company.phoneRaw}`} className="text-primary-600 font-medium hover:underline">
+            {SITE_CONFIG.company.phone}
           </a>
         </p>
       </div>

@@ -8,12 +8,13 @@
  */
 
 import { Phone, ArrowRight } from 'lucide-react';
+import { SITE_CONFIG } from '@/lib/site-config';
 
 interface Props {
   phoneNumber?: string;
 }
 
-const { phoneNumber = '(404) 555-1234' } = Astro.props;
+const { phoneNumber = SITE_CONFIG.company.phone } = Astro.props;
 
 // Format phone number for tel: link (remove non-digits)
 const phoneLink = phoneNumber.replace(/\D/g, '');

@@ -342,9 +342,9 @@ export default function HistoricalCharts({
                   </div>
                 )
               ) : (
-                <div className="text-xs text-amber-700 bg-amber-100 border border-amber-300 px-3 py-2 rounded-md mb-3 flex items-center gap-2">
+                <div className="text-xs text-red-700 bg-red-100 border border-red-700 px-3 py-2 rounded-md mb-3 flex items-center gap-2">
                   <span className="text-base">⚠️</span>
-                  <span><strong>Illustrative Only</strong> – This chart shows estimated trends based on ATRI averages and seasonal patterns. It does not represent actual historical rates. Contact us for current market pricing.</span>
+                  <span><strong>NOT REAL DATA</strong> – Trucking rates shown are computer-generated estimates based on industry averages, NOT actual historical prices. For current rates, contact us directly.</span>
                 </div>
               )}
 
@@ -453,12 +453,18 @@ export default function HistoricalCharts({
             </div>
 
             {/* Trend Summary */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-slate-50 border-t border-slate-200">
+            <div className="p-6 bg-slate-50 border-t border-slate-200">
+              <div className="mb-4 p-3 bg-red-100 border border-red-700 rounded-lg">
+                <p className="text-xs text-red-700 font-semibold">
+                  NOTE: Trucking rates shown are simulated estimates, not historical data. Contact us for current rates.
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
                 <div>
                   <p className="text-sm text-slate-500">Dry Van Rate</p>
                   <p className="text-xl font-bold text-slate-900">${dryVanRate.toFixed(2)}/mi</p>
-                  <p className="text-xs text-slate-400">ATRI avg.</p>
+                  <p className="text-xs text-red-600">NOTE: Simulated estimate</p>
                 </div>
                 <TrendBadge direction={dryVanTrend.direction} percent={dryVanTrend.percent} />
               </div>
@@ -467,7 +473,7 @@ export default function HistoricalCharts({
                 <div>
                   <p className="text-sm text-slate-500">Reefer Rate</p>
                   <p className="text-xl font-bold text-slate-900">${reeferRate.toFixed(2)}/mi</p>
-                  <p className="text-xs text-slate-400">ATRI avg.</p>
+                  <p className="text-xs text-red-600">NOTE: Simulated estimate</p>
                 </div>
                 <TrendBadge direction={reeferTrend.direction} percent={reeferTrend.percent} />
               </div>
@@ -479,6 +485,7 @@ export default function HistoricalCharts({
                   <p className="text-xs text-slate-400">{hasRealData ? 'EIA weekly' : 'DOE avg.'}</p>
                 </div>
                 <TrendBadge direction={dieselTrend.direction} percent={dieselTrend.percent} inverse />
+              </div>
               </div>
             </div>
           </CardContent>
