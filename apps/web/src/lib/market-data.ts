@@ -11,6 +11,7 @@ import type {
 } from '../types/market-data';
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * Fallback market data used when API is unavailable
@@ -128,6 +129,7 @@ export async function fetchMarketData(): Promise<MarketDataResponse> {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
 

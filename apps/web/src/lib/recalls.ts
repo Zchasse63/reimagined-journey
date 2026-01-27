@@ -13,6 +13,7 @@ import type {
 } from '../types/recalls';
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 /**
  * US state abbreviations for validation and pattern matching
@@ -48,6 +49,7 @@ export async function fetchRecalls(state?: string): Promise<RecallsResponse> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
       },
       body: JSON.stringify({ state }),
     });

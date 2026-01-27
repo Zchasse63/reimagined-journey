@@ -1,4 +1,5 @@
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
 export interface DieselPrice {
   region: string;
@@ -27,7 +28,12 @@ export interface MarketInsights {
 export async function fetchMarketInsights(state: string): Promise<MarketInsights | null> {
   try {
     const response = await fetch(
-      `${SUPABASE_URL}/functions/v1/market-insights?state=${encodeURIComponent(state)}`
+      `${SUPABASE_URL}/functions/v1/market-insights?state=${encodeURIComponent(state)}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
     );
 
     if (!response.ok) {
@@ -44,7 +50,11 @@ export async function fetchMarketInsights(state: string): Promise<MarketInsights
 
 export async function fetchDieselPrices(): Promise<DieselPrice[] | null> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/diesel-prices`);
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/diesel-prices`, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
 
     if (!response.ok) {
       console.error('Failed to fetch diesel prices:', response.statusText);
@@ -60,7 +70,11 @@ export async function fetchDieselPrices(): Promise<DieselPrice[] | null> {
 
 export async function fetchPPIData(): Promise<PPITrend[] | null> {
   try {
-    const response = await fetch(`${SUPABASE_URL}/functions/v1/ppi-data`);
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/ppi-data`, {
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
 
     if (!response.ok) {
       console.error('Failed to fetch PPI data:', response.statusText);
