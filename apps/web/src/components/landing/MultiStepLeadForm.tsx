@@ -180,7 +180,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
         utm_campaign: urlParams.get('utm_campaign'),
       };
 
-      const response = await fetch('/api/submit-lead', {
+      const response = await fetch('/api/submit-lead/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(leadData)
