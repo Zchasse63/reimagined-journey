@@ -6,7 +6,6 @@
  * Props:
  * - city: string - Target city name
  * - marketData: MarketData - Market data from API or fallback
- * - distanceFromAtlanta: number - Miles from Atlanta for trucking estimate
  */
 import type { MarketData } from '@/types/market-data';
 import { formatLastUpdated } from '@/lib/market-data';
@@ -15,20 +14,9 @@ import CommodityCard from './CommodityCard.astro';
 interface Props {
   city: string;
   marketData: MarketData;
-  distanceFromAtlanta: number;
 }
 
-const { city, marketData, distanceFromAtlanta } = Astro.props;
-
-// Trucking cost calculation using live data
-const truckingRatePerMile = marketData.trucking?.ratePerMile || 2.26;
-const truckingEstimate = distanceFromAtlanta * truckingRatePerMile;
-const formattedTruckingEstimate = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-}).format(truckingEstimate);
+const { city, marketData } = Astro.props;
 
 // Format the last updated time
 const formattedTime = formatLastUpdated(marketData.updatedAt);
@@ -162,45 +150,6 @@ const hasTariffData = marketData.tariffs?.examples?.length > 0;
             </div>
           </div>
         )}
-
-        <!-- Trucking Card -->
-        <div class="bg-gradient-to-br from-amber-50 to-slate-50 rounded-xl p-6 border border-amber-200">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="text-2xl" aria-hidden="true">{'\u{1F69A}'}</span>
-            <h4 class="text-lg font-semibold text-slate-900">Ground Freight</h4>
-          </div>
-
-          <div class="space-y-4">
-            <div class="bg-white rounded-lg p-4 border border-slate-200">
-              <div class="text-sm text-slate-600 mb-1">Atlanta → {city}</div>
-              <div class="text-2xl font-bold text-slate-900">
-                ~{formattedTruckingEstimate}
-              </div>
-              <div class="text-sm text-slate-500 mt-1">
-                {distanceFromAtlanta.toLocaleString()} miles
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-slate-600 block">Rate/mile</span>
-                <span class="font-semibold text-slate-900">${truckingRatePerMile.toFixed(2)}</span>
-              </div>
-              <div>
-                <span class="text-slate-600 block">Fuel surcharge</span>
-                <span class="font-semibold text-slate-900">
-                  {marketData.trucking?.fuelSurchargePercent?.toFixed(1) || '43.2'}%
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-slate-200">
-            <p class="text-xs text-slate-500">
-              Source: {marketData.trucking?.source || 'ATRI / DAT Freight Analytics'}
-            </p>
-          </div>
-        </div>
 
         <!-- Diesel Card -->
         <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-6 border border-slate-200">

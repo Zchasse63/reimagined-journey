@@ -11,7 +11,7 @@ import type {
 } from '../types/market-data';
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const SUPABASE_ANON_KEY = import.meta.env.PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 /**
  * Fallback market data used when API is unavailable
@@ -76,11 +76,11 @@ export const FALLBACK_MARKET_DATA: MarketData = {
       { product: 'Aluminum Foil (rolls)', htsCode: '7607.11.60', generalRate: '5.3%', section301Rate: '25%', adCvdRate: '106.09%', totalRate: '136.39%', countryOfOrigin: 'China', notes: 'AD 48.64-106.09%, CVD 17.14-80.97%' },
       { product: 'Aluminum Foil Containers', htsCode: '7612.90.10', generalRate: '5.7%', section301Rate: '25%', adCvdRate: '106.09%', totalRate: '136.79%', countryOfOrigin: 'China', notes: 'Same AD/CVD as foil rolls' },
       { product: 'Aluminum Foil Containers', htsCode: '7612.90.10', generalRate: '5.7%', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: '5.7%', countryOfOrigin: 'Turkey', notes: 'No AD/CVD or Section 301' },
-      // Gloves - varies by material and origin
-      { product: 'Nitrile Gloves', htsCode: '4015.19.10', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Malaysia' },
-      { product: 'Nitrile Gloves', htsCode: '4015.19.10', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Thailand' },
-      { product: 'Vinyl Gloves', htsCode: '3926.20.10', generalRate: '6.5%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '31.5%', countryOfOrigin: 'China' },
-      { product: 'Latex Gloves', htsCode: '4015.19.05', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Malaysia' },
+      // Gloves - varies by material and origin (corrected Jan 2025)
+      { product: 'Nitrile Gloves (seamless)', htsCode: '4015.19.11', generalRate: '3%', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: '3%', countryOfOrigin: 'Malaysia', notes: 'Seamless rubber gloves' },
+      { product: 'Nitrile Gloves (seamless)', htsCode: '4015.19.11', generalRate: '3%', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: '3%', countryOfOrigin: 'Thailand', notes: 'Seamless rubber gloves' },
+      { product: 'Vinyl Gloves (disposable)', htsCode: '3926.20.10', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China', notes: 'Seamless disposable plastic gloves' },
+      { product: 'Latex Gloves (seamless)', htsCode: '4015.19.11', generalRate: '3%', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: '3%', countryOfOrigin: 'Malaysia', notes: 'Seamless rubber gloves' },
       // Plastic disposables
       { product: 'Plastic Food Containers', htsCode: '3924.10.40', generalRate: '3.4%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.4%', countryOfOrigin: 'China' },
       { product: 'Plastic Cutlery', htsCode: '3924.10.40', generalRate: '3.4%', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '28.4%', countryOfOrigin: 'China' },
@@ -94,17 +94,18 @@ export const FALLBACK_MARKET_DATA: MarketData = {
       { product: 'Paper Straws', htsCode: '4823.90.86', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China' },
       { product: 'Bagasse/Fiber Containers', htsCode: '4823.70.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: 'N/A', totalRate: '25%', countryOfOrigin: 'China', notes: 'Molded fiber clamshells, plates' },
       { product: 'Bagasse/Fiber Containers', htsCode: '4823.70.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Vietnam' },
-      // Food products with AD/CVD
-      { product: 'Frozen Shrimp (shell-on)', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '25.76%', totalRate: '25.76%', countryOfOrigin: 'Vietnam', notes: 'AD varies by exporter (0-25.76%)' },
-      { product: 'Frozen Shrimp (peeled)', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '10.17%', totalRate: '10.17%', countryOfOrigin: 'India', notes: 'AD + CVD combined' },
-      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: 'N/A', totalRate: 'Free', countryOfOrigin: 'Ecuador', notes: 'No AD/CVD orders' },
+      // Food products with AD/CVD (updated Dec 2024 - new shrimp orders)
+      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '~6%', totalRate: '~6%', countryOfOrigin: 'Vietnam', notes: 'New CVD order Dec 2024 + AD varies by exporter' },
+      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '9-11%', totalRate: '9-11%', countryOfOrigin: 'India', notes: 'AD (2-5%) + CVD (5.6-5.9%) per Dec 2024 final' },
+      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '~3%', totalRate: '~3%', countryOfOrigin: 'Ecuador', notes: 'New CVD order Dec 2024 (was duty-free)' },
+      { product: 'Frozen Shrimp', htsCode: '0306.17.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '~8%', totalRate: '~8%', countryOfOrigin: 'Indonesia', notes: 'New AD order Dec 2024' },
       { product: 'Crawfish Tail Meat', htsCode: '0306.39.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: '201.63%', totalRate: '226.63%', countryOfOrigin: 'China', notes: 'Effectively prohibitive' },
-      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: 'Free', section301Rate: '25%', adCvdRate: '221.03%', totalRate: '246.03%', countryOfOrigin: 'China', notes: 'Effectively banned' },
-      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: 'Free', section301Rate: 'N/A', adCvdRate: '61.27%', totalRate: '61.27%', countryOfOrigin: 'Argentina', notes: 'AD only, no CVD' },
+      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: '1.9¢/kg', section301Rate: '25%', adCvdRate: '221.03%', totalRate: '~247%', countryOfOrigin: 'China', notes: 'Effectively banned - AD order since 2001' },
+      { product: 'Honey (natural)', htsCode: '0409.00.00', generalRate: '1.9¢/kg', section301Rate: 'N/A', adCvdRate: '61.27%', totalRate: '~63%', countryOfOrigin: 'Argentina', notes: 'AD only, no CVD' },
       { product: 'Garlic (fresh)', htsCode: '0703.20.00', generalRate: '0.43¢/kg', section301Rate: '25%', adCvdRate: '376.67%', totalRate: '~402%', countryOfOrigin: 'China', notes: 'Effectively prohibitive' },
     ],
     source: 'USITC HTS / CBP AD-CVD Database',
-    effectiveDate: '2024-12-01',
+    effectiveDate: '2025-01-01',
   },
   updatedAt: new Date().toISOString(),
 };

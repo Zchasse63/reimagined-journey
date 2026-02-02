@@ -9,16 +9,14 @@
  * 4. MarketDashboard (full market intelligence)
  * 5. MultiStepLeadForm (lead capture - moved up for conversions!)
  * 6. FreightCalculator (interactive freight estimation)
- * 7. HistoricalCharts (30/60/90 day trends)
- * 8. SeasonalInsights
- * 9. ValuePropositions
- * 10. ProductCategories
- * 11. RecallsSection (full recalls with micro-capture)
- * 12. LocalMarketSection
- * 13. SocialProof
- * 14. FAQSection (with FAQPage schema)
- * 15. NearbyCities
- * 16. FooterCTA
+ * 7. ValuePropositions
+ * 8. ProductCategories
+ * 9. RecallsSection (full recalls with micro-capture)
+ * 10. LocalMarketSection
+ * 11. SocialProof
+ * 12. FAQSection (with FAQPage schema)
+ * 13. NearbyCities
+ * 14. FooterCTA
  *
  * Persistent Elements:
  * - StickyLeadCapture (React, client:idle)
@@ -45,8 +43,6 @@ import FooterCTA from '@/components/landing/FooterCTA.astro';
 
 // Landing Page Components (React)
 import FreightCalculator from '@/components/landing/FreightCalculator';
-import HistoricalChartsLazy from '@/components/landing/HistoricalChartsLazy';
-import SeasonalInsights from '@/components/landing/SeasonalInsights';
 import MultiStepLeadForm from '@/components/landing/MultiStepLeadForm';
 import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
 
@@ -181,7 +177,6 @@ const phoneNumber = SITE_CONFIG.company.phone;
     <MarketDashboard
       city={city.city}
       marketData={marketData}
-      distanceFromAtlanta={distanceFromAtlanta}
     />
   </div>
 
@@ -196,19 +191,7 @@ const phoneNumber = SITE_CONFIG.company.phone;
     dieselPrice={marketData.diesel?.price || 3.50}
   />
 
-  <!-- 9. HistoricalCharts (30/60/90 day trends - lazy loaded) -->
-  <HistoricalChartsLazy
-    client:visible
-    dryVanRate={marketData.trucking?.ratePerMile || 2.26}
-    reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}
-    dieselPrice={marketData.diesel?.price || 3.50}
-    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
-  />
-
-  <!-- 10. SeasonalInsights -->
-  <SeasonalInsights client:visible />
-
-  <!-- 11. RecallsSection (with anchor for navigation) -->
+  <!-- 9. RecallsSection (with anchor for navigation) -->
   <div id="recalls-section">
     <RecallsSection recalls={recalls} state={city.state} />
   </div>

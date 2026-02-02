@@ -19,8 +19,6 @@ import {
 // Market data components
 import MarketDashboard from '@/components/landing/MarketDashboard.astro';
 import FreightCalculator from '@/components/landing/FreightCalculator';
-import HistoricalChartsLazy from '@/components/landing/HistoricalChartsLazy';
-import SeasonalInsights from '@/components/landing/SeasonalInsights';
 import RecallsSection from '@/components/landing/RecallsSection.astro';
 
 // Data utilities
@@ -183,7 +181,6 @@ const productCategories = [
     <MarketDashboard
       city="Southeast"
       marketData={marketData}
-      distanceFromAtlanta={0}
     />
   </div>
 
@@ -195,18 +192,6 @@ const productCategories = [
     fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
     dieselPrice={marketData.diesel?.price || 3.50}
   />
-
-  <!-- Historical Charts Section (lazy loaded to reduce initial bundle) -->
-  <HistoricalChartsLazy
-    client:visible
-    dryVanRate={marketData.trucking?.ratePerMile || 2.26}
-    reeferRate={(marketData.trucking?.ratePerMile || 2.26) * 1.25}
-    dieselPrice={marketData.diesel?.price || 3.50}
-    fuelSurchargePercent={marketData.trucking?.fuelSurchargePercent || 43.2}
-  />
-
-  <!-- Seasonal Insights Section -->
-  <SeasonalInsights client:visible />
 
   <!-- Recalls Section -->
   <RecallsSection recalls={recalls} state="Georgia" />

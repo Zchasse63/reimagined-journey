@@ -4,6 +4,8 @@ import { getSupabaseClient } from '../_shared/supabase.ts';
 
 const CACHE_KEY = 'market_data_aggregated';
 const CACHE_TTL_HOURS = 4; // Cache for 4 hours
+const TARIFF_CACHE_KEY = 'tariff_data';
+const TARIFF_CACHE_TTL_HOURS = 24; // Tariffs change infrequently, cache for 24 hours
 
 /**
  * Market data interfaces
@@ -64,6 +66,7 @@ interface TariffData {
   examples: TariffExample[];
   source: string;
   effectiveDate: string;
+  notes?: string;
 }
 
 interface SugarData {
@@ -273,41 +276,46 @@ function getMockMarketData(): MarketData {
           notes: 'No AD/CVD or Section 301',
         },
         // === GLOVES ===
+        // Note: Rubber glove rates vary by construction (seamless vs other)
         {
-          product: 'Nitrile Gloves',
-          htsCode: '4015.19.10',
-          generalRate: 'Free',
+          product: 'Nitrile Gloves (seamless)',
+          htsCode: '4015.19.11',
+          generalRate: '3%',
           section301Rate: 'N/A',
           adCvdRate: 'N/A',
-          totalRate: 'Free',
+          totalRate: '3%',
           countryOfOrigin: 'Malaysia',
+          notes: 'Seamless rubber gloves',
         },
         {
-          product: 'Nitrile Gloves',
-          htsCode: '4015.19.10',
-          generalRate: 'Free',
+          product: 'Nitrile Gloves (seamless)',
+          htsCode: '4015.19.11',
+          generalRate: '3%',
           section301Rate: 'N/A',
           adCvdRate: 'N/A',
-          totalRate: 'Free',
+          totalRate: '3%',
           countryOfOrigin: 'Thailand',
+          notes: 'Seamless rubber gloves',
         },
         {
-          product: 'Vinyl Gloves',
+          product: 'Vinyl Gloves (disposable)',
           htsCode: '3926.20.10',
-          generalRate: '6.5%',
+          generalRate: 'Free',
           section301Rate: '25%',
           adCvdRate: 'N/A',
-          totalRate: '31.5%',
+          totalRate: '25%',
           countryOfOrigin: 'China',
+          notes: 'Seamless disposable plastic gloves',
         },
         {
-          product: 'Latex Gloves',
-          htsCode: '4015.19.05',
-          generalRate: 'Free',
+          product: 'Latex Gloves (seamless)',
+          htsCode: '4015.19.11',
+          generalRate: '3%',
           section301Rate: 'N/A',
           adCvdRate: 'N/A',
-          totalRate: 'Free',
+          totalRate: '3%',
           countryOfOrigin: 'Malaysia',
+          notes: 'Seamless rubber gloves',
         },
         // === PLASTIC DISPOSABLES ===
         {
@@ -412,35 +420,46 @@ function getMockMarketData(): MarketData {
           countryOfOrigin: 'Vietnam',
         },
         // === FOOD PRODUCTS WITH AD/CVD ===
+        // Note: New CVD orders on shrimp effective Dec 26, 2024
         {
-          product: 'Frozen Shrimp (shell-on)',
+          product: 'Frozen Shrimp',
           htsCode: '0306.17.00',
           generalRate: 'Free',
           section301Rate: 'N/A',
-          adCvdRate: '25.76%',
-          totalRate: '25.76%',
+          adCvdRate: '~6%',
+          totalRate: '~6%',
           countryOfOrigin: 'Vietnam',
-          notes: 'AD rate varies by exporter (0-25.76%)',
-        },
-        {
-          product: 'Frozen Shrimp (peeled)',
-          htsCode: '0306.17.00',
-          generalRate: 'Free',
-          section301Rate: 'N/A',
-          adCvdRate: '10.17%',
-          totalRate: '10.17%',
-          countryOfOrigin: 'India',
-          notes: 'AD (2.34-6.05%) + CVD (5.72-7.22%)',
+          notes: 'New CVD order Dec 2024 + existing AD varies by exporter',
         },
         {
           product: 'Frozen Shrimp',
           htsCode: '0306.17.00',
           generalRate: 'Free',
           section301Rate: 'N/A',
-          adCvdRate: 'N/A',
-          totalRate: 'Free',
+          adCvdRate: '9-11%',
+          totalRate: '9-11%',
+          countryOfOrigin: 'India',
+          notes: 'AD (2-5%) + CVD (5.6-5.9%) per Dec 2024 final',
+        },
+        {
+          product: 'Frozen Shrimp',
+          htsCode: '0306.17.00',
+          generalRate: 'Free',
+          section301Rate: 'N/A',
+          adCvdRate: '~3%',
+          totalRate: '~3%',
           countryOfOrigin: 'Ecuador',
-          notes: 'No AD/CVD orders',
+          notes: 'New CVD order Dec 2024 (was duty-free)',
+        },
+        {
+          product: 'Frozen Shrimp',
+          htsCode: '0306.17.00',
+          generalRate: 'Free',
+          section301Rate: 'N/A',
+          adCvdRate: '~8%',
+          totalRate: '~8%',
+          countryOfOrigin: 'Indonesia',
+          notes: 'New AD order Dec 2024',
         },
         {
           product: 'Crawfish Tail Meat',
@@ -455,20 +474,20 @@ function getMockMarketData(): MarketData {
         {
           product: 'Honey (natural)',
           htsCode: '0409.00.00',
-          generalRate: 'Free',
+          generalRate: '1.9¢/kg',
           section301Rate: '25%',
           adCvdRate: '221.03%',
-          totalRate: '246.03%',
+          totalRate: '~247%',
           countryOfOrigin: 'China',
-          notes: 'Effectively banned',
+          notes: 'Effectively banned - AD order since 2001',
         },
         {
           product: 'Honey (natural)',
           htsCode: '0409.00.00',
-          generalRate: 'Free',
+          generalRate: '1.9¢/kg',
           section301Rate: 'N/A',
           adCvdRate: '61.27%',
-          totalRate: '61.27%',
+          totalRate: '~63%',
           countryOfOrigin: 'Argentina',
           notes: 'AD only, no CVD',
         },
@@ -484,7 +503,8 @@ function getMockMarketData(): MarketData {
         },
       ],
       source: 'USITC HTS / CBP AD-CVD Database',
-      effectiveDate: '2024-12-01',
+      effectiveDate: '2025-01-01',
+      notes: 'Rates verified Jan 2025. Section 301 applies to China origin. AD/CVD rates vary by exporter.',
     },
     updatedAt: new Date().toISOString(),
   };
@@ -531,14 +551,272 @@ async function fetchFreightosRates(): Promise<OceanFreightData | null> {
 }
 
 /**
- * Fetch USITC tariff data for common food service imports
+ * HTS codes we want to look up for food service products
+ * We fetch the general rate from HTS API and merge with our curated Section 301/AD-CVD data
  */
-async function fetchTariffData(): Promise<TariffData | null> {
+const FOOD_SERVICE_HTS_CODES = [
+  '7607.11', // Aluminum foil
+  '7612.90', // Aluminum containers
+  '4015.19', // Rubber gloves
+  '3926.20', // Plastic gloves
+  '3924.10', // Plastic tableware
+  '3923.90', // Plastic containers
+  '3917.32', // Plastic straws/tubes
+  '4823.69', // Paper plates
+  '4818.20', // Paper napkins
+  '4823.61', // Paper cups
+  '0306.17', // Frozen shrimp
+  '0409.00', // Honey
+  '0703.20', // Garlic
+];
+
+/**
+ * Fetch rate info from HTS REST API for a specific HTS code
+ * API docs: https://hts.usitc.gov/
+ */
+async function fetchHtsRate(htsCode: string): Promise<{ htsno: string; general: string; description: string } | null> {
   try {
-    // USITC HTS API is free and doesn't require authentication
-    // Example: https://hts.usitc.gov/api/search?query=plastic+food+container
-    // For now, returning curated examples that are most relevant
-    return null; // Using mock data which has accurate current rates
+    const response = await fetch(
+      `https://hts.usitc.gov/reststop/search?keyword=${encodeURIComponent(htsCode)}`,
+      {
+        headers: { 'Accept': 'application/json' },
+      }
+    );
+
+    if (!response.ok) {
+      console.warn(`HTS API returned ${response.status} for ${htsCode}`);
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Find exact or closest match
+    if (Array.isArray(data) && data.length > 0) {
+      // Try to find exact match first
+      const exact = data.find((item: { htsno?: string }) =>
+        item.htsno?.startsWith(htsCode)
+      );
+      if (exact) {
+        return {
+          htsno: exact.htsno,
+          general: exact.general || 'N/A',
+          description: exact.description || '',
+        };
+      }
+      // Return first result if no exact match
+      return {
+        htsno: data[0].htsno,
+        general: data[0].general || 'N/A',
+        description: data[0].description || '',
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`Error fetching HTS rate for ${htsCode}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch and cache tariff data from HTS REST API
+ * Merges live HTS rates with our curated Section 301 and AD/CVD data
+ */
+async function fetchTariffData(supabase: ReturnType<typeof getSupabaseClient>): Promise<TariffData | null> {
+  try {
+    // Check tariff-specific cache first (24-hour TTL)
+    const { data: cachedTariff } = await supabase
+      .from('api_cache')
+      .select('response_data, expires_at')
+      .eq('cache_key', TARIFF_CACHE_KEY)
+      .single();
+
+    if (cachedTariff && new Date(cachedTariff.expires_at) > new Date()) {
+      console.log('Using cached tariff data');
+      return cachedTariff.response_data as TariffData;
+    }
+
+    console.log('Fetching fresh tariff data from HTS API...');
+
+    // Fetch rates for key HTS codes (limit concurrent requests)
+    const htsRates: Map<string, string> = new Map();
+
+    // Fetch in batches of 3 to avoid rate limiting
+    for (let i = 0; i < FOOD_SERVICE_HTS_CODES.length; i += 3) {
+      const batch = FOOD_SERVICE_HTS_CODES.slice(i, i + 3);
+      const results = await Promise.all(
+        batch.map(code => fetchHtsRate(code))
+      );
+
+      results.forEach((result, idx) => {
+        if (result) {
+          htsRates.set(batch[idx], result.general);
+        }
+      });
+
+      // Small delay between batches to be nice to the API
+      if (i + 3 < FOOD_SERVICE_HTS_CODES.length) {
+        await new Promise(resolve => setTimeout(resolve, 200));
+      }
+    }
+
+    console.log(`Fetched ${htsRates.size} HTS rates from API`);
+
+    // Build tariff data with live rates where available
+    // Section 301 and AD/CVD data is curated (not available from HTS API)
+    const tariffData: TariffData = {
+      examples: [
+        // === ALUMINUM PRODUCTS ===
+        {
+          product: 'Aluminum Foil (rolls)',
+          htsCode: '7607.11.60',
+          generalRate: htsRates.get('7607.11') || '5.3%',
+          section301Rate: '25%',
+          adCvdRate: '106.09%',
+          totalRate: '136.39%',
+          countryOfOrigin: 'China',
+          notes: 'AD 48.64-106.09%, CVD 17.14-80.97%',
+        },
+        {
+          product: 'Aluminum Foil Containers',
+          htsCode: '7612.90.10',
+          generalRate: htsRates.get('7612.90') || '5.7%',
+          section301Rate: '25%',
+          adCvdRate: '106.09%',
+          totalRate: '136.79%',
+          countryOfOrigin: 'China',
+          notes: 'Same AD/CVD as foil rolls',
+        },
+        {
+          product: 'Aluminum Foil Containers',
+          htsCode: '7612.90.10',
+          generalRate: htsRates.get('7612.90') || '5.7%',
+          section301Rate: 'N/A',
+          adCvdRate: 'N/A',
+          totalRate: htsRates.get('7612.90') || '5.7%',
+          countryOfOrigin: 'Turkey',
+          notes: 'No AD/CVD or Section 301',
+        },
+        // === GLOVES ===
+        {
+          product: 'Nitrile Gloves (seamless)',
+          htsCode: '4015.19.11',
+          generalRate: htsRates.get('4015.19') || '3%',
+          section301Rate: 'N/A',
+          adCvdRate: 'N/A',
+          totalRate: htsRates.get('4015.19') || '3%',
+          countryOfOrigin: 'Malaysia',
+          notes: 'Seamless rubber gloves',
+        },
+        {
+          product: 'Vinyl Gloves (disposable)',
+          htsCode: '3926.20.10',
+          generalRate: htsRates.get('3926.20') || 'Free',
+          section301Rate: '25%',
+          adCvdRate: 'N/A',
+          totalRate: '25%',
+          countryOfOrigin: 'China',
+          notes: 'Seamless disposable plastic gloves',
+        },
+        // === PLASTIC DISPOSABLES ===
+        {
+          product: 'Plastic Food Containers',
+          htsCode: '3924.10.40',
+          generalRate: htsRates.get('3924.10') || '3.4%',
+          section301Rate: '25%',
+          adCvdRate: 'N/A',
+          totalRate: '28.4%',
+          countryOfOrigin: 'China',
+        },
+        {
+          product: 'Plastic Straws',
+          htsCode: '3917.32.00',
+          generalRate: htsRates.get('3917.32') || '3.1%',
+          section301Rate: '25%',
+          adCvdRate: 'N/A',
+          totalRate: '28.1%',
+          countryOfOrigin: 'China',
+        },
+        // === PAPER PRODUCTS ===
+        {
+          product: 'Paper Plates',
+          htsCode: '4823.69.00',
+          generalRate: htsRates.get('4823.69') || 'Free',
+          section301Rate: '25%',
+          adCvdRate: 'N/A',
+          totalRate: '25%',
+          countryOfOrigin: 'China',
+        },
+        {
+          product: 'Paper Napkins',
+          htsCode: '4818.20.00',
+          generalRate: htsRates.get('4818.20') || 'Free',
+          section301Rate: '25%',
+          adCvdRate: 'N/A',
+          totalRate: '25%',
+          countryOfOrigin: 'China',
+        },
+        // === FOOD PRODUCTS WITH AD/CVD ===
+        {
+          product: 'Frozen Shrimp',
+          htsCode: '0306.17.00',
+          generalRate: htsRates.get('0306.17') || 'Free',
+          section301Rate: 'N/A',
+          adCvdRate: '~6%',
+          totalRate: '~6%',
+          countryOfOrigin: 'Vietnam',
+          notes: 'CVD order Dec 2024 + AD varies by exporter',
+        },
+        {
+          product: 'Frozen Shrimp',
+          htsCode: '0306.17.00',
+          generalRate: htsRates.get('0306.17') || 'Free',
+          section301Rate: 'N/A',
+          adCvdRate: '9-11%',
+          totalRate: '9-11%',
+          countryOfOrigin: 'India',
+          notes: 'AD + CVD per Dec 2024 final determination',
+        },
+        {
+          product: 'Honey (natural)',
+          htsCode: '0409.00.00',
+          generalRate: htsRates.get('0409.00') || '1.9¢/kg',
+          section301Rate: '25%',
+          adCvdRate: '221.03%',
+          totalRate: '~247%',
+          countryOfOrigin: 'China',
+          notes: 'Effectively banned - AD order since 2001',
+        },
+        {
+          product: 'Garlic (fresh)',
+          htsCode: '0703.20.00',
+          generalRate: htsRates.get('0703.20') || '0.43¢/kg',
+          section301Rate: '25%',
+          adCvdRate: '376.67%',
+          totalRate: '~402%',
+          countryOfOrigin: 'China',
+          notes: 'Effectively prohibitive',
+        },
+      ],
+      source: 'USITC HTS REST API / CBP AD-CVD Database',
+      effectiveDate: new Date().toISOString().split('T')[0],
+      notes: 'General rates from live HTS API. Section 301 applies to China origin. AD/CVD rates curated from CBP.',
+    };
+
+    // Cache the tariff data for 24 hours
+    const expiresAt = new Date(Date.now() + TARIFF_CACHE_TTL_HOURS * 60 * 60 * 1000);
+    await supabase.from('api_cache').upsert(
+      {
+        cache_key: TARIFF_CACHE_KEY,
+        response_data: tariffData,
+        expires_at: expiresAt.toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'cache_key' }
+    );
+
+    console.log('Tariff data cached successfully');
+    return tariffData;
   } catch (error) {
     console.error('Error fetching tariff data:', error);
     return null;
@@ -730,7 +1008,7 @@ async function getMarketData(
     fetchUSDABeefPrices(),
     fetchEIADieselPrices(),
     fetchFreightosRates(),
-    fetchTariffData(),
+    fetchTariffData(supabase),
   ]);
 
   // Use mock data as fallback for any missing data
