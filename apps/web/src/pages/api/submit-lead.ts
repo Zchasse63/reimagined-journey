@@ -421,35 +421,52 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 /**
  * Calculate lead score based on form data
  * Higher score = more qualified lead
+ *
+ * Value Source is a REDISTRIBUTOR - B2B customers (distributors/wholesalers) are highest priority
+ * End-users (restaurants etc.) are secondary leads for referral to distribution partners
  */
 function calculateLeadScore(data: Partial<LeadFormData>): number {
-  let score = 50; // Base score
+  let score = 20; // Base score
 
-  // Business type scoring
-  if (data.business_type === 'restaurant') score += 15;
-  else if (data.business_type === 'institution') score += 10;
-  else if (data.business_type === 'caterer') score += 10;
-  else if (data.business_type === 'food_truck') score += 5;
+  // Business type scoring - B2B customers get highest scores
+  const businessType = data.business_type;
 
-  // Location count scoring
+  // PRIMARY B2B CUSTOMERS (highest value)
+  if (businessType === 'broadliner') score += 50;           // Largest volume potential
+  else if (businessType === 'regional_distributor') score += 45; // High volume, regional reach
+  else if (businessType === 'buying_group') score += 40;    // Collective buying power
+  else if (businessType === 'wholesaler') score += 35;      // Core target customer
+  else if (businessType === 'specialty_distributor') score += 30; // Niche but valuable
+  else if (businessType === 'cash_and_carry') score += 25;  // Consistent volume
+  // SECONDARY (referral leads - lower priority)
+  else if (businessType === 'institution') score += 15;
+  else if (businessType === 'restaurant') score += 10;
+  else if (businessType === 'caterer') score += 10;
+  else if (businessType === 'grocery') score += 10;
+  else if (businessType === 'food_truck') score += 5;
+  else if (businessType === 'ghost_kitchen') score += 5;
+  else score += 5; // other
+
+  // Location count scoring (more locations = more volume)
   if (data.location_count !== undefined) {
-    if (data.location_count >= 10) score += 20;
-    else if (data.location_count >= 5) score += 15;
+    if (data.location_count >= 10) score += 25;
+    else if (data.location_count >= 5) score += 20;
+    else if (data.location_count >= 3) score += 15;
     else if (data.location_count >= 2) score += 10;
     else score += 5;
   }
 
   // Purchase timeline scoring
-  if (data.purchase_timeline === 'immediate') score += 15;
-  else if (data.purchase_timeline === '1-3mo') score += 10;
-  else if (data.purchase_timeline === '3-6mo') score += 5;
+  if (data.purchase_timeline === 'immediate') score += 20;
+  else if (data.purchase_timeline === '1-3mo') score += 15;
+  else if (data.purchase_timeline === '3-6mo') score += 10;
 
   // Product interest scoring
   if (data.primary_interest?.includes('proteins')) score += 10;
   if (data.primary_interest?.includes('all')) score += 5;
   if (data.primary_interest && data.primary_interest.length >= 2) score += 5;
 
-  // Phone provided
+  // Phone provided (indicates higher intent)
   if (data.phone) score += 5;
 
   return Math.min(score, 100); // Cap at 100

@@ -1,0 +1,10 @@
+# Local development override
+# This file overrides the root netlify.toml for local development only
+# It prevents the base directory path doubling issue when running `npm run dev`
+[build]
+  base = "."
+  publish = "dist"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 4321

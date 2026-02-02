@@ -6,12 +6,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, ArrowRight, ArrowLeft, Lock, Phone } from 'lucide-react';
 import { SITE_CONFIG } from '@/lib/site-config';
 
-// TODO: Consolidate validation logic with @/components/forms/lead-form-schema.ts
-// This component uses manual validation while LeadForm uses Zod.
-// Consider migrating to react-hook-form + Zod for consistency.
-
-// Types
-type BusinessType = 'restaurant' | 'food_truck' | 'caterer' | 'institution' | 'grocery' | 'other';
+// Types - B2B focused (Value Source is a redistributor)
+type PrimaryBusinessType = 'regional_distributor' | 'wholesaler' | 'buying_group' | 'broadliner' | 'specialty_distributor' | 'cash_and_carry';
+type SecondaryBusinessType = 'restaurant' | 'food_truck' | 'caterer' | 'institution' | 'grocery' | 'ghost_kitchen';
+type BusinessType = PrimaryBusinessType | SecondaryBusinessType | 'other';
 type ProductCategory = 'disposables' | 'custom_print' | 'proteins' | 'eco_friendly';
 type SpendRange = 'under_3k' | '3k_10k' | '10k_25k' | 'over_25k';
 
@@ -43,14 +41,24 @@ interface MultiStepLeadFormProps {
   minimumOrder: string;
 }
 
-// Constants
-const BUSINESS_TYPES: { value: BusinessType; label: string; icon: string }[] = [
+// Constants - PRIMARY B2B CUSTOMERS (Value Source is a redistributor)
+const PRIMARY_BUSINESS_TYPES: { value: PrimaryBusinessType; label: string; icon: string }[] = [
+  { value: 'regional_distributor', label: 'Regional Distributor', icon: '🚛' },
+  { value: 'wholesaler', label: 'Wholesaler', icon: '🏭' },
+  { value: 'buying_group', label: 'Buying Group / Co-op', icon: '🤝' },
+  { value: 'broadliner', label: 'Broadline Distributor', icon: '📦' },
+  { value: 'specialty_distributor', label: 'Specialty Distributor', icon: '🎯' },
+  { value: 'cash_and_carry', label: 'Cash & Carry', icon: '🏪' },
+];
+
+// SECONDARY - End-users we can refer to distribution partners
+const SECONDARY_BUSINESS_TYPES: { value: SecondaryBusinessType; label: string; icon: string }[] = [
   { value: 'restaurant', label: 'Restaurant', icon: '🍽️' },
   { value: 'food_truck', label: 'Food Truck', icon: '🚚' },
   { value: 'caterer', label: 'Caterer', icon: '🎪' },
   { value: 'institution', label: 'Institution', icon: '🏢' },
   { value: 'grocery', label: 'Grocery', icon: '🛒' },
-  { value: 'other', label: 'Other', icon: '➕' },
+  { value: 'ghost_kitchen', label: 'Ghost Kitchen', icon: '👻' },
 ];
 
 const PRODUCT_CATEGORIES: { value: ProductCategory; label: string }[] = [
@@ -255,29 +263,85 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
           {/* Step 1: Business Type */}
           {step === 1 && (
             <div className="space-y-6">
-              <Label className="text-base font-medium text-slate-900">
-                What type of business are you?
-              </Label>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {BUSINESS_TYPES.map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, businessType: type.value }))}
-                    className={`
-                      flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all duration-150
-                      ${formData.businessType === type.value
-                        ? 'border-orange-500 bg-orange-50 text-orange-700'
-                        : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
-                      }
-                    `}
-                  >
-                    <span className="text-2xl mb-2">{type.icon}</span>
-                    <span className="text-sm font-medium">{type.label}</span>
-                  </button>
-                ))}
+              <div>
+                <Label className="text-base font-medium text-slate-900">
+                  What type of business are you?
+                </Label>
+                <p className="text-sm text-slate-500 mt-1">
+                  We work primarily with distributors and wholesalers.
+                </p>
               </div>
+
+              {/* Primary B2B Options */}
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Distribution & Wholesale</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {PRIMARY_BUSINESS_TYPES.map((type) => (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, businessType: type.value }))}
+                      className={`
+                        flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all duration-150
+                        ${formData.businessType === type.value
+                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+                          : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                        }
+                      `}
+                    >
+                      <span className="text-2xl mb-2">{type.icon}</span>
+                      <span className="text-sm font-medium text-center leading-tight">{type.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Other option */}
+              <button
+                type="button"
+                onClick={() => setFormData(prev => ({ ...prev, businessType: 'other' }))}
+                className={`
+                  w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all duration-150
+                  ${formData.businessType === 'other'
+                    ? 'border-orange-500 bg-orange-50 text-orange-700'
+                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                  }
+                `}
+              >
+                <span className="text-lg">➕</span>
+                <span className="text-sm font-medium">Other Business Type</span>
+              </button>
+
+              {/* Expandable End-User Section */}
+              <details className="border-t border-slate-200 pt-4">
+                <summary className="text-sm text-slate-500 cursor-pointer hover:text-slate-700">
+                  Restaurant, Food Truck, or other end-user?
+                </summary>
+                <div className="mt-4 space-y-3">
+                  <p className="text-xs text-amber-700 bg-amber-50 p-2 rounded-lg border border-amber-200">
+                    We primarily serve distributors, but we can connect you with one of our distribution partners in your area.
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {SECONDARY_BUSINESS_TYPES.map((type) => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, businessType: type.value }))}
+                        className={`
+                          flex flex-col items-center justify-center p-3 rounded-lg border transition-all duration-150
+                          ${formData.businessType === type.value
+                            ? 'border-amber-500 bg-amber-50 text-amber-700'
+                            : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                          }
+                        `}
+                      >
+                        <span className="text-lg mb-1">{type.icon}</span>
+                        <span className="text-xs font-medium">{type.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </details>
 
               <div className="flex justify-end pt-4">
                 <Button

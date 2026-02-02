@@ -1,12 +1,29 @@
 import { z } from 'zod';
 
-export const businessTypes = [
+// PRIMARY B2B CUSTOMERS - Value Source is a redistributor selling to these businesses
+export const primaryBusinessTypes = [
+  { value: 'regional_distributor', label: 'Regional Distributor' },
+  { value: 'wholesaler', label: 'Wholesaler' },
+  { value: 'buying_group', label: 'Buying Group / Co-op' },
+  { value: 'broadliner', label: 'Broadline Distributor' },
+  { value: 'specialty_distributor', label: 'Specialty Distributor' },
+  { value: 'cash_and_carry', label: 'Cash & Carry' },
+] as const;
+
+// SECONDARY - End-users we can refer to our distribution partners
+export const secondaryBusinessTypes = [
   { value: 'restaurant', label: 'Restaurant' },
   { value: 'food_truck', label: 'Food Truck' },
   { value: 'caterer', label: 'Caterer' },
   { value: 'institution', label: 'Institution (School, Hospital, etc.)' },
   { value: 'grocery', label: 'Grocery / Retail' },
-  { value: 'ghost_kitchen', label: 'Ghost Kitchen / Virtual Restaurant' },
+  { value: 'ghost_kitchen', label: 'Ghost Kitchen' },
+] as const;
+
+// Combined for schema validation
+export const businessTypes = [
+  ...primaryBusinessTypes,
+  ...secondaryBusinessTypes,
   { value: 'other', label: 'Other' },
 ] as const;
 
@@ -25,9 +42,29 @@ export const productInterests = [
   { value: 'all', label: 'All of the above' },
 ] as const;
 
+// All valid business type values
+const businessTypeValues = [
+  // Primary B2B
+  'regional_distributor',
+  'wholesaler',
+  'buying_group',
+  'broadliner',
+  'specialty_distributor',
+  'cash_and_carry',
+  // Secondary (end-users for referral)
+  'restaurant',
+  'food_truck',
+  'caterer',
+  'institution',
+  'grocery',
+  'ghost_kitchen',
+  // Other
+  'other',
+] as const;
+
 // Step 1: Business Type
 export const step1Schema = z.object({
-  business_type: z.enum(['restaurant', 'food_truck', 'caterer', 'institution', 'grocery', 'ghost_kitchen', 'other'], {
+  business_type: z.enum(businessTypeValues, {
     required_error: 'Please select your business type',
   }),
 });
