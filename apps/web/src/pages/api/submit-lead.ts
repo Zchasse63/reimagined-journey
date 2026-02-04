@@ -394,22 +394,24 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
-    // Send email notification (non-blocking)
-    sendLeadNotification({
-      first_name: data.first_name,
-      last_name: data.last_name,
-      email: data.email,
-      phone: data.phone || null,
-      company_name: data.company_name,
-      business_type: data.business_type,
-      location_count: data.location_count,
-      primary_interest: data.primary_interest,
-      lead_score: leadData.lead_score,
-      id: insertedLead.id,
-    }).catch((err) => {
-      // Ensure any unhandled promise rejection is logged
-      console.error('[EMAIL_ERROR] Unhandled error in notification', err);
-    });
+    // Send email notification (must await in serverless - container killed after response)
+    try {
+      await sendLeadNotification({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email: data.email,
+        phone: data.phone || null,
+        company_name: data.company_name,
+        business_type: data.business_type,
+        location_count: data.location_count,
+        primary_interest: data.primary_interest,
+        lead_score: leadData.lead_score,
+        id: insertedLead.id,
+      });
+    } catch (emailError) {
+      // Log error but don't fail the lead submission
+      console.error('[EMAIL_ERROR] Failed to send notification', emailError);
+    }
 
     // Return success
     return new Response(
