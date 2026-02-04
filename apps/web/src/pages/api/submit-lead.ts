@@ -227,8 +227,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     }
 
     // Enforce HTTPS in production
-    const protocol = request.headers.get('x-forwarded-proto') || new URL(request.url).protocol;
-    if (protocol !== 'https:' && import.meta.env.PROD) {
+    const forwardedProto = request.headers.get('x-forwarded-proto');
+    const urlProtocol = new URL(request.url).protocol.replace(':', '');
+    const protocol = forwardedProto || urlProtocol;
+    if (protocol !== 'https' && import.meta.env.PROD) {
       return new Response(
         JSON.stringify({
           success: false,
