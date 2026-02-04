@@ -497,7 +497,7 @@ async function sendLeadNotification(leadData: {
     const scoreLabel = leadData.lead_score >= 70 ? 'Hot Lead 🔥' : leadData.lead_score >= 40 ? 'Warm Lead' : 'New Lead';
 
     await resend.emails.send({
-      from: 'Value Source Leads <leads@valuesource.co>',
+      from: 'Value Source <onboarding@resend.dev>',
       to: notificationEmail,
       subject: `${scoreLabel}: ${leadData.company_name} - ${businessTypeDisplay}`,
       html: `
