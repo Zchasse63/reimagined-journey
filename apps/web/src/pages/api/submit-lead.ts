@@ -1,9 +1,12 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 import { leadFormSchema, type LeadFormData } from '@/components/forms/lead-form-schema';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseSecretKey = import.meta.env.SUPABASE_SECRET_KEY;
+const resendApiKey = import.meta.env.RESEND_API_KEY;
+const notificationEmail = import.meta.env.NOTIFICATION_EMAIL;
 
 export const prerender = false;
 
@@ -391,6 +394,23 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
+    // Send email notification (non-blocking)
+    sendLeadNotification({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      phone: data.phone || null,
+      company_name: data.company_name,
+      business_type: data.business_type,
+      location_count: data.location_count,
+      primary_interest: data.primary_interest,
+      lead_score: leadData.lead_score,
+      id: insertedLead.id,
+    }).catch((err) => {
+      // Ensure any unhandled promise rejection is logged
+      console.error('[EMAIL_ERROR] Unhandled error in notification', err);
+    });
+
     // Return success
     return new Response(
       JSON.stringify({
@@ -419,6 +439,134 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     );
   }
 };
+
+/**
+ * Send email notification for new lead submission
+ * Non-blocking - errors are logged but don't fail the API response
+ */
+async function sendLeadNotification(leadData: {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+  company_name: string;
+  business_type: string;
+  location_count: number;
+  primary_interest: string[];
+  lead_score: number;
+  id: string;
+}): Promise<void> {
+  if (!resendApiKey || !notificationEmail) {
+    console.warn('[EMAIL] Resend not configured, skipping email notification');
+    return;
+  }
+
+  try {
+    const resend = new Resend(resendApiKey);
+
+    const businessTypeLabels: Record<string, string> = {
+      broadliner: 'Broadliner Distributor',
+      regional_distributor: 'Regional Distributor',
+      buying_group: 'Buying Group',
+      wholesaler: 'Wholesaler',
+      specialty_distributor: 'Specialty Distributor',
+      cash_and_carry: 'Cash & Carry',
+      restaurant: 'Restaurant',
+      caterer: 'Caterer',
+      institution: 'Institution',
+      grocery: 'Grocery',
+      food_truck: 'Food Truck',
+      ghost_kitchen: 'Ghost Kitchen',
+      other: 'Other',
+    };
+
+    const interestLabels: Record<string, string> = {
+      disposables: 'Disposables',
+      custom_print: 'Custom Print',
+      proteins: 'Proteins',
+      eco_friendly: 'Eco-Friendly',
+      all: 'All Products',
+    };
+
+    const businessTypeDisplay = businessTypeLabels[leadData.business_type] || leadData.business_type;
+    const interestsDisplay = leadData.primary_interest
+      .map((i) => interestLabels[i] || i)
+      .join(', ');
+
+    const scoreColor = leadData.lead_score >= 70 ? '#16a34a' : leadData.lead_score >= 40 ? '#ca8a04' : '#64748b';
+    const scoreLabel = leadData.lead_score >= 70 ? 'Hot Lead 🔥' : leadData.lead_score >= 40 ? 'Warm Lead' : 'New Lead';
+
+    await resend.emails.send({
+      from: 'Value Source Leads <leads@valuesource.co>',
+      to: notificationEmail,
+      subject: `${scoreLabel}: ${leadData.company_name} - ${businessTypeDisplay}`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); padding: 24px; border-radius: 12px 12px 0 0;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">New Lead Submitted</h1>
+            <p style="color: rgba(255,255,255,0.9); margin: 8px 0 0 0;">via valuesource.co</p>
+          </div>
+
+          <div style="background: #f8fafc; padding: 24px; border: 1px solid #e2e8f0; border-top: none;">
+            <div style="display: flex; align-items: center; margin-bottom: 20px;">
+              <span style="background: ${scoreColor}; color: white; padding: 6px 12px; border-radius: 20px; font-weight: 600; font-size: 14px;">
+                Lead Score: ${leadData.lead_score}/100
+              </span>
+            </div>
+
+            <h2 style="color: #1e293b; margin: 0 0 16px 0; font-size: 20px;">${leadData.company_name}</h2>
+
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #64748b; width: 140px;">Contact</td>
+                <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${leadData.first_name} ${leadData.last_name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #64748b;">Email</td>
+                <td style="padding: 8px 0; color: #1e293b;"><a href="mailto:${leadData.email}" style="color: #2563eb;">${leadData.email}</a></td>
+              </tr>
+              ${leadData.phone ? `
+              <tr>
+                <td style="padding: 8px 0; color: #64748b;">Phone</td>
+                <td style="padding: 8px 0; color: #1e293b;"><a href="tel:${leadData.phone}" style="color: #2563eb;">${leadData.phone}</a></td>
+              </tr>
+              ` : ''}
+              <tr>
+                <td style="padding: 8px 0; color: #64748b;">Business Type</td>
+                <td style="padding: 8px 0; color: #1e293b; font-weight: 500;">${businessTypeDisplay}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #64748b;">Locations</td>
+                <td style="padding: 8px 0; color: #1e293b;">${leadData.location_count}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #64748b;">Interests</td>
+                <td style="padding: 8px 0; color: #1e293b;">${interestsDisplay || 'Not specified'}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background: #1e293b; padding: 16px 24px; border-radius: 0 0 12px 12px;">
+            <p style="color: rgba(255,255,255,0.7); margin: 0; font-size: 12px;">
+              Lead ID: ${leadData.id} • Submitted ${new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })} ET
+            </p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log('[EMAIL] Lead notification sent successfully', {
+      timestamp: new Date().toISOString(),
+      leadId: leadData.id,
+    });
+  } catch (error) {
+    // Log error but don't fail the API response
+    console.error('[EMAIL_ERROR] Failed to send lead notification', {
+      timestamp: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
 
 /**
  * Calculate lead score based on form data

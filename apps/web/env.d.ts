@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly BLS_API_KEY: string;
   readonly SLACK_WEBHOOK_URL: string;
   readonly SENDGRID_API_KEY: string;
+  readonly RESEND_API_KEY: string;
+  readonly NOTIFICATION_EMAIL: string;
 }
 
 interface ImportMeta {
