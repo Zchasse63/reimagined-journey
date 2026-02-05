@@ -1,0 +1,159 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { SITE_CONFIG } from '@/lib/site-config';
+
+export const prerender = true;
+---
+
+<Layout
+  title="Privacy Policy | Value Source"
+  description="Privacy Policy for Value Source - Learn how we collect, use, and protect your data."
+>
+  <div class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-50">
+    <div class="max-w-4xl mx-auto">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 md:p-12">
+        <h1 class="text-4xl font-bold text-slate-900 mb-4">Privacy Policy</h1>
+        <p class="text-sm text-slate-500 mb-8">Last Updated: February 5, 2026</p>
+
+        <div class="prose prose-slate max-w-none">
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Introduction</h2>
+            <p class="text-slate-700 leading-relaxed">
+              Value Source ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy
+              explains how we collect, use, disclose, and safeguard your information when you visit our website
+              valuesource.co and use our lead generation and market data services.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Information We Collect</h2>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              We collect information that you provide directly to us, including:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li><strong>Contact Information:</strong> Name, email address, phone number, company name</li>
+              <li><strong>Business Information:</strong> Business type, number of locations, product interests, purchase timeline, current distributor</li>
+              <li><strong>Source Metadata:</strong> City, state, page source, UTM parameters for marketing attribution</li>
+              <li><strong>Automatically Collected Data:</strong> IP address, browser type, device information, cookies, and analytics data</li>
+            </ul>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">How We Use Your Information</h2>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              We use the information we collect to:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li>Process and respond to your lead submissions and quote requests</li>
+              <li>Send you pricing information and communicate about our services</li>
+              <li>Analyze and improve our website performance and user experience</li>
+              <li>Send marketing communications (with your consent)</li>
+              <li>Comply with legal obligations and prevent fraud</li>
+              <li>Generate market insights and aggregate analytics (anonymized)</li>
+            </ul>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Third-Party Services</h2>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              We use the following third-party services to operate our platform:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li><strong>Supabase:</strong> Database hosting and storage (data stored in secure PostgreSQL database with Row-Level Security policies)</li>
+              <li><strong>Resend:</strong> Email delivery service for lead notifications and communications</li>
+              <li><strong>Netlify:</strong> Website hosting and serverless functions</li>
+              <li><strong>Upstash:</strong> Redis-based rate limiting to prevent abuse</li>
+            </ul>
+            <p class="text-slate-700 leading-relaxed mt-4">
+              These third-party services may collect and process data in accordance with their own privacy policies.
+              We recommend reviewing their privacy policies for more information.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Data Protection & Security</h2>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              We implement industry-standard security measures to protect your data:
+            </p>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li><strong>Encryption:</strong> All data transmitted between your browser and our servers uses HTTPS/TLS encryption</li>
+              <li><strong>Access Control:</strong> Row-Level Security (RLS) policies enforce strict database access controls</li>
+              <li><strong>Rate Limiting:</strong> Protection against brute-force attacks and abuse</li>
+              <li><strong>Data Retention:</strong> Lead data is retained for business purposes and deleted upon request</li>
+              <li><strong>Honeypot Protection:</strong> Anti-spam measures to prevent automated bot submissions</li>
+            </ul>
+            <p class="text-slate-700 leading-relaxed mt-4">
+              While we strive to protect your personal information, no method of transmission over the internet
+              or electronic storage is 100% secure. We cannot guarantee absolute security.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Your Rights (GDPR & CCPA)</h2>
+            <p class="text-slate-700 leading-relaxed mb-4">
+              Depending on your location, you may have the following rights regarding your personal data:
+            </p>
+            <h3 class="text-xl font-semibold text-slate-900 mb-3 mt-6">GDPR (European Union)</h3>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li><strong>Right to Access:</strong> Request a copy of the personal data we hold about you</li>
+              <li><strong>Right to Rectification:</strong> Request correction of inaccurate or incomplete data</li>
+              <li><strong>Right to Erasure:</strong> Request deletion of your personal data (subject to legal obligations)</li>
+              <li><strong>Right to Data Portability:</strong> Receive your data in a structured, machine-readable format</li>
+              <li><strong>Right to Object:</strong> Object to processing of your personal data for direct marketing</li>
+              <li><strong>Right to Restrict Processing:</strong> Request restriction of processing under certain circumstances</li>
+            </ul>
+            <h3 class="text-xl font-semibold text-slate-900 mb-3 mt-6">CCPA (California)</h3>
+            <ul class="list-disc pl-6 space-y-2 text-slate-700">
+              <li><strong>Right to Know:</strong> Request disclosure of personal information collected, used, or shared</li>
+              <li><strong>Right to Delete:</strong> Request deletion of personal information (subject to exceptions)</li>
+              <li><strong>Right to Opt-Out:</strong> Opt-out of the sale of personal information (we do not sell personal data)</li>
+              <li><strong>Right to Non-Discrimination:</strong> Exercise privacy rights without discriminatory treatment</li>
+            </ul>
+            <p class="text-slate-700 leading-relaxed mt-4">
+              To exercise any of these rights, please contact us at <a href="mailto:info@valuesource.co" class="text-primary-600 hover:underline">info@valuesource.co</a>.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Cookies and Tracking Technologies</h2>
+            <p class="text-slate-700 leading-relaxed">
+              We use cookies and similar tracking technologies to improve user experience, analyze website traffic,
+              and track marketing campaign performance. You can control cookies through your browser settings,
+              but disabling cookies may affect website functionality.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Children's Privacy</h2>
+            <p class="text-slate-700 leading-relaxed">
+              Our services are not directed to individuals under the age of 18. We do not knowingly collect
+              personal information from children. If you believe we have inadvertently collected such information,
+              please contact us immediately.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Changes to This Privacy Policy</h2>
+            <p class="text-slate-700 leading-relaxed">
+              We may update this Privacy Policy from time to time. The updated version will be indicated by an
+              updated "Last Updated" date at the top of this page. We encourage you to review this Privacy Policy
+              periodically for any changes.
+            </p>
+          </section>
+
+          <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-slate-900 mb-4">Contact Information</h2>
+            <p class="text-slate-700 leading-relaxed">
+              If you have questions or concerns about this Privacy Policy or our data practices, please contact us:
+            </p>
+            <p class="text-slate-700 leading-relaxed mt-4">
+              <strong>Email:</strong> <a href={`mailto:${SITE_CONFIG.company.email}`} class="text-primary-600 hover:underline">{SITE_CONFIG.company.email}</a><br />
+              <strong>Phone:</strong> <a href={`tel:${SITE_CONFIG.company.phoneRaw}`} class="text-primary-600 hover:underline">{SITE_CONFIG.company.phone}</a><br />
+              <strong>Address:</strong> {SITE_CONFIG.company.address.city}, {SITE_CONFIG.company.address.state}
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>

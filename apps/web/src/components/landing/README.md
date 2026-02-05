@@ -25,7 +25,6 @@ Components for Value Source city/state landing pages and the main homepage.
 | `MarketDashboard` | Astro | Full market data section with diesel, beef, trucking cards |
 | `MarketSnapshot` | Astro | Compact market stats for hero sections |
 | `CommodityCard` | Astro | Individual commodity price card |
-| `HistoricalCharts` | React | Interactive charts for diesel/trucking trends |
 | `FreightCalculator` | React | Distance-based freight cost estimator |
 | `SeasonalInsights` | React | Seasonal buying guidance by month |
 
@@ -126,14 +125,6 @@ import StickyLeadCapture from '@/components/landing/StickyLeadCapture';
 | `dryVanRatePerMile` | number | 2.26 | Dry van rate |
 | `fuelSurchargePercent` | number | 43.2 | Current fuel surcharge |
 | `dieselPrice` | number | 3.50 | Current diesel price |
-
-### HistoricalCharts
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `dryVanRate` | number | 2.26 | Current dry van rate |
-| `reeferRate` | number | - | Current reefer rate |
-| `dieselPrice` | number | 3.50 | Current diesel price |
-| `fuelSurchargePercent` | number | 43.2 | Current fuel surcharge |
 
 ### FAQSection
 | Prop | Type | Default | Description |

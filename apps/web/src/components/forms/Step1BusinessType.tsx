@@ -70,7 +70,10 @@ export function Step1BusinessType({ onNext }: Step1Props) {
       {/* Primary B2B Options */}
       <div className="space-y-3">
         <p className="text-sm font-medium text-slate-700 px-1">Distribution & Wholesale</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+          aria-describedby={errors.business_type ? 'business_type-error' : undefined}
+        >
           {primaryBusinessTypes.map((option) => {
             const Icon = option.icon;
             const isSelected = selectedType === option.value;
@@ -198,9 +201,9 @@ export function Step1BusinessType({ onNext }: Step1Props) {
       </div>
 
       {errors.business_type && (
-        <p className="text-sm text-red-600 text-center">
+        <span role="alert" id="business_type-error" className="text-sm text-red-600 text-center block">
           {errors.business_type.message}
-        </p>
+        </span>
       )}
     </div>
   );

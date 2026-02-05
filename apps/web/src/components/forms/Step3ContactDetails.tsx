@@ -37,9 +37,11 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             {...register('company_name')}
             error={!!errors.company_name}
             placeholder="Your business name"
+            aria-invalid={!!errors.company_name}
+            aria-describedby={errors.company_name ? 'company_name-error' : undefined}
           />
           {errors.company_name && (
-            <p className="text-sm text-red-600">{errors.company_name.message}</p>
+            <span role="alert" id="company_name-error" className="text-sm text-red-600">{errors.company_name.message}</span>
           )}
         </div>
 
@@ -51,9 +53,11 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             {...register('first_name')}
             error={!!errors.first_name}
             placeholder="John"
+            aria-invalid={!!errors.first_name}
+            aria-describedby={errors.first_name ? 'first_name-error' : undefined}
           />
           {errors.first_name && (
-            <p className="text-sm text-red-600">{errors.first_name.message}</p>
+            <span role="alert" id="first_name-error" className="text-sm text-red-600">{errors.first_name.message}</span>
           )}
         </div>
 
@@ -65,9 +69,11 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             {...register('last_name')}
             error={!!errors.last_name}
             placeholder="Smith"
+            aria-invalid={!!errors.last_name}
+            aria-describedby={errors.last_name ? 'last_name-error' : undefined}
           />
           {errors.last_name && (
-            <p className="text-sm text-red-600">{errors.last_name.message}</p>
+            <span role="alert" id="last_name-error" className="text-sm text-red-600">{errors.last_name.message}</span>
           )}
         </div>
 
@@ -80,9 +86,11 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             {...register('email')}
             error={!!errors.email}
             placeholder="john@restaurant.com"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? 'email-error' : undefined}
           />
           {errors.email && (
-            <p className="text-sm text-red-600">{errors.email.message}</p>
+            <span role="alert" id="email-error" className="text-sm text-red-600">{errors.email.message}</span>
           )}
         </div>
 
@@ -94,7 +102,12 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             type="tel"
             {...register('phone')}
             placeholder="(555) 123-4567"
+            aria-invalid={!!errors.phone}
+            aria-describedby={errors.phone ? 'phone-error' : undefined}
           />
+          {errors.phone && (
+            <span role="alert" id="phone-error" className="text-sm text-red-600">{errors.phone.message}</span>
+          )}
           <p className="text-xs text-slate-500">For faster response</p>
         </div>
 
@@ -105,7 +118,12 @@ export function Step3ContactDetails({ onBack, isSubmitting }: Step3Props) {
             id="current_distributor"
             {...register('current_distributor')}
             placeholder="e.g., Sysco, US Foods, Restaurant Depot"
+            aria-invalid={!!errors.current_distributor}
+            aria-describedby={errors.current_distributor ? 'current_distributor-error' : undefined}
           />
+          {errors.current_distributor && (
+            <span role="alert" id="current_distributor-error" className="text-sm text-red-600">{errors.current_distributor.message}</span>
+          )}
           <p className="text-xs text-slate-500">Helps us understand your needs better</p>
         </div>
       </div>

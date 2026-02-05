@@ -10,7 +10,10 @@ interface ImportMetaEnv {
   readonly SLACK_WEBHOOK_URL: string;
   readonly SENDGRID_API_KEY: string;
   readonly RESEND_API_KEY: string;
+  readonly RESEND_FROM_EMAIL: string;
   readonly NOTIFICATION_EMAIL: string;
+  readonly UPSTASH_REDIS_REST_URL: string;
+  readonly UPSTASH_REDIS_REST_TOKEN: string;
 }
 
 interface ImportMeta {

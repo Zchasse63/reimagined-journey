@@ -22,6 +22,8 @@
     "@radix-ui/react-select": "^2.0.0",
     "@radix-ui/react-slot": "^1.0.2",
     "@supabase/supabase-js": "^2.39.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.36.2",
     "@value-source/data": "*",
     "astro": "^5.16.14",
     "class-variance-authority": "^0.7.0",

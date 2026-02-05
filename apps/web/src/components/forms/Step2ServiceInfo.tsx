@@ -65,7 +65,7 @@ export function Step2ServiceInfo({ onNext, onBack }: Step2Props) {
             setValue('location_count', parseInt(value, 10), { shouldValidate: true })
           }
         >
-          <SelectTrigger id="location_count">
+          <SelectTrigger id="location_count" aria-invalid={!!errors.location_count} aria-describedby={errors.location_count ? 'location_count-error' : undefined}>
             <SelectValue placeholder="Select number of locations" />
           </SelectTrigger>
           <SelectContent>
@@ -77,14 +77,14 @@ export function Step2ServiceInfo({ onNext, onBack }: Step2Props) {
           </SelectContent>
         </Select>
         {errors.location_count && (
-          <p className="text-sm text-red-600">{errors.location_count.message}</p>
+          <span role="alert" id="location_count-error" className="text-sm text-red-600">{errors.location_count.message}</span>
         )}
       </div>
 
       {/* Product Interests */}
       <div className="space-y-3">
         <Label>What products are you interested in?</Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" aria-invalid={!!errors.primary_interest} aria-describedby={errors.primary_interest ? 'primary_interest-error' : undefined}>
           {productInterests.map((interest) => (
             <label
               key={interest.value}
@@ -99,7 +99,7 @@ export function Step2ServiceInfo({ onNext, onBack }: Step2Props) {
           ))}
         </div>
         {errors.primary_interest && (
-          <p className="text-sm text-red-600">{errors.primary_interest.message}</p>
+          <span role="alert" id="primary_interest-error" className="text-sm text-red-600">{errors.primary_interest.message}</span>
         )}
       </div>
 

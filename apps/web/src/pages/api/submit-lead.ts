@@ -1,38 +1,30 @@
 import type { APIRoute } from 'astro';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
 import { leadFormSchema, type LeadFormData } from '@/components/forms/lead-form-schema';
 
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseSecretKey = import.meta.env.SUPABASE_SECRET_KEY;
 const resendApiKey = import.meta.env.RESEND_API_KEY;
+const resendFromEmail = import.meta.env.RESEND_FROM_EMAIL;
 const notificationEmail = import.meta.env.NOTIFICATION_EMAIL;
 
 export const prerender = false;
 
-// SECURITY NOTE: In-memory rate limiter for development/testing
-// LIMITATION: Resets on serverless cold starts and doesn't share state across instances
-// PRODUCTION TODO: Replace with distributed rate limiting (Redis, Upstash Rate Limit, or Netlify Edge)
-const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 5; // 5 requests per minute per IP
+// Upstash Redis rate limiter - distributed rate limiting for serverless
+const redis = new Redis({
+  url: import.meta.env.UPSTASH_REDIS_REST_URL,
+  token: import.meta.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const record = rateLimitStore.get(ip);
-
-  if (!record || now > record.resetAt) {
-    rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
+const ratelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(5, '60 s'),
+  analytics: true,
+  prefix: 'ratelimit:submit-lead',
+});
 
 function getCorsHeaders(): Record<string, string> {
   const siteUrl = import.meta.env.PUBLIC_SITE_URL;
@@ -262,9 +254,10 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
-    // Rate limiting check
+    // Rate limiting check using Upstash
     const ip = clientAddress || 'unknown';
-    if (!checkRateLimit(ip)) {
+    const { success } = await ratelimit.limit(ip);
+    if (!success) {
       return new Response(
         JSON.stringify({
           success: false,
@@ -499,7 +492,7 @@ async function sendLeadNotification(leadData: {
     const scoreLabel = leadData.lead_score >= 70 ? 'Hot Lead 🔥' : leadData.lead_score >= 40 ? 'Warm Lead' : 'New Lead';
 
     await resend.emails.send({
-      from: 'Value Source <onboarding@resend.dev>',
+      from: resendFromEmail,
       to: notificationEmail,
       subject: `${scoreLabel}: ${leadData.company_name} - ${businessTypeDisplay}`,
       html: `

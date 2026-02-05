@@ -92,7 +92,7 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
 
   if (isSuccess) {
     return (
-      <div className="text-center py-12">
+      <div className="text-center py-12" role="status" aria-live="polite">
         <div className="mx-auto w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mb-6">
           <CheckCircle className="w-10 h-10 text-primary-600" />
         </div>
@@ -133,7 +133,7 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
         )}
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div role="alert" aria-live="assertive" className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
             {error}
           </div>
         )}

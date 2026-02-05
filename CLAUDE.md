@@ -46,7 +46,6 @@ reimagined-journey/
 - [apps/web/src/components/forms/LeadForm.tsx](apps/web/src/components/forms/LeadForm.tsx) - 3-step lead form
 - [apps/web/src/components/forms/lead-form-schema.ts](apps/web/src/components/forms/lead-form-schema.ts) - Zod schemas
 - [apps/web/src/components/landing/FreightCalculator.tsx](apps/web/src/components/landing/FreightCalculator.tsx) - ZIP-to-ZIP freight estimates
-- [apps/web/src/components/landing/HistoricalCharts.tsx](apps/web/src/components/landing/HistoricalCharts.tsx) - Price charts (simulated data)
 
 **Data Layer:**
 - [apps/web/src/lib/market-data.ts](apps/web/src/lib/market-data.ts) - Market data fetch + FALLBACK_MARKET_DATA
@@ -95,7 +94,6 @@ reimagined-journey/
 
 **Needs Production Upgrade:**
 - Rate limiting uses in-memory Map (needs Redis/Upstash for distributed)
-- HistoricalCharts.tsx uses `Math.random()` simulated data
 - Edge functions need deployment + API key configuration
 
 ## Development
