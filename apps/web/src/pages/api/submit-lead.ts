@@ -13,18 +13,34 @@ const notificationEmail = import.meta.env.NOTIFICATION_EMAIL;
 
 export const prerender = false;
 
-// Upstash Redis rate limiter - distributed rate limiting for serverless
-const redis = new Redis({
-  url: import.meta.env.UPSTASH_REDIS_REST_URL,
-  token: import.meta.env.UPSTASH_REDIS_REST_TOKEN,
-});
+// Upstash Redis rate limiter - lazy-initialized to prevent module crash if env vars missing
+let _ratelimit: Ratelimit | null = null;
 
-const ratelimit = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, '60 s'),
-  analytics: true,
-  prefix: 'ratelimit:submit-lead',
-});
+function getRateLimiter(): Ratelimit | null {
+  if (_ratelimit) return _ratelimit;
+
+  const url = import.meta.env.UPSTASH_REDIS_REST_URL;
+  const token = import.meta.env.UPSTASH_REDIS_REST_TOKEN;
+
+  if (!url || !token) {
+    console.warn('[RATE_LIMIT] Upstash not configured, rate limiting disabled');
+    return null;
+  }
+
+  try {
+    const redis = new Redis({ url, token });
+    _ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(5, '60 s'),
+      analytics: true,
+      prefix: 'ratelimit:submit-lead',
+    });
+    return _ratelimit;
+  } catch (err) {
+    console.error('[RATE_LIMIT] Failed to initialize Upstash', err);
+    return null;
+  }
+}
 
 function getCorsHeaders(): Record<string, string> {
   const siteUrl = import.meta.env.PUBLIC_SITE_URL;
@@ -254,20 +270,28 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       );
     }
 
-    // Rate limiting check using Upstash
+    // Rate limiting check using Upstash (gracefully skips if not configured)
     const ip = clientAddress || 'unknown';
-    const { success } = await ratelimit.limit(ip);
-    if (!success) {
-      return new Response(
-        JSON.stringify({
-          success: false,
-          error: 'Too many requests. Please try again later.',
-        }),
-        {
-          status: 429,
-          headers: getCorsHeaders(),
+    const limiter = getRateLimiter();
+    if (limiter) {
+      try {
+        const { success: allowed } = await limiter.limit(ip);
+        if (!allowed) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: 'Too many requests. Please try again later.',
+            }),
+            {
+              status: 429,
+              headers: getCorsHeaders(),
+            }
+          );
         }
-      );
+      } catch (rateLimitError) {
+        // Rate limit check failed - allow request through rather than blocking leads
+        console.error('[RATE_LIMIT] Check failed, allowing request', rateLimitError);
+      }
     }
 
     // Parse request body
@@ -451,8 +475,8 @@ async function sendLeadNotification(leadData: {
   lead_score: number;
   id: string;
 }): Promise<void> {
-  if (!resendApiKey || !notificationEmail) {
-    console.warn('[EMAIL] Resend not configured, skipping email notification');
+  if (!resendApiKey || !notificationEmail || !resendFromEmail) {
+    console.warn('[EMAIL] Resend not fully configured, skipping email notification');
     return;
   }
 
