@@ -1,0 +1,33 @@
+---
+import type { CatalogCategory } from '@/types/catalog';
+
+interface Props {
+  category: CatalogCategory;
+}
+
+const { category } = Astro.props;
+
+const min = category.priceRangeMin.toFixed(2);
+const max = category.priceRangeMax.toFixed(2);
+const priceLabel = min === max ? `$${min} / case` : `$${min} – $${max} / case`;
+---
+
+<a
+  href={`/catalog/${category.slug}/`}
+  class="group bg-white rounded-xl border border-slate-200 p-6 hover:border-primary-300 hover:shadow-md transition-all flex flex-col"
+>
+  <h2 class="text-xl font-bold text-slate-900 mb-1 group-hover:text-primary-600 transition-colors">
+    {category.name}
+  </h2>
+  <p class="text-sm text-slate-500 mb-4">{category.skuCount} {category.skuCount === 1 ? 'product' : 'products'} in stock</p>
+
+  <div class="mt-auto pt-4 border-t border-slate-100">
+    <div class="flex items-baseline justify-between gap-2">
+      <span class="text-xs uppercase tracking-wide text-slate-500">From</span>
+      <span class="text-sm font-semibold text-slate-900">{priceLabel}</span>
+    </div>
+    <div class="mt-3 text-sm font-medium text-primary-600 group-hover:translate-x-1 transition-transform">
+      Browse catalog →
+    </div>
+  </div>
+</a>

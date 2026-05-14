@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { leadFormSchema, type LeadFormData } from './lead-form-schema';
@@ -42,6 +42,18 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 3));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
+  // Catalog deep-link: when a visitor lands here from /catalog/[category]/ via a
+  // "Request quote" button, prefill `primary_interest` and remember the SKU/category
+  // so the lead carries the product context into the inbox.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const catalogCategory = params.get('catalog_category');
+    if (catalogCategory) {
+      methods.setValue('primary_interest', ['disposables']);
+    }
+  }, [methods]);
+
   const onSubmit = async (data: LeadFormData) => {
     // Check honeypot
     if (data.website && data.website.length > 0) {
@@ -54,14 +66,25 @@ export function LeadForm({ sourceCity, sourceState, sourcePage }: LeadFormProps)
     setError(null);
 
     try {
-      // Get UTM params from URL
+      // Get UTM + catalog params from URL
       const urlParams = new URLSearchParams(window.location.search);
+      const catalogSku = urlParams.get('catalog_sku');
+      const catalogCategory = urlParams.get('catalog_category');
+      const basePath = sourcePage || window.location.pathname;
+      // Encode catalog context into source_page so it lands in the DB without a new column.
+      // Format: "/?catalog_sku=USPET-6X6&catalog_category=pet_clamshells"
+      const sourcePageWithCatalog = catalogSku || catalogCategory
+        ? `${basePath}?${new URLSearchParams({
+            ...(catalogSku ? { catalog_sku: catalogSku } : {}),
+            ...(catalogCategory ? { catalog_category: catalogCategory } : {}),
+          }).toString()}`
+        : basePath;
 
       const leadData = {
         ...data,
         source_city: sourceCity,
         source_state: sourceState,
-        source_page: sourcePage || window.location.pathname,
+        source_page: sourcePageWithCatalog,
         utm_source: urlParams.get('utm_source'),
         utm_medium: urlParams.get('utm_medium'),
         utm_campaign: urlParams.get('utm_campaign'),

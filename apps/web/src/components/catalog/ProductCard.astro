@@ -1,0 +1,61 @@
+---
+import SpecBadge from './SpecBadge.astro';
+import type { CatalogProduct } from '@/types/catalog';
+
+interface Props {
+  product: CatalogProduct;
+  categorySlug: string;
+}
+
+const { product, categorySlug } = Astro.props;
+
+const priceCase = product.sellPricePerCase.toFixed(2);
+const priceUnit = product.sellPricePerUnit.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+
+const quoteHref = `/?catalog_sku=${encodeURIComponent(product.sku)}&catalog_category=${encodeURIComponent(categorySlug)}#lead-form`;
+
+const recyclableLabel = product.recyclableCode ? `Recyclable #${product.recyclableCode}` : null;
+---
+
+<article class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-md transition-shadow flex flex-col h-full">
+  <header class="mb-3">
+    <h3 class="text-lg font-semibold text-slate-900 leading-snug">
+      {product.name}
+    </h3>
+    <p class="text-sm text-slate-500 mt-1">SKU {product.sku}</p>
+  </header>
+
+  <div class="flex flex-wrap gap-1.5 mb-4">
+    {product.material && <SpecBadge label={product.material} />}
+    {product.ozCapacity && <SpecBadge label={`${product.ozCapacity} oz`} />}
+    {product.compartments && product.compartments > 1 && <SpecBadge label={`${product.compartments}-compartment`} />}
+    {product.microwaveSafe && <SpecBadge label="Microwave Safe" variant="safe" />}
+    {product.freezerSafe && <SpecBadge label="Freezer Safe" variant="safe" />}
+    {product.compostable && <SpecBadge label="Compostable" variant="eco" />}
+    {recyclableLabel && <SpecBadge label={recyclableLabel} variant="eco" />}
+  </div>
+
+  <dl class="text-sm space-y-1 mb-4 grow">
+    <div class="flex justify-between">
+      <dt class="text-slate-500">Pack</dt>
+      <dd class="text-slate-900 font-medium">{product.packDisplay}</dd>
+    </div>
+  </dl>
+
+  <div class="border-t border-slate-100 pt-4 space-y-1">
+    <div class="flex items-baseline gap-2">
+      <span class="text-xs uppercase tracking-wide text-slate-500">Starting at</span>
+      <span class="text-xl font-bold text-slate-900">${priceCase}</span>
+      <span class="text-sm text-slate-600">/ case</span>
+    </div>
+    <div class="text-xs text-slate-500">
+      ${priceUnit} / unit · Freight quoted separately
+    </div>
+    <a
+      href={quoteHref}
+      class="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-primary-600 text-white text-sm font-semibold py-2.5 hover:bg-primary-700 transition-colors"
+    >
+      Request Volume Quote
+    </a>
+  </div>
+</article>
