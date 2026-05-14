@@ -185,7 +185,7 @@ export default function ExitIntentPopup({ city }: ExitIntentPopupProps) {
                 <Button
                   type="submit"
                   disabled={!canSubmit || isSubmitting}
-                  className="bg-orange-500 hover:bg-orange-600 whitespace-nowrap"
+                  className="bg-primary-600 hover:bg-primary-700 whitespace-nowrap"
                 >
                   {isSubmitting ? 'Sending...' : 'Send My Report'}
                 </Button>

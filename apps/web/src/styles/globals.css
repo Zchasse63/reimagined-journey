@@ -64,6 +64,8 @@
 
   html {
     @apply scroll-smooth;
+    /* Offset anchor-scroll targets so they don't land under the 65-72px sticky header */
+    scroll-padding-top: 4.5rem;
   }
 
   body {
