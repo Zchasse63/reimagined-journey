@@ -81,11 +81,5 @@ jobs:
           VAL: ${{ secrets.NOTIFICATION_EMAIL }}
         run: supabase secrets set "NOTIFICATION_EMAIL=$VAL" --project-ref "$PROJECT_REF"
 
-      - name: Set SLACK_WEBHOOK_URL
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
-        env:
-          VAL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: supabase secrets set "SLACK_WEBHOOK_URL=$VAL" --project-ref "$PROJECT_REF"
-
       - name: Deploy Edge Functions
         run: supabase functions deploy --project-ref "$PROJECT_REF"
