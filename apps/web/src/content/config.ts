@@ -22,10 +22,12 @@ import { defineCollection, z } from 'astro:content';
  */
 const guides = defineCollection({
   type: 'content',
+  // slug is auto-derived from filename by Astro 5+ (e.g. `foodservice-clamshells.mdx`
+  // → entry.slug === "foodservice-clamshells"). Don't define it in the schema —
+  // Astro reserves the field and rejects explicit overrides.
   schema: z.object({
     title: z.string().min(8).max(120),
     description: z.string().min(40).max(200),
-    slug: z.string().regex(/^[a-z0-9-]+$/, 'lowercase, digits, hyphens only'),
     publishedDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     type: z.enum(['pillar', 'trend', 'cluster', 'faq']),
@@ -53,8 +55,9 @@ const guides = defineCollection({
  */
 const catalog = defineCollection({
   type: 'content',
+  // Filename = slug (e.g. `pet_clamshells.mdx` → entry.id === "pet_clamshells").
+  // The catalog page joins on entry.id, which matches catalog.json.slug exactly.
   schema: z.object({
-    slug: z.string().regex(/^[a-z0-9_]+$/, 'lowercase, digits, underscores'),
     headline: z.string().min(8).max(120),
     relatedCategories: z.array(z.string()).min(3).max(6),
     pillarGuide: z.string().optional(),
