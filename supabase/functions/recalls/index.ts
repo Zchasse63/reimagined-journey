@@ -98,14 +98,22 @@ async function fetchFromFDA(): Promise<Recall[] | null> {
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
     const dateStr = ninetyDaysAgo.toISOString().split('T')[0].replace(/-/g, '');
 
-    // FDA API query for food recalls in last 90 days
-    // Class I and Class II only (serious recalls)
-    const queryParams = new URLSearchParams({
-      search: `report_date:[${dateStr}+TO+*]+AND+(classification:"Class I"+OR+classification:"Class II")`,
-      limit: '100',
-    });
+    // FDA API query for food recalls in last 90 days, Class I + II only.
+    //
+    // IMPORTANT: openFDA uses Lucene-style search where `+` is both the AND
+    // operator AND the space-substitute inside quoted values. URLSearchParams
+    // encodes `+` to `%2B`, which breaks the FDA syntax and returns
+    // "Check your request and try again". We construct the URL manually so
+    // the `+` characters survive intact, and only escape the double-quote
+    // characters (which `%22` represents).
+    const Q = '%22'; // URL-encoded "
+    const searchExpr =
+      `report_date:[${dateStr}+TO+*]` +
+      `+AND+(classification:${Q}Class+I${Q}` +
+      `+OR+classification:${Q}Class+II${Q})`;
+    const url = `${FDA_API_ENDPOINT}?search=${searchExpr}&limit=100`;
 
-    const response = await fetch(`${FDA_API_ENDPOINT}?${queryParams}`);
+    const response = await fetch(url);
 
     if (!response.ok) {
       console.error('FDA API error:', response.status, response.statusText);
