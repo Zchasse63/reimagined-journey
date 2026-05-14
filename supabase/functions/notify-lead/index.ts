@@ -62,6 +62,11 @@ serve(async (req) => {
     const slackWebhook = Deno.env.get('SLACK_WEBHOOK_URL');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const notificationEmail = Deno.env.get('NOTIFICATION_EMAIL') || 'Sales@valuesource.co';
+    // FROM must be a Resend-verified sender. `onboarding@resend.dev` is Resend's
+    // universal test sender (always works without domain verification). For
+    // branded sends, verify a domain (e.g. valuesource.co) in the Resend
+    // dashboard and set RESEND_FROM_EMAIL accordingly.
+    const resendFromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'Value Source <onboarding@resend.dev>';
 
     const results: { slack?: boolean; email?: boolean } = {};
 
@@ -228,7 +233,7 @@ serve(async (req) => {
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: 'Value Source <Sales@valuesource.co>',
+          from: resendFromEmail,
           to: [notificationEmail],
           subject: `New Lead: ${lead.company_name} (${businessTypeLabels[lead.business_type] || lead.business_type})`,
           html: emailHtml,

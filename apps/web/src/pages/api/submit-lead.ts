@@ -8,9 +8,10 @@ import { leadFormSchema, type LeadFormData } from '@/components/forms/lead-form-
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseSecretKey = import.meta.env.SUPABASE_SECRET_KEY;
 const resendApiKey = import.meta.env.RESEND_API_KEY;
-// RESEND_FROM_EMAIL must be on a Resend-verified domain. Site domain is valuesource.co
-// (NOT .com — the .com address used previously is unverified and will silently 403).
-// Canonical FROM: "Value Source <Sales@valuesource.co>"
+// RESEND_FROM_EMAIL must be a Resend-verified sender. The default
+// `onboarding@resend.dev` works without domain verification (Resend's universal
+// test sender). For branded sends from valuesource.co, verify the domain in
+// the Resend dashboard and set this env var to e.g. "Value Source <Sales@valuesource.co>".
 const resendFromEmail = import.meta.env.RESEND_FROM_EMAIL;
 const notificationEmail = import.meta.env.NOTIFICATION_EMAIL;
 
