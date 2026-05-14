@@ -2,8 +2,10 @@
 import Layout from '@/layouts/Layout.astro';
 import ProductCard from '@/components/catalog/ProductCard.astro';
 import CatalogQuoteCTA from '@/components/catalog/CatalogQuoteCTA.astro';
+import FAQAccordion from '@/components/content/FAQAccordion.astro';
 import catalogData from '@/data/catalog.json';
 import type { CatalogCategory, CatalogData } from '@/types/catalog';
+import { getEntry } from 'astro:content';
 
 export const prerender = true;
 
@@ -21,6 +23,22 @@ interface Props {
 
 const { category } = Astro.props;
 const siteUrl = 'https://valuesource.co';
+
+// Optional editorial enrichment from the `catalog` content collection.
+// If a matching MDX entry exists, render its prose above the SKU grid and
+// emit FAQPage JSON-LD. If absent, fall back to the existing minimal layout —
+// zero regression risk during the gradual rollout across all 14 categories.
+const enrichment = await getEntry('catalog', category.slug);
+const EnrichmentContent = enrichment ? (await enrichment.render()).Content : null;
+const enrichmentFaqs = enrichment?.data.faqs ?? [];
+const enrichmentHeadline = enrichment?.data.headline;
+const enrichmentPillarGuide = enrichment?.data.pillarGuide;
+const relatedCategoryLinks: Array<{ name: string; slug: string; skuCount: number }> = enrichment
+  ? enrichment.data.relatedCategories
+      .map((slug: string) => (catalogData as CatalogData).find((c) => c.slug === slug))
+      .filter((c): c is CatalogData[number] => Boolean(c))
+      .map((c) => ({ name: c.name, slug: c.slug, skuCount: c.skuCount }))
+  : [];
 
 const min = category.priceRangeMin.toFixed(2);
 const max = category.priceRangeMax.toFixed(2);
@@ -64,6 +82,22 @@ const breadcrumbSchema = {
     { '@type': 'ListItem', position: 2, name: category.name, item: `${siteUrl}/catalog/${category.slug}/` },
   ],
 };
+
+// FAQPage schema from the enrichment FAQs (when present). This is the single
+// highest-value structured-data addition for AI-citation engines: Q&A pairs are
+// extracted verbatim by ChatGPT/Perplexity/Claude without parsing prose.
+const faqSchema =
+  enrichmentFaqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: enrichmentFaqs.map((f: { question: string; answer: string }) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      }
+    : null;
 ---
 
 <Layout
@@ -73,6 +107,7 @@ const breadcrumbSchema = {
 >
   <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
   <section class="bg-slate-50 py-10 md:py-14 border-b border-slate-200">
     <div class="container-wide">
@@ -90,8 +125,29 @@ const breadcrumbSchema = {
     </div>
   </section>
 
+  {EnrichmentContent && (
+    <section class="py-10 md:py-14 bg-white border-b border-slate-100">
+      <div class="container-wide max-w-4xl">
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-6">{enrichmentHeadline}</h2>
+        <article class="prose prose-slate max-w-none prose-a:text-primary-600 hover:prose-a:text-primary-700">
+          <EnrichmentContent />
+        </article>
+
+        {enrichmentPillarGuide && (
+          <a
+            href={`/guides/${enrichmentPillarGuide}/`}
+            class="not-prose mt-8 inline-flex items-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-lg text-sm font-semibold hover:bg-slate-800 transition-colors"
+          >
+            📘 Read the complete buyer's guide →
+          </a>
+        )}
+      </div>
+    </section>
+  )}
+
   <section class="py-10 md:py-14 bg-white">
     <div class="container-wide">
+      <h2 class="text-2xl font-bold text-slate-900 mb-6">Shop {category.name}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {category.products.map((product) => (
           <ProductCard product={product} categorySlug={category.slug} />
@@ -99,6 +155,32 @@ const breadcrumbSchema = {
       </div>
     </div>
   </section>
+
+  {enrichmentFaqs.length > 0 && (
+    <section class="py-10 md:py-14 bg-slate-50">
+      <div class="container-wide max-w-4xl">
+        <FAQAccordion faqs={enrichmentFaqs} headingLevel="h2" />
+      </div>
+    </section>
+  )}
+
+  {relatedCategoryLinks.length > 0 && (
+    <section class="py-10 md:py-14 bg-white border-t border-slate-100">
+      <div class="container-wide max-w-5xl">
+        <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-5">Related categories</h2>
+        <div class="flex flex-wrap gap-3">
+          {relatedCategoryLinks.map((c) => (
+            <a
+              href={`/catalog/${c.slug}/`}
+              class="px-4 py-2 bg-slate-100 hover:bg-primary-100 text-slate-700 hover:text-primary-700 rounded-lg text-sm font-medium transition-colors"
+            >
+              {c.name} <span class="text-slate-400">·</span> {c.skuCount}
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
 
   <CatalogQuoteCTA categorySlug={category.slug} headline={`Need volume pricing on ${category.name}?`} />
 </Layout>

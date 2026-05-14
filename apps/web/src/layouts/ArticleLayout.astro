@@ -1,0 +1,231 @@
+---
+/**
+ * Layout for all editorial content in the `guides` collection.
+ * Wraps the base `Layout.astro` and adds article-specific chrome:
+ * hero, breadcrumb, TOC sidebar, FAQ accordion, and Article + FAQPage JSON-LD.
+ *
+ * Used by `apps/web/src/pages/guides/[slug].astro`.
+ */
+import Layout from './Layout.astro';
+import FAQAccordion from '@/components/content/FAQAccordion.astro';
+import catalogData from '@/data/catalog.json';
+import type { CatalogData } from '@/types/catalog';
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  publishedDate: Date;
+  updatedDate?: Date;
+  type: 'pillar' | 'trend' | 'cluster' | 'faq';
+  heroEmoji?: string;
+  tableOfContents: boolean;
+  faqs: Array<{ question: string; answer: string }>;
+  relatedCategories: string[];
+  relatedGuides: string[];
+  headings: MarkdownHeading[];
+}
+
+const {
+  title,
+  description,
+  slug,
+  publishedDate,
+  updatedDate,
+  type,
+  heroEmoji = '📘',
+  tableOfContents,
+  faqs,
+  relatedCategories,
+  relatedGuides,
+  headings,
+} = Astro.props;
+
+const siteUrl = 'https://valuesource.co';
+const canonical = `${siteUrl}/guides/${slug}/`;
+const catalog = catalogData as CatalogData;
+
+// Resolve related-category slugs to {name, url, skuCount} for sidebar links
+const relatedCategoryLinks = relatedCategories
+  .map((catSlug) => catalog.find((c) => c.slug === catSlug))
+  .filter((c): c is NonNullable<typeof c> => Boolean(c))
+  .map((c) => ({ name: c.name, url: `/catalog/${c.slug}/`, skuCount: c.skuCount }));
+
+// TOC: filter to h2 + h3 only (skip h1 which is the title, and h4+ which are sub-sub)
+const tocHeadings = tableOfContents
+  ? headings.filter((h) => h.depth === 2 || h.depth === 3)
+  : [];
+
+// Date formatting (UTC for consistent renders)
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
+
+const showUpdated = updatedDate && updatedDate.getTime() !== publishedDate.getTime();
+
+// Type label for the hero badge
+const typeLabel: Record<typeof type, string> = {
+  pillar: 'Buyer’s Guide',
+  trend: 'Industry Trend',
+  cluster: 'Deep Dive',
+  faq: 'FAQ',
+};
+
+// JSON-LD: Article
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  url: canonical,
+  datePublished: publishedDate.toISOString(),
+  dateModified: (updatedDate || publishedDate).toISOString(),
+  author: { '@type': 'Organization', name: 'Value Source', url: siteUrl },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Value Source',
+    url: siteUrl,
+    logo: { '@type': 'ImageObject', url: `${siteUrl}/favicon.svg` },
+  },
+  mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+};
+
+// JSON-LD: BreadcrumbList
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Resources', item: `${siteUrl}/guides/` },
+    { '@type': 'ListItem', position: 2, name: title, item: canonical },
+  ],
+};
+
+// JSON-LD: FAQPage (only if faqs exist)
+const faqSchema =
+  faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: faqs.map((f) => ({
+          '@type': 'Question',
+          name: f.question,
+          acceptedAnswer: { '@type': 'Answer', text: f.answer },
+        })),
+      }
+    : null;
+---
+
+<Layout title={`${title} | Value Source`} description={description} canonical={canonical}>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+
+  <!-- Hero band -->
+  <section class="bg-gradient-to-br from-slate-50 to-slate-100 border-b border-slate-200 py-12 md:py-16">
+    <div class="container-wide max-w-4xl mx-auto">
+      <nav aria-label="Breadcrumb" class="mb-6 text-sm text-slate-600">
+        <a href="/guides/" class="hover:text-primary-600 transition-colors">Resources</a>
+        <span class="mx-2 text-slate-400">/</span>
+        <span class="text-slate-900 font-medium">{title}</span>
+      </nav>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="text-5xl md:text-6xl" aria-hidden="true">{heroEmoji}</span>
+        <span class="inline-block px-3 py-1 rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-wide">
+          {typeLabel[type]}
+        </span>
+      </div>
+      <h1 class="text-3xl md:text-5xl font-bold text-slate-900 leading-tight mb-3">{title}</h1>
+      <p class="text-lg md:text-xl text-slate-600 max-w-3xl">{description}</p>
+      <div class="mt-5 text-sm text-slate-500">
+        Published {fmtDate(publishedDate)}
+        {showUpdated && updatedDate && <span> &middot; Updated {fmtDate(updatedDate)}</span>}
+      </div>
+    </div>
+  </section>
+
+  <!-- Body -->
+  <section class="py-10 md:py-14 bg-white">
+    <div class="container-wide max-w-7xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10 lg:gap-14">
+        <!-- Article body -->
+        <article class="prose prose-slate prose-lg max-w-none prose-headings:scroll-mt-24 prose-a:text-primary-600 hover:prose-a:text-primary-700 prose-img:rounded-xl">
+          <slot />
+        </article>
+
+        <!-- Sidebar -->
+        <aside class="hidden lg:block">
+          <div class="sticky top-24 space-y-8">
+            {tocHeadings.length > 0 && (
+              <nav aria-label="Table of contents">
+                <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">On this page</p>
+                <ul class="space-y-2 text-sm">
+                  {tocHeadings.map((h) => (
+                    <li class={h.depth === 3 ? 'pl-4' : ''}>
+                      <a href={`#${h.slug}`} class="text-slate-600 hover:text-primary-600 transition-colors leading-snug block">{h.text}</a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            )}
+
+            {relatedCategoryLinks.length > 0 && (
+              <div>
+                <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Shop related products</p>
+                <ul class="space-y-2 text-sm">
+                  {relatedCategoryLinks.map((c) => (
+                    <li>
+                      <a href={c.url} class="text-slate-700 hover:text-primary-600 transition-colors flex justify-between gap-2 leading-snug">
+                        <span>{c.name}</span>
+                        <span class="text-slate-400 shrink-0">{c.skuCount}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {relatedGuides.length > 0 && (
+              <div>
+                <p class="text-xs uppercase tracking-wide text-slate-500 font-semibold mb-3">Read next</p>
+                <ul class="space-y-2 text-sm">
+                  {relatedGuides.map((g) => (
+                    <li>
+                      <a href={`/guides/${g}/`} class="text-slate-700 hover:text-primary-600 transition-colors block leading-snug">{g.replace(/-/g, ' ')}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </aside>
+      </div>
+
+      {faqs.length > 0 && (
+        <div class="max-w-4xl mt-12 pt-10 border-t border-slate-200">
+          <FAQAccordion faqs={faqs} headingLevel="h2" />
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Conversion strip -->
+  <section class="bg-primary-600 py-12 md:py-16">
+    <div class="container-wide max-w-3xl text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">Ready to source?</h2>
+      <p class="text-primary-100 mb-6">
+        Tell us your business type and volume — we send a quote with delivered pricing for your zip code within one business day.
+      </p>
+      <a
+        href="/#quote"
+        class="inline-flex items-center justify-center px-7 py-3 text-base font-semibold bg-white text-primary-700 rounded-xl hover:bg-primary-50 transition-colors"
+      >
+        Request a Custom Quote
+      </a>
+    </div>
+  </section>
+</Layout>
