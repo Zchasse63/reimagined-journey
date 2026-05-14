@@ -12,9 +12,22 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # All secrets surfaced at job-level env so step-level `if: env.X != ''`
+    # conditions can reference them. (GitHub Actions doesn't allow the
+    # `secrets` context inside step-level `if:` — only inside `env:` / `with:`
+    # and inside JOB-level `if:`. So we map every secret here and gate the
+    # individual steps on its env value.)
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      EIA_API_KEY: ${{ secrets.EIA_API_KEY }}
+      FDA_API_KEY: ${{ secrets.FDA_API_KEY }}
+      BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+      CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+      USITC_API_KEY: ${{ secrets.USITC_API_KEY }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+      NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,62 +37,45 @@ jobs:
         with:
           version: latest
 
-      # Each `supabase secrets set` step is gated on the secret being non-empty
+      # Each `supabase secrets set` step is gated on the env var being non-empty
       # so a missing repo secret does NOT overwrite an existing edge-function
-      # secret with an empty value. Interpolated values are quoted to prevent
-      # shell injection if a secret ever contains metacharacters.
+      # secret with an empty value.
 
       - name: Set EIA_API_KEY
-        if: ${{ secrets.EIA_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.EIA_API_KEY }}
-        run: supabase secrets set "EIA_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.EIA_API_KEY != ''
+        run: supabase secrets set "EIA_API_KEY=$EIA_API_KEY" --project-ref "$PROJECT_REF"
 
       - name: Set FDA_API_KEY
-        if: ${{ secrets.FDA_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.FDA_API_KEY }}
-        run: supabase secrets set "FDA_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.FDA_API_KEY != ''
+        run: supabase secrets set "FDA_API_KEY=$FDA_API_KEY" --project-ref "$PROJECT_REF"
 
       - name: Set BLS_API_KEY
-        if: ${{ secrets.BLS_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.BLS_API_KEY }}
-        run: supabase secrets set "BLS_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.BLS_API_KEY != ''
+        run: supabase secrets set "BLS_API_KEY=$BLS_API_KEY" --project-ref "$PROJECT_REF"
 
       - name: Set CENSUS_API_KEY
-        if: ${{ secrets.CENSUS_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.CENSUS_API_KEY }}
-        run: supabase secrets set "CENSUS_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.CENSUS_API_KEY != ''
+        run: supabase secrets set "CENSUS_API_KEY=$CENSUS_API_KEY" --project-ref "$PROJECT_REF"
 
       - name: Set USITC_API_KEY
-        if: ${{ secrets.USITC_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.USITC_API_KEY }}
-        run: supabase secrets set "USITC_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.USITC_API_KEY != ''
+        run: supabase secrets set "USITC_API_KEY=$USITC_API_KEY" --project-ref "$PROJECT_REF"
 
-      # notify-lead webhook path — Resend + Slack notifications.
+      # notify-lead webhook path — Resend email notifications.
       # The inline path in apps/web/src/pages/api/submit-lead.ts uses Netlify
       # env vars instead and is independent of these.
 
       - name: Set RESEND_API_KEY
-        if: ${{ secrets.RESEND_API_KEY != '' }}
-        env:
-          VAL: ${{ secrets.RESEND_API_KEY }}
-        run: supabase secrets set "RESEND_API_KEY=$VAL" --project-ref "$PROJECT_REF"
+        if: env.RESEND_API_KEY != ''
+        run: supabase secrets set "RESEND_API_KEY=$RESEND_API_KEY" --project-ref "$PROJECT_REF"
 
       - name: Set RESEND_FROM_EMAIL
-        if: ${{ secrets.RESEND_FROM_EMAIL != '' }}
-        env:
-          VAL: ${{ secrets.RESEND_FROM_EMAIL }}
-        run: supabase secrets set "RESEND_FROM_EMAIL=$VAL" --project-ref "$PROJECT_REF"
+        if: env.RESEND_FROM_EMAIL != ''
+        run: supabase secrets set "RESEND_FROM_EMAIL=$RESEND_FROM_EMAIL" --project-ref "$PROJECT_REF"
 
       - name: Set NOTIFICATION_EMAIL
-        if: ${{ secrets.NOTIFICATION_EMAIL != '' }}
-        env:
-          VAL: ${{ secrets.NOTIFICATION_EMAIL }}
-        run: supabase secrets set "NOTIFICATION_EMAIL=$VAL" --project-ref "$PROJECT_REF"
+        if: env.NOTIFICATION_EMAIL != ''
+        run: supabase secrets set "NOTIFICATION_EMAIL=$NOTIFICATION_EMAIL" --project-ref "$PROJECT_REF"
 
       - name: Deploy Edge Functions
         run: supabase functions deploy --project-ref "$PROJECT_REF"
