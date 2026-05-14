@@ -45,18 +45,23 @@ const getClassificationStyles = (classification: RecallClassification) => {
 
 const styles = getClassificationStyles(recall.classification);
 
-// Format date for display
+// Format date for display.
+//
+// FDA returns recall_initiation_date as a compact 8-digit YYYYMMDD string
+// (e.g. "20260128") which Date can't parse — produces "Invalid Date".
+// Detect the FDA format and expand to ISO 8601 first.
 const formatDate = (dateString: string) => {
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  } catch {
-    return dateString;
-  }
+  if (!dateString) return '';
+  const compact = /^(\d{4})(\d{2})(\d{2})$/.exec(dateString);
+  const iso = compact ? `${compact[1]}-${compact[2]}-${compact[3]}T00:00:00Z` : dateString;
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return dateString;
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  });
 };
 
 // Truncate long text
