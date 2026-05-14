@@ -10,6 +10,13 @@
 
 # Note: Netlify automatically handles 404s for missing pages
 # No redirect rules needed for static sites
+#
+# DO NOT add an `/api/*` → `/api/:splat/` rewrite rule here as a backstop for
+# Astro's trailing-slash 308. Tested on the deploy preview for PR #2 — Astro's
+# @astrojs/netlify adapter generates its own trailing-slash redirect at a layer
+# that netlify.toml rules cannot intercept. The fix is to use trailing slashes
+# directly in client-side `fetch()` and form `action` attributes (see all
+# /api/* call sites in apps/web/src).
 
 # HTTPS redirect
 [[redirects]]

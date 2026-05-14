@@ -8,6 +8,10 @@ import { leadFormSchema, type LeadFormData } from '@/components/forms/lead-form-
 const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
 const supabaseSecretKey = import.meta.env.SUPABASE_SECRET_KEY;
 const resendApiKey = import.meta.env.RESEND_API_KEY;
+// RESEND_FROM_EMAIL must be a Resend-verified sender. The default
+// `onboarding@resend.dev` works without domain verification (Resend's universal
+// test sender). For branded sends from valuesource.co, verify the domain in
+// the Resend dashboard and set this env var to e.g. "Value Source <Sales@valuesource.co>".
 const resendFromEmail = import.meta.env.RESEND_FROM_EMAIL;
 const notificationEmail = import.meta.env.NOTIFICATION_EMAIL;
 
@@ -83,6 +87,7 @@ interface UntransformedLead {
   city?: string;
   state?: string;
   source?: string;
+  source_page?: string;
   website?: string;
   [key: string]: unknown;
 }
@@ -189,8 +194,13 @@ function transformFormData(body: UntransformedLead): Record<string, unknown> {
   if (body.state !== undefined) {
     transformed.source_state = body.state;
   }
+  // Legacy: `source` field carries traffic-source type ("direct" / "calculator").
+  // Modern: `source_page` carries the actual URL path. URL path wins when present.
   if (body.source !== undefined) {
     transformed.source_page = body.source;
+  }
+  if (body.source_page !== undefined && typeof body.source_page === 'string') {
+    transformed.source_page = body.source_page;
   }
 
   // Copy other allowed fields directly
