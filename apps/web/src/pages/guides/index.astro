@@ -27,7 +27,7 @@ const itemListSchema = {
     item: {
       '@type': 'Article',
       headline: g.data.title,
-      url: `${siteUrl}/guides/${g.data.slug}/`,
+      url: `${siteUrl}/guides/${g.slug}/`,
       datePublished: g.data.publishedDate.toISOString(),
     },
   })),
@@ -90,7 +90,7 @@ const typeMeta: Record<string, { label: string; description: string }> = {
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
               {list.map((g) => (
                 <a
-                  href={`/guides/${g.data.slug}/`}
+                  href={`/guides/${g.slug}/`}
                   class="group bg-slate-50 hover:bg-white border border-slate-200 hover:border-primary-300 hover:shadow-md rounded-xl p-6 transition-all"
                 >
                   <div class="flex items-start gap-3 mb-2">

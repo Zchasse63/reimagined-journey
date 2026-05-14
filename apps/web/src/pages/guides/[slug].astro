@@ -7,7 +7,9 @@ export const prerender = true;
 export async function getStaticPaths() {
   const guides = await getCollection('guides');
   return guides.map((g) => ({
-    params: { slug: g.data.slug },
+    // entry.slug is auto-derived from the filename in Astro 5 (e.g.
+    // `foodservice-clamshells.mdx` → "foodservice-clamshells").
+    params: { slug: g.slug },
     props: { entry: g },
   }));
 }
@@ -20,7 +22,7 @@ const data = entry.data;
 <ArticleLayout
   title={data.title}
   description={data.description}
-  slug={data.slug}
+  slug={entry.slug}
   publishedDate={data.publishedDate}
   updatedDate={data.updatedDate}
   type={data.type}
