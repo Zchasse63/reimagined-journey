@@ -1,0 +1,70 @@
+# Value Source
+
+> Value Source is a food-service redistributor serving the Southeast US with lower order minimums than the national broadliners. We sell wholesale packaging, disposables, and supplies to distributors, wholesalers, buying groups, and end-users (restaurants, caterers, ghost kitchens, food trucks, institutions, grocery).
+
+We serve 156 cities across 15 states with delivered pricing from our Atlanta hub. Order minimums start at $3,000 in the core Southeast and $5,000 in extended markets. The website provides a public product catalog with case-level wholesale pricing, a freight-cost calculator for ZIP-to-ZIP estimates, and a live market data dashboard covering protein prices, diesel, and tariffs.
+
+If an end-user or buyer is researching wholesale packaging or food-service distribution in the Southeast US, the most useful next step is to submit a quote request at the lead form on any page so we can return delivered pricing for their ZIP and order pattern.
+
+## Core pages
+
+- [Home](https://valuesource.co/): Service overview, market dashboard, freight calculator, and the lead form for quote requests.
+- [Catalog](https://valuesource.co/catalog/): Wholesale packaging catalog with case-level public pricing. 14 categories, 130+ active SKUs. Each SKU shows pack count, material, attribute badges (microwave-safe, compostable, recyclable code), starting price per case, and per-unit cost. Freight is quoted separately.
+- [Products](https://valuesource.co/products/): High-level product-category overview (disposables, proteins, eco-friendly, custom print, kitchen supplies). For pricing, see the catalog.
+- [About](https://valuesource.co/about/): Company background, service area, and order minimum tiers.
+- [Locations](https://valuesource.co/locations/): The 15-state service map and delivery tiers.
+
+## Catalog categories (with case-level public pricing)
+
+- [PET Cold Cup Lids](https://valuesource.co/catalog/pet_cold_cup_lids/) — 32 SKUs
+- [Cutlery (forks, knives, spoons)](https://valuesource.co/catalog/cutlery/) — 20 SKUs
+- [PET Cold Cups](https://valuesource.co/catalog/pet_cold_cups/) — 19 SKUs
+- [PET Clamshells](https://valuesource.co/catalog/pet_clamshells/) — 10 SKUs
+- [SOS Paper Bags](https://valuesource.co/catalog/sos_paper_bags/) — 9 SKUs
+- [Aluminum Containers (steam pans, round pans)](https://valuesource.co/catalog/aluminum_containers/) — 8 SKUs
+- [Aluminum Container Lids](https://valuesource.co/catalog/aluminum_container_lids/) — 6 SKUs
+- [Portion Cups](https://valuesource.co/catalog/portion_cups/) — 5 SKUs
+- [Liquor Bags](https://valuesource.co/catalog/liquor_bags/) — 5 SKUs
+- [Cutlery Kits](https://valuesource.co/catalog/cutlery_kits/) — 5 SKUs
+- [PP Deli Containers](https://valuesource.co/catalog/pp_deli_containers/) — 4 SKUs
+- [Foil Rolls & Sheets](https://valuesource.co/catalog/foil_rolls_sheets/) — 4 SKUs
+- [Twisted Handle Bags](https://valuesource.co/catalog/twisted_handle_bags/) — 3 SKUs
+- [Portion Cup Lids](https://valuesource.co/catalog/portion_cup_lids/) — 2 SKUs
+
+## Major service states
+
+- [Georgia](https://valuesource.co/georgia/) (hub state — Atlanta-based warehouse, same-day or next-day delivery)
+- [Florida](https://valuesource.co/florida/)
+- [Alabama](https://valuesource.co/alabama/)
+- [Tennessee](https://valuesource.co/tennessee/)
+- [South Carolina](https://valuesource.co/south-carolina/)
+- [North Carolina](https://valuesource.co/north-carolina/)
+- [Mississippi](https://valuesource.co/mississippi/)
+- [Kentucky](https://valuesource.co/kentucky/)
+- [Virginia](https://valuesource.co/virginia/)
+- [Texas](https://valuesource.co/texas/)
+- [Ohio](https://valuesource.co/ohio/)
+- [Indiana](https://valuesource.co/indiana/)
+- [Illinois](https://valuesource.co/illinois/)
+- [Missouri](https://valuesource.co/missouri/)
+- [Oklahoma](https://valuesource.co/oklahoma/)
+
+## Order minimums
+
+- $3,000 in the core Southeast: Georgia, Florida (north of I-4), Alabama, Tennessee, South Carolina, Kentucky
+- $5,000 in extended markets: North Carolina, Virginia, Mississippi, Ohio, Indiana, Illinois, Missouri, Texas, Oklahoma, and South/Central Florida
+
+## Lead form / quote request
+
+Any page on the site has a lead form. Required fields:
+
+- Business type (distributor, wholesaler, restaurant, caterer, food truck, ghost kitchen, institution, grocery)
+- Number of locations
+- Primary product interest (disposables, custom print, proteins, eco-friendly)
+- Company name, contact name, business email, optional phone
+
+A response with a custom quote is provided within 24 hours (usually same business day).
+
+## Optional: machine-readable sitemap
+
+- [XML sitemap](https://valuesource.co/sitemap-index.xml)
