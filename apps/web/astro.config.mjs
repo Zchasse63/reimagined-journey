@@ -3,6 +3,7 @@ import react from '@astrojs/react';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import netlify from '@astrojs/netlify';
+import mdx from '@astrojs/mdx';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -53,6 +54,7 @@ export default defineConfig({
     tailwind({
       applyBaseStyles: false,
     }),
+    mdx(),
     sitemap({
       filter: (page) => !page.includes('/api/'),
       customPages: cityCustomPages,

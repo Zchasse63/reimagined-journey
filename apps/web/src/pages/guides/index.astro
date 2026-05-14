@@ -1,0 +1,118 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export const prerender = true;
+
+const allGuides = await getCollection('guides');
+allGuides.sort((a, b) => b.data.publishedDate.getTime() - a.data.publishedDate.getTime());
+
+const byType = {
+  pillar: allGuides.filter((g) => g.data.type === 'pillar'),
+  trend: allGuides.filter((g) => g.data.type === 'trend'),
+  cluster: allGuides.filter((g) => g.data.type === 'cluster'),
+  faq: allGuides.filter((g) => g.data.type === 'faq'),
+};
+
+const siteUrl = 'https://valuesource.co';
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Value Source Foodservice Packaging Resources',
+  numberOfItems: allGuides.length,
+  itemListElement: allGuides.map((g, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Article',
+      headline: g.data.title,
+      url: `${siteUrl}/guides/${g.data.slug}/`,
+      datePublished: g.data.publishedDate.toISOString(),
+    },
+  })),
+};
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+const typeMeta: Record<string, { label: string; description: string }> = {
+  pillar: {
+    label: 'Buyer’s Guides',
+    description: 'Complete guides to each major foodservice packaging category — material comparisons, sizing, when-to-use-what.',
+  },
+  trend: {
+    label: 'Industry Trends',
+    description: 'State-by-state regulations, tariff impact, sustainability mandates affecting foodservice supply chains.',
+  },
+  cluster: {
+    label: 'Deep Dives',
+    description: 'Focused comparisons and use-case guides for specific operations and applications.',
+  },
+  faq: {
+    label: 'Quick Answers',
+    description: 'Short-form answers to common foodservice packaging questions.',
+  },
+};
+---
+
+<Layout
+  title="Foodservice Packaging Resources | Value Source"
+  description="Buyer's guides, material comparisons, regulatory updates, and trend reports for foodservice packaging across the Southeast US."
+  canonical={`${siteUrl}/guides/`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 md:py-20">
+    <div class="container-wide text-center max-w-3xl mx-auto">
+      <p class="text-primary-300 font-semibold uppercase tracking-wide text-sm mb-3">Resources</p>
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        Foodservice Packaging Knowledge Base
+      </h1>
+      <p class="text-xl text-slate-300">
+        Buyer's guides, material comparisons, regulatory updates, and trend reports for the Southeast US foodservice supply chain.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16 bg-white">
+    <div class="container-wide max-w-5xl mx-auto space-y-14">
+      {(['pillar', 'trend', 'cluster', 'faq'] as const).map((type) => {
+        const list = byType[type];
+        if (list.length === 0) return null;
+        const meta = typeMeta[type];
+        return (
+          <div>
+            <header class="mb-6">
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-2">{meta.label}</h2>
+              <p class="text-slate-600">{meta.description}</p>
+            </header>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {list.map((g) => (
+                <a
+                  href={`/guides/${g.data.slug}/`}
+                  class="group bg-slate-50 hover:bg-white border border-slate-200 hover:border-primary-300 hover:shadow-md rounded-xl p-6 transition-all"
+                >
+                  <div class="flex items-start gap-3 mb-2">
+                    {g.data.heroEmoji && <span class="text-2xl shrink-0" aria-hidden="true">{g.data.heroEmoji}</span>}
+                    <h3 class="text-lg font-semibold text-slate-900 group-hover:text-primary-700 leading-snug">
+                      {g.data.title}
+                    </h3>
+                  </div>
+                  <p class="text-sm text-slate-600 mb-3 line-clamp-3">{g.data.description}</p>
+                  <p class="text-xs text-slate-500">{fmtDate(g.data.publishedDate)}</p>
+                </a>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      {allGuides.length === 0 && (
+        <div class="text-center py-12 text-slate-600">
+          <p>New buyer's guides and trend reports launching soon.</p>
+        </div>
+      )}
+    </div>
+  </section>
+</Layout>

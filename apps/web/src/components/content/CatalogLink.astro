@@ -1,0 +1,55 @@
+---
+/**
+ * Inline catalog callout. Drop into any MDX body with:
+ *
+ *   import CatalogLink from '@/components/content/CatalogLink.astro';
+ *   <CatalogLink slug="pet_clamshells" />
+ *
+ * Reads from `src/data/catalog.json` at build time so the displayed
+ * SKU count and price range stay accurate without manual edits when
+ * the catalog refreshes from the Servous DB.
+ */
+import catalogData from '@/data/catalog.json';
+import type { CatalogData } from '@/types/catalog';
+
+interface Props {
+  slug: string;
+  /** Override the displayed CTA text; defaults to "Browse SKUs →" */
+  cta?: string;
+}
+
+const { slug, cta = 'Browse SKUs →' } = Astro.props;
+const catalog = catalogData as CatalogData;
+const category = catalog.find((c) => c.slug === slug);
+
+if (!category) {
+  throw new Error(
+    `<CatalogLink slug="${slug}" /> — no matching category in catalog.json. ` +
+      `Valid slugs: ${catalog.map((c) => c.slug).join(', ')}`
+  );
+}
+
+const min = category.priceRangeMin.toFixed(2);
+const max = category.priceRangeMax.toFixed(2);
+const priceLabel = min === max ? `$${min}` : `$${min} – $${max}`;
+---
+
+<a
+  href={`/catalog/${category.slug}/`}
+  class="not-prose group block bg-slate-50 hover:bg-primary-50 border border-slate-200 hover:border-primary-300 rounded-xl p-5 my-6 transition-colors"
+>
+  <div class="flex items-center justify-between gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-wide text-slate-500 mb-1">Shop the catalog</p>
+      <p class="text-lg font-semibold text-slate-900 group-hover:text-primary-700">
+        {category.name}
+      </p>
+      <p class="text-sm text-slate-600 mt-0.5">
+        {category.skuCount} {category.skuCount === 1 ? 'SKU' : 'SKUs'} · from {priceLabel} per case
+      </p>
+    </div>
+    <span class="shrink-0 text-sm font-medium text-primary-600 group-hover:translate-x-1 transition-transform">
+      {cta}
+    </span>
+  </div>
+</a>

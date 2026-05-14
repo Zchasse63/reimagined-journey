@@ -1,0 +1,28 @@
+---
+/**
+ * Mid-article conversion CTA. Drop into any MDX body with:
+ *
+ *   import QuoteCTA from '@/components/content/QuoteCTA.astro';
+ *   <QuoteCTA headline="Need help spec'ing for your operation?" />
+ */
+interface Props {
+  headline?: string;
+  body?: string;
+}
+
+const {
+  headline = 'Talk to a packaging specialist',
+  body = 'Tell us your business type and volume — we send a quote with delivered pricing for your zip code within one business day.',
+} = Astro.props;
+---
+
+<aside class="not-prose my-8 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 p-8 text-white">
+  <h3 class="text-xl font-bold mb-2">{headline}</h3>
+  <p class="text-primary-100 mb-5 max-w-2xl text-base">{body}</p>
+  <a
+    href="/#quote"
+    class="inline-flex items-center justify-center px-6 py-3 text-sm font-semibold bg-white text-primary-700 rounded-lg hover:bg-primary-50 transition-colors"
+  >
+    Request a Custom Quote →
+  </a>
+</aside>

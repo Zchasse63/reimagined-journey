@@ -42,3 +42,6 @@ test-results/
 
 # Codebase Cartographer audit output (generated artifact)
 .audit/
+
+# Playwright MCP local artifacts (snapshots/screenshots)
+.playwright-mcp/
