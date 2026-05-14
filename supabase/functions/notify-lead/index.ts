@@ -61,7 +61,7 @@ serve(async (req) => {
 
     const slackWebhook = Deno.env.get('SLACK_WEBHOOK_URL');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const notificationEmail = Deno.env.get('NOTIFICATION_EMAIL') || 'leads@valuesource.com';
+    const notificationEmail = Deno.env.get('NOTIFICATION_EMAIL') || 'Sales@valuesource.co';
 
     const results: { slack?: boolean; email?: boolean } = {};
 
@@ -228,7 +228,7 @@ serve(async (req) => {
           Authorization: `Bearer ${resendApiKey}`,
         },
         body: JSON.stringify({
-          from: 'Value Source <notifications@valuesource.com>',
+          from: 'Value Source <Sales@valuesource.co>',
           to: [notificationEmail],
           subject: `New Lead: ${lead.company_name} (${businessTypeLabels[lead.business_type] || lead.business_type})`,
           html: emailHtml,

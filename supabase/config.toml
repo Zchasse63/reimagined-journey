@@ -53,3 +53,12 @@ verify_jwt = false
 
 [functions.market-data]
 verify_jwt = false
+
+# Lead notification webhook — invoked by Supabase DB INSERT trigger on `leads`.
+# Must be publicly callable so the webhook (anonymous context) is not rejected.
+[functions.notify-lead]
+verify_jwt = false
+
+# USDA AMS protein prices — invoked from frontend SSR (no user auth context).
+[functions.usda-prices]
+verify_jwt = false

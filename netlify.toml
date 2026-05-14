@@ -11,6 +11,17 @@
 # Note: Netlify automatically handles 404s for missing pages
 # No redirect rules needed for static sites
 
+# API pass-through: serve /api/* without trailing-slash redirects.
+# Astro's `trailingSlash: 'always'` config issues 308s on POSTs to /api/foo
+# that browsers handle inconsistently (Safari/WebView drop the body), causing
+# silent form-submit failures. This rule intercepts before Astro can redirect.
+# Must be listed before any other redirect rules.
+[[redirects]]
+  from = "/api/*"
+  to = "/api/:splat/"
+  status = 200
+  force = true
+
 # HTTPS redirect
 [[redirects]]
   from = "http://*"
