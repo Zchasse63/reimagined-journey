@@ -1,5 +1,5 @@
 import type { CityData, CityDataWithSlug, DeliveryTier, EcoEmphasis } from './types';
-import cityDataRaw from '../../../city_data.json';
+import cityDataRaw from '../city_data.json';
 
 const cityData = cityDataRaw as { cities: CityData[] };
 
