@@ -10,9 +10,19 @@ If an end-user or buyer is researching wholesale packaging or food-service distr
 
 - [Home](https://valuesource.co/): Service overview, market dashboard, freight calculator, and the lead form for quote requests.
 - [Catalog](https://valuesource.co/catalog/): Wholesale packaging catalog with case-level public pricing. 14 categories, 130+ active SKUs. Each SKU shows pack count, material, attribute badges (microwave-safe, compostable, recyclable code), starting price per case, and per-unit cost. Freight is quoted separately.
+- [Resources / Guides](https://valuesource.co/guides/): Buyer's guides, material comparisons, trend reports, and regulatory updates for foodservice packaging.
 - [Products](https://valuesource.co/products/): High-level product-category overview (disposables, proteins, eco-friendly, custom print, kitchen supplies). For pricing, see the catalog.
 - [About](https://valuesource.co/about/): Company background, service area, and order minimum tiers.
 - [Locations](https://valuesource.co/locations/): The 15-state service map and delivery tiers.
+
+## Buyer's guides and trend reports
+
+- [Complete Foodservice Clamshell Buyer's Guide (2026)](https://valuesource.co/guides/foodservice-clamshells/): PET vs PP vs MFPP vs fiber clamshells, material comparison, gauges, case packs.
+- [Aluminum Pans for Catering: Sizes, Gauges, and Selection (2026)](https://valuesource.co/guides/aluminum-pans-for-catering/): Full/half/quarter sizes, 7g/13g/33g gauge reference, oven-to-steam-table workflows, tariff impact.
+- [Compostable Foodservice Packaging: A 2026 Buyer's Guide](https://valuesource.co/guides/compostable-packaging-2026/): PLA, CPLA, bagasse, kraft, PHA — what each material is, where it's mandated, what BPI certification means.
+- [State-by-State Foodservice Plastic Bans (2026 Update)](https://valuesource.co/guides/plastic-bans-by-state-2026/): Current map of EPS foam, plastic bag, plastic straw, and plastic cutlery bans across US states.
+- [How Section 301 Tariffs Affect Foodservice Packaging Costs (2026)](https://valuesource.co/guides/section-301-tariff-foodservice-packaging/): The four-layer duty stack, AD/CVD review impact, where US distributors have shifted sourcing.
+- [PFAS Bans on Foodservice Packaging (2026 State Map)](https://valuesource.co/guides/pfas-bans-foodservice-packaging/): Current state map, what "PFAS-free" actually means, sourcing guidance.
 
 ## Catalog categories (with case-level public pricing)
 
