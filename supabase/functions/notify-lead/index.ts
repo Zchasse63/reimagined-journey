@@ -59,7 +59,6 @@ serve(async (req) => {
       });
     }
 
-    const slackWebhook = Deno.env.get('SLACK_WEBHOOK_URL');
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
     const notificationEmail = Deno.env.get('NOTIFICATION_EMAIL') || 'Sales@valuesource.co';
     // FROM must be a Resend-verified sender. `onboarding@resend.dev` is Resend's
@@ -68,109 +67,7 @@ serve(async (req) => {
     // dashboard and set RESEND_FROM_EMAIL accordingly.
     const resendFromEmail = Deno.env.get('RESEND_FROM_EMAIL') || 'Value Source <onboarding@resend.dev>';
 
-    const results: { slack?: boolean; email?: boolean } = {};
-
-    // Send Slack notification
-    if (slackWebhook) {
-      const slackMessage = {
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: '🎯 New Lead Received!',
-              emoji: true,
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: `*Name:*\n${lead.first_name} ${lead.last_name}`,
-              },
-              {
-                type: 'mrkdwn',
-                text: `*Company:*\n${lead.company_name}`,
-              },
-              {
-                type: 'mrkdwn',
-                text: `*Business Type:*\n${businessTypeLabels[lead.business_type] || lead.business_type}`,
-              },
-              {
-                type: 'mrkdwn',
-                text: `*Locations:*\n${lead.location_count || 1}`,
-              },
-            ],
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: `*Email:*\n<mailto:${lead.email}|${lead.email}>`,
-              },
-              {
-                type: 'mrkdwn',
-                text: `*Phone:*\n${lead.phone || 'Not provided'}`,
-              },
-            ],
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: `*Timeline:*\n${timelineLabels[lead.purchase_timeline || ''] || 'Not specified'}`,
-              },
-              {
-                type: 'mrkdwn',
-                text: `*Lead Score:*\n${lead.lead_score || 0}/100`,
-              },
-            ],
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Interests:*\n${lead.primary_interest?.join(', ') || 'Not specified'}`,
-            },
-          },
-          {
-            type: 'context',
-            elements: [
-              {
-                type: 'mrkdwn',
-                text: `📍 Source: ${lead.source_city ? `${lead.source_city}, ${lead.source_state}` : 'Homepage'} | ⏰ ${new Date(lead.created_at).toLocaleString('en-US', { timeZone: 'America/New_York' })} ET`,
-              },
-            ],
-          },
-          {
-            type: 'actions',
-            elements: [
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: 'View in Supabase',
-                  emoji: true,
-                },
-                url: `https://supabase.com/dashboard/project/vpgavbsmspcqhzkdbyly/editor/leads?filter=id:eq:${lead.id}`,
-                action_id: 'view_lead',
-              },
-            ],
-          },
-        ],
-      };
-
-      const slackResponse = await fetch(slackWebhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(slackMessage),
-      });
-
-      results.slack = slackResponse.ok;
-    }
+    const results: { email?: boolean } = {};
 
     // Send email notification via Resend
     if (resendApiKey) {
