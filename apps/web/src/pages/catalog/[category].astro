@@ -1,0 +1,104 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import ProductCard from '@/components/catalog/ProductCard.astro';
+import CatalogQuoteCTA from '@/components/catalog/CatalogQuoteCTA.astro';
+import catalogData from '@/data/catalog.json';
+import type { CatalogCategory, CatalogData } from '@/types/catalog';
+
+export const prerender = true;
+
+export async function getStaticPaths() {
+  const catalog = catalogData as CatalogData;
+  return catalog.map((category) => ({
+    params: { category: category.slug },
+    props: { category },
+  }));
+}
+
+interface Props {
+  category: CatalogCategory;
+}
+
+const { category } = Astro.props;
+const siteUrl = 'https://valuesource.co';
+
+const min = category.priceRangeMin.toFixed(2);
+const max = category.priceRangeMax.toFixed(2);
+const priceLabel = min === max ? `$${min}` : `$${min} – $${max}`;
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: `${category.name} — Wholesale Catalog`,
+  numberOfItems: category.products.length,
+  itemListElement: category.products.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: p.name,
+      description: p.description,
+      sku: p.sku,
+      brand: { '@type': 'Brand', name: 'Value Source' },
+      offers: {
+        '@type': 'Offer',
+        price: p.sellPricePerCase.toFixed(2),
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+        priceSpecification: {
+          '@type': 'UnitPriceSpecification',
+          price: p.sellPricePerCase.toFixed(2),
+          priceCurrency: 'USD',
+          unitText: 'case',
+        },
+      },
+    },
+  })),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Catalog', item: `${siteUrl}/catalog/` },
+    { '@type': 'ListItem', position: 2, name: category.name, item: `${siteUrl}/catalog/${category.slug}/` },
+  ],
+};
+---
+
+<Layout
+  title={`${category.name} — Wholesale Pricing | Value Source`}
+  description={`${category.skuCount} ${category.name.toLowerCase()} SKUs starting at ${priceLabel} per case. Public wholesale pricing, volume quotes with delivered freight available within 24 hours.`}
+  canonical={`${siteUrl}/catalog/${category.slug}/`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+
+  <section class="bg-slate-50 py-10 md:py-14 border-b border-slate-200">
+    <div class="container-wide">
+      <nav aria-label="Breadcrumb" class="mb-4 text-sm text-slate-600">
+        <a href="/catalog/" class="hover:text-primary-600 transition-colors">Catalog</a>
+        <span class="mx-2 text-slate-400">/</span>
+        <span class="text-slate-900 font-medium">{category.name}</span>
+      </nav>
+
+      <h1 class="text-3xl md:text-4xl font-bold text-slate-900 mb-2">{category.name}</h1>
+      <p class="text-slate-600">
+        {category.skuCount} {category.skuCount === 1 ? 'SKU' : 'SKUs'} · From {priceLabel} per case
+        · <span class="text-slate-500">Freight quoted separately</span>
+      </p>
+    </div>
+  </section>
+
+  <section class="py-10 md:py-14 bg-white">
+    <div class="container-wide">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {category.products.map((product) => (
+          <ProductCard product={product} categorySlug={category.slug} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <CatalogQuoteCTA categorySlug={category.slug} headline={`Need volume pricing on ${category.name}?`} />
+</Layout>

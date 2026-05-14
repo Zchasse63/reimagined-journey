@@ -1,0 +1,27 @@
+---
+interface Props {
+  categorySlug?: string;
+  headline?: string;
+}
+
+const { categorySlug, headline = 'Ready to order volume?' } = Astro.props;
+
+const href = categorySlug
+  ? `/?catalog_category=${encodeURIComponent(categorySlug)}#lead-form`
+  : '/#lead-form';
+---
+
+<section class="bg-primary-600 py-12 md:py-16">
+  <div class="container-wide text-center">
+    <h2 class="text-2xl md:text-3xl font-bold text-white mb-3">{headline}</h2>
+    <p class="text-primary-100 mb-6 max-w-2xl mx-auto">
+      Tell us your business type and volume — we'll send a quote with delivered pricing for your zip code within one business day.
+    </p>
+    <a
+      href={href}
+      class="inline-flex items-center justify-center px-8 py-3 text-base font-semibold bg-white text-primary-700 rounded-xl hover:bg-primary-50 transition-colors"
+    >
+      Request a Custom Quote
+    </a>
+  </div>
+</section>

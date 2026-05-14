@@ -1,0 +1,71 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import CategoryCard from '@/components/catalog/CategoryCard.astro';
+import CatalogQuoteCTA from '@/components/catalog/CatalogQuoteCTA.astro';
+import catalogData from '@/data/catalog.json';
+import type { CatalogData } from '@/types/catalog';
+
+export const prerender = true;
+
+const catalog = catalogData as CatalogData;
+const totalSkus = catalog.reduce((sum, c) => sum + c.skuCount, 0);
+const siteUrl = 'https://valuesource.co';
+
+const itemListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: 'Value Source Product Catalog',
+  description: 'Wholesale packaging and disposables catalog with public pricing — clamshells, cold cups, lids, cutlery, aluminum pans, and more.',
+  numberOfItems: catalog.length,
+  itemListElement: catalog.map((cat, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: cat.name,
+      url: `${siteUrl}/catalog/${cat.slug}/`,
+      brand: { '@type': 'Brand', name: 'Value Source' },
+      offers: {
+        '@type': 'AggregateOffer',
+        lowPrice: cat.priceRangeMin.toFixed(2),
+        highPrice: cat.priceRangeMax.toFixed(2),
+        priceCurrency: 'USD',
+        offerCount: cat.skuCount,
+      },
+    },
+  })),
+};
+---
+
+<Layout
+  title="Wholesale Packaging Catalog | Value Source"
+  description="Browse 132+ wholesale food-service packaging SKUs with public pricing. Clamshells, PET cold cups, cutlery, aluminum pans, paper bags. Volume quotes and delivered pricing on request."
+  canonical={`${siteUrl}/catalog/`}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(itemListSchema)} />
+
+  <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-16 md:py-20">
+    <div class="container-wide text-center">
+      <p class="text-primary-300 font-semibold uppercase tracking-wide text-sm mb-3">
+        Wholesale Catalog
+      </p>
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">
+        Packaging & Disposables
+      </h1>
+      <p class="text-xl text-slate-300 max-w-2xl mx-auto">
+        Public pricing on {totalSkus} food-service SKUs across {catalog.length} categories.
+        Volume quotes with delivered pricing in under 24 hours.
+      </p>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16 bg-slate-50">
+    <div class="container-wide">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        {catalog.map((category) => <CategoryCard category={category} />)}
+      </div>
+    </div>
+  </section>
+
+  <CatalogQuoteCTA />
+</Layout>
