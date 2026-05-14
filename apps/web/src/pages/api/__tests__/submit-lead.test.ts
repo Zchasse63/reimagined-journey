@@ -1,101 +1,5 @@
 import { describe, it, expect } from 'vitest';
-
-/**
- * Unit tests for submit-lead API field transformation logic
- * Tests transformFormData function in isolation without database dependency
- */
-
-// Inline copy of transformFormData to test without server environment
-function transformFormData(body: Record<string, unknown>): Record<string, unknown> {
-  const transformed: Record<string, unknown> = {};
-
-  const allowedFields = new Set([
-    'email',
-    'phone',
-    'business_type',
-    'company_name',
-    'first_name',
-    'last_name',
-    'location_count',
-    'primary_interest',
-    'purchase_timeline',
-    'current_distributor',
-    'source_city',
-    'source_state',
-    'source_page',
-    'utm_source',
-    'utm_medium',
-    'utm_campaign',
-    'website',
-  ]);
-
-  if (body.businessType !== undefined) {
-    transformed.business_type = body.businessType;
-  }
-
-  if (body.businessName !== undefined) {
-    transformed.company_name = body.businessName;
-  }
-
-  if (body.contactName !== undefined && typeof body.contactName === 'string') {
-    const trimmedName = body.contactName.trim();
-
-    if (trimmedName.length < 2) {
-      transformed.first_name = trimmedName;
-      transformed.last_name = '';
-    } else {
-      const nameParts = trimmedName.split(/\s+/);
-      transformed.first_name = nameParts[0] || '';
-      transformed.last_name = nameParts.slice(1).join(' ') || '';
-    }
-  }
-
-  if (body.productInterests !== undefined && Array.isArray(body.productInterests)) {
-    const validInterests = new Set(['disposables', 'custom_print', 'proteins', 'eco_friendly', 'all']);
-    const filteredInterests = body.productInterests.filter(
-      (item): item is string => typeof item === 'string' && validInterests.has(item)
-    );
-
-    if (filteredInterests.length > 0) {
-      transformed.primary_interest = filteredInterests;
-    } else if (body.productInterests.length > 0) {
-      transformed.primary_interest = body.productInterests;
-    }
-  }
-
-  if (transformed.location_count === undefined && body.location_count === undefined) {
-    transformed.location_count = 1;
-  } else if (body.location_count !== undefined) {
-    transformed.location_count = body.location_count;
-  }
-
-  if (body.city !== undefined) {
-    transformed.source_city = body.city;
-  }
-  if (body.state !== undefined) {
-    transformed.source_state = body.state;
-  }
-  if (body.source !== undefined) {
-    transformed.source_page = body.source;
-  }
-
-  if (body.email !== undefined) transformed.email = body.email;
-  if (body.phone !== undefined) transformed.phone = body.phone;
-  if (body.purchase_timeline !== undefined) transformed.purchase_timeline = body.purchase_timeline;
-  if (body.current_distributor !== undefined) transformed.current_distributor = body.current_distributor;
-  if (body.utm_source !== undefined) transformed.utm_source = body.utm_source;
-  if (body.utm_medium !== undefined) transformed.utm_medium = body.utm_medium;
-  if (body.utm_campaign !== undefined) transformed.utm_campaign = body.utm_campaign;
-  if (body.website !== undefined) transformed.website = body.website;
-
-  Object.keys(transformed).forEach((key) => {
-    if (!allowedFields.has(key)) {
-      delete transformed[key];
-    }
-  });
-
-  return transformed;
-}
+import { transformFormData } from '@/lib/transform-lead';
 
 describe('submit-lead field transformation', () => {
   it('AC1: transforms MultiStepLeadForm camelCase to schema snake_case', () => {
@@ -273,6 +177,44 @@ describe('submit-lead field transformation', () => {
       utm_source: 'facebook',
       utm_medium: 'social',
       utm_campaign: 'miami_expansion',
+    });
+  });
+
+  // New tests for the source_page URL precedence fix (Phase 0)
+  describe('source_page URL precedence (Phase 0 fix)', () => {
+    it('explicit source_page URL wins over legacy source field', () => {
+      const input = {
+        source: 'direct',
+        source_page: '/georgia/atlanta/',
+      };
+      const output = transformFormData(input);
+
+      expect(output.source_page).toBe('/georgia/atlanta/');
+    });
+
+    it('falls back to source field when source_page is not provided', () => {
+      const input = { source: 'calculator' };
+      const output = transformFormData(input);
+
+      expect(output.source_page).toBe('calculator');
+    });
+
+    it('preserves source_page when no source field is sent', () => {
+      const input = { source_page: '/florida/miami/' };
+      const output = transformFormData(input);
+
+      expect(output.source_page).toBe('/florida/miami/');
+    });
+
+    it('ignores non-string source_page values (type safety)', () => {
+      const input = {
+        source: 'direct',
+        source_page: 12345 as unknown as string,
+      };
+      const output = transformFormData(input);
+
+      // Non-string source_page is ignored; falls back to source field
+      expect(output.source_page).toBe('direct');
     });
   });
 });
