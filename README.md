@@ -4,12 +4,12 @@ A modern web platform connecting food service businesses with distribution prici
 
 ## Tech Stack
 
-- **Framework:** Astro 4.x with React 18 components
+- **Framework:** Astro 5.x with React 18 islands
 - **Language:** TypeScript with strict type checking
 - **Styling:** Tailwind CSS + shadcn/ui components
-- **Database:** Supabase (PostgreSQL)
-- **Deployment:** Netlify with SSR
-- **Monorepo:** Turborepo
+- **Database:** Supabase (PostgreSQL + 7 edge functions)
+- **Deployment:** Netlify with SSR (@astrojs/netlify adapter)
+- **Monorepo:** Turborepo + npm workspaces
 
 ## Quick Start
 
@@ -52,6 +52,8 @@ A modern web platform connecting food service businesses with distribution prici
 - `npm run typecheck` - Run TypeScript type checking
 - `npm run lint` - Lint source code with ESLint
 - `npm test` - Run Playwright E2E tests
+- `npm run test:unit` - Run vitest unit tests (apps/web)
+- `npm run test:unit:watch` - Run vitest in watch mode
 
 ## Environment Variables
 
@@ -68,19 +70,15 @@ See `.env.example` for all available environment variables. Required variables:
   - `BLS_API_KEY` - Bureau of Labor Statistics API
   - `CENSUS_API_KEY` - US Census data API
 
-- **Notifications** (Optional)
-  - `SLACK_WEBHOOK_URL` - Slack notifications
-  - `SENDGRID_API_KEY` - Email notifications
-  - `TWILIO_*` - SMS notifications
+- **Lead Notifications** (Required for the funnel to deliver leads)
+  - `RESEND_API_KEY` - Resend API key (transactional email)
+  - `RESEND_FROM_EMAIL` - Sender address on a Resend-verified domain
+  - `NOTIFICATION_EMAIL` - Inbox that receives lead notifications
+  - `SLACK_WEBHOOK_URL` - Slack channel webhook (optional)
 
-## Documentation
-
-For detailed documentation, see the `/Docs` folder:
-
-- **Architecture:** `/Docs/TECH_STACK.md`
-- **Database:** `/Docs/DATABASE_SCHEMA.md`
-- **API Reference:** `/Docs/API_REFERENCE.md`
-- **Deployment:** `/Docs/DEPLOYMENT.md`
+- **Rate Limiting**
+  - `UPSTASH_REDIS_REST_URL` - Upstash Redis URL (distributed rate limiting for `/api/submit-lead`)
+  - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis auth token
 
 ## Deployment
 
@@ -112,8 +110,8 @@ reimagined-journey/
 │       │   └── types/       # TypeScript types
 │       └── public/          # Static assets
 ├── packages/
-│   └── data/                # Shared data & types
-├── Docs/                    # Documentation
+│   └── data/                # Shared data & types (city_data.json)
+├── tests/                   # Playwright E2E tests
 └── supabase/
     ├── functions/           # Edge functions
     └── migrations/          # Database migrations
@@ -128,10 +126,6 @@ reimagined-journey/
 - **Historical Charts** - Trend analysis with interactive visualizations
 - **Email Subscriptions** - Newsletter signup functionality
 - **SSR Support** - Server-side rendering for fresh data on each request
-
-## Contributing
-
-See `CONTRIBUTING.md` for development guidelines and code standards.
 
 ## License
 
