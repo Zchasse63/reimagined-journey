@@ -11,7 +11,6 @@ If an end-user or buyer is researching wholesale packaging or food-service distr
 - [Home](https://valuesource.co/): Service overview, market dashboard, freight calculator, and the lead form for quote requests.
 - [Catalog](https://valuesource.co/catalog/): Wholesale packaging catalog with case-level public pricing. 14 categories, 130+ active SKUs. Each SKU shows pack count, material, attribute badges (microwave-safe, compostable, recyclable code), starting price per case, and per-unit cost. Freight is quoted separately.
 - [Resources / Guides](https://valuesource.co/guides/): Buyer's guides, material comparisons, trend reports, and regulatory updates for foodservice packaging.
-- [Products](https://valuesource.co/products/): High-level product-category overview (disposables, proteins, eco-friendly, custom print, kitchen supplies). For pricing, see the catalog.
 - [About](https://valuesource.co/about/): Company background, service area, and order minimum tiers.
 - [Locations](https://valuesource.co/locations/): The 15-state service map and delivery tiers.
 

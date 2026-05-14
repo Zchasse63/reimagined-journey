@@ -18,6 +18,23 @@
 # directly in client-side `fetch()` and form `action` attributes (see all
 # /api/* call sites in apps/web/src).
 
+# Permanent redirect from the removed /products/ page to /catalog/.
+# The Products page was a low-information overview that the new Catalog
+# (with public pricing on 130+ SKUs) supplants. Both slash-variant and
+# no-slash variant 301 to /catalog/ so any inbound link, GSC-indexed URL,
+# or cached browser tab routes to the right destination.
+[[redirects]]
+  from = "/products"
+  to = "/catalog/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/products/"
+  to = "/catalog/"
+  status = 301
+  force = true
+
 # HTTPS redirect
 [[redirects]]
   from = "http://*"
