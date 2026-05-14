@@ -125,8 +125,9 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
       }));
       setStep(3);
 
-      // Scroll to form
-      document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
+      // Scroll to form — fall back to #quote on pages where this component is anchored as id="quote"
+      const target = document.getElementById('lead-form') ?? document.getElementById('quote');
+      target?.scrollIntoView({ behavior: 'smooth' });
     };
 
     window.addEventListener('calculator-quote-request', handleCalculatorData as EventListener);
@@ -211,7 +212,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
   // Success state
   if (isSuccess) {
     return (
-      <section className="py-16 bg-orange-50" id="lead-form">
+      <section className="py-16 bg-primary-50" id="lead-form">
         <div className="container mx-auto px-4 max-w-2xl">
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -225,7 +226,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
             </p>
             <p className="text-sm text-slate-500">
               Questions? Call us at{' '}
-              <a href={`tel:${SITE_CONFIG.company.phoneRaw}`} className="text-orange-600 font-medium hover:underline">
+              <a href={`tel:${SITE_CONFIG.company.phoneRaw}`} className="text-primary-600 font-medium hover:underline">
                 {SITE_CONFIG.company.phone}
               </a>
             </p>
@@ -236,7 +237,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
   }
 
   return (
-    <section className="py-16 bg-orange-50" id="lead-form">
+    <section className="py-16 bg-primary-50" id="lead-form">
       <div className="container mx-auto px-4 max-w-2xl">
         <div className="bg-white rounded-xl shadow-lg p-8">
           {/* Header */}
@@ -254,7 +255,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
             </div>
             <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-orange-500 rounded-full transition-all duration-300"
+                className="h-full bg-primary-500 rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
               />
             </div>
@@ -284,7 +285,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                       className={`
                         flex flex-col items-center justify-center p-4 rounded-lg border-2 transition-all duration-150
                         ${formData.businessType === type.value
-                          ? 'border-orange-500 bg-orange-50 text-orange-700'
+                          ? 'border-orange-500 bg-primary-50 text-orange-700'
                           : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                         }
                       `}
@@ -303,7 +304,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                 className={`
                   w-full flex items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all duration-150
                   ${formData.businessType === 'other'
-                    ? 'border-orange-500 bg-orange-50 text-orange-700'
+                    ? 'border-orange-500 bg-primary-50 text-orange-700'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                   }
                 `}
@@ -348,7 +349,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                   type="button"
                   onClick={nextStep}
                   disabled={!canProceedStep1}
-                  className="bg-orange-500 hover:bg-orange-600"
+                  className="bg-primary-600 hover:bg-primary-700"
                 >
                   Next
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -372,7 +373,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                       className={`
                         flex items-center gap-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-150
                         ${formData.productInterests.includes(category.value)
-                          ? 'border-orange-500 bg-orange-50'
+                          ? 'border-orange-500 bg-primary-50'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                         }
                       `}
@@ -380,7 +381,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                       <Checkbox
                         checked={formData.productInterests.includes(category.value)}
                         onCheckedChange={() => toggleProductInterest(category.value)}
-                        className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                        className="data-[state=checked]:bg-primary-500 data-[state=checked]:border-orange-500"
                       />
                       <span className="text-sm text-slate-700">{category.label}</span>
                     </label>
@@ -400,7 +401,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                       className={`
                         flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-150
                         ${formData.estimatedSpend === range.value
-                          ? 'border-orange-500 bg-orange-50'
+                          ? 'border-orange-500 bg-primary-50'
                           : 'border-slate-200 bg-white hover:border-slate-300'
                         }
                       `}
@@ -432,7 +433,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                   type="button"
                   onClick={nextStep}
                   disabled={!canProceedStep2}
-                  className="bg-orange-500 hover:bg-orange-600"
+                  className="bg-primary-600 hover:bg-primary-700"
                 >
                   Next
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -537,7 +538,7 @@ export default function MultiStepLeadForm({ city, state, minimumOrder: _minimumO
                   type="button"
                   onClick={handleSubmit}
                   disabled={!canSubmit || isSubmitting}
-                  className="bg-orange-500 hover:bg-orange-600"
+                  className="bg-primary-600 hover:bg-primary-700"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Request'}
                   {!isSubmitting && <ArrowRight className="ml-2 w-4 h-4" />}

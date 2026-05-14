@@ -12,7 +12,7 @@ const { product, categorySlug } = Astro.props;
 const priceCase = product.sellPricePerCase.toFixed(2);
 const priceUnit = product.sellPricePerUnit.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
 
-const quoteHref = `/?catalog_sku=${encodeURIComponent(product.sku)}&catalog_category=${encodeURIComponent(categorySlug)}#lead-form`;
+const quoteHref = `/?catalog_sku=${encodeURIComponent(product.sku)}&catalog_category=${encodeURIComponent(categorySlug)}#quote`;
 
 const recyclableLabel = product.recyclableCode ? `Recyclable #${product.recyclableCode}` : null;
 ---

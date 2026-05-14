@@ -7,8 +7,8 @@ interface Props {
 const { categorySlug, headline = 'Ready to order volume?' } = Astro.props;
 
 const href = categorySlug
-  ? `/?catalog_category=${encodeURIComponent(categorySlug)}#lead-form`
-  : '/#lead-form';
+  ? `/?catalog_category=${encodeURIComponent(categorySlug)}#quote`
+  : '/#quote';
 ---
 
 <section class="bg-primary-600 py-12 md:py-16">

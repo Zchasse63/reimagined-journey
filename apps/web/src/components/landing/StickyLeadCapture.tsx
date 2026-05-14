@@ -101,7 +101,10 @@ export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.ph
   };
 
   const scrollToForm = () => {
-    document.getElementById('lead-form')?.scrollIntoView({ behavior: 'smooth' });
+    // Fall back to #quote because state pages and the homepage anchor the form section as id="quote"
+    // while city pages use id="lead-form" (the MultiStepLeadForm section itself).
+    const target = document.getElementById('lead-form') ?? document.getElementById('quote');
+    target?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // Don't render if not visible or dismissed
@@ -203,7 +206,7 @@ export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.ph
             <Button
               type="submit"
               disabled={!canSubmit || isSubmitting}
-              className="w-full bg-orange-500 hover:bg-orange-600"
+              className="w-full bg-primary-600 hover:bg-primary-700"
               size="sm"
             >
               {isSubmitting ? 'Sending...' : 'Get Started'}
@@ -214,7 +217,7 @@ export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.ph
               <p className="text-xs text-slate-500 mb-1">or call</p>
               <a
                 href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
-                className="text-sm font-semibold text-orange-600 hover:text-orange-700"
+                className="text-sm font-semibold text-primary-600 hover:text-primary-700"
               >
                 {phoneNumber}
               </a>
@@ -223,8 +226,8 @@ export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.ph
         )}
       </div>
 
-      {/* Mobile Bottom Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-3 z-40">
+      {/* Mobile Bottom Bar — pb-[env(safe-area-inset-bottom)] keeps the buttons clear of the iOS home indicator */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] z-40">
         <div className="flex gap-3">
           <a
             href={`tel:${phoneNumber.replace(/[^0-9+]/g, '')}`}
@@ -236,7 +239,7 @@ export default function StickyLeadCapture({ phoneNumber = SITE_CONFIG.company.ph
           <Button
             type="button"
             onClick={scrollToForm}
-            className="flex-1 bg-orange-500 hover:bg-orange-600"
+            className="flex-1 bg-primary-600 hover:bg-primary-700"
           >
             Get Quote
             <ArrowRight className="ml-2 w-4 h-4" />
