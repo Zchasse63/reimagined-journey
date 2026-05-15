@@ -20,9 +20,9 @@ const navLinks = [
 <header class="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
   <div class="container-wide">
     <div class="flex h-16 md:h-[72px] items-center justify-between">
-      <!-- Logo -->
-      <a href="/" class="flex items-center space-x-2">
-        <div class="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
+      <!-- Logo — bumped to 44x44 to meet WCAG 2.5.5 / Apple HIG tap-target minimum -->
+      <a href="/" class="flex items-center space-x-2" aria-label="Value Source — home">
+        <div class="w-11 h-11 bg-primary-600 rounded-lg flex items-center justify-center">
           <span class="text-white font-bold text-xl">VS</span>
         </div>
         <span class="font-semibold text-xl text-slate-900 hidden sm:block">
@@ -50,8 +50,9 @@ const navLinks = [
         <a
           href={`tel:${SITE_CONFIG.company.phoneRaw}`}
           class="flex items-center text-sm font-medium text-slate-600 hover:text-primary-600 transition-colors"
+          aria-label={`Call Value Source at ${SITE_CONFIG.company.phone}`}
         >
-          <Phone className="w-4 h-4 mr-2" />
+          <Phone className="w-4 h-4 mr-2" aria-hidden="true" />
           <span class="hidden lg:inline">{SITE_CONFIG.company.phone}</span>
         </a>
         <a
@@ -62,13 +63,14 @@ const navLinks = [
         </a>
       </div>
 
-      <!-- Mobile Menu Button -->
+      <!-- Mobile Menu Button — p-3 gives a 48x48 tap target around the 24px icon (was p-2 = 40x40, below the 44x44 minimum) -->
       <button
         type="button"
-        class="lg:hidden p-2 text-slate-600 hover:text-slate-900"
+        class="lg:hidden p-3 text-slate-600 hover:text-slate-900 rounded-lg"
         id="mobile-menu-button"
         aria-label="Toggle menu"
         aria-expanded="false"
+        aria-controls="mobile-menu"
       >
         <Menu className="w-6 h-6" id="menu-open-icon" />
         <X className="w-6 h-6 hidden" id="menu-close-icon" />

@@ -532,41 +532,51 @@ export default function FreightCalculator({
               <div className="lg:col-span-2 p-6 space-y-5 bg-white">
                 {/* Origin ZIP */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="freight-origin-zip" className="text-sm font-medium text-slate-700">
                     Origin ZIP Code
                   </Label>
                   <input
+                    id="freight-origin-zip"
                     type="text"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
                     value={originZip}
                     onChange={(e) => setOriginZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
                     placeholder="30301"
+                    aria-describedby="freight-origin-info"
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   />
-                  <p className="text-xs text-slate-500">{originInfo}</p>
+                  <p id="freight-origin-info" className="text-xs text-slate-500">{originInfo}</p>
                 </div>
 
                 {/* Destination ZIP */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="freight-destination-zip" className="text-sm font-medium text-slate-700">
                     Destination ZIP Code
                   </Label>
                   <input
+                    id="freight-destination-zip"
                     type="text"
+                    inputMode="numeric"
+                    autoComplete="postal-code"
                     value={destinationZip}
                     onChange={(e) => setDestinationZip(e.target.value.replace(/\D/g, '').slice(0, 5))}
                     placeholder="37201"
+                    aria-describedby="freight-destination-info"
                     className="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   />
-                  <p className="text-xs text-slate-500">{destinationInfo}</p>
+                  <p id="freight-destination-info" className="text-xs text-slate-500">{destinationInfo}</p>
                 </div>
 
                 {/* Manual Distance Override */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium text-slate-700">
+                  <Label htmlFor="freight-manual-distance" className="text-sm font-medium text-slate-700">
                     Distance (miles) <span className="text-slate-400 font-normal">- or enter manually</span>
                   </Label>
                   <input
+                    id="freight-manual-distance"
                     type="number"
+                    inputMode="numeric"
                     value={manualDistance}
                     onChange={(e) => setManualDistance(e.target.value)}
                     placeholder={calculatedDistance > 0 ? calculatedDistance.toString() : 'Auto-calculated'}
@@ -579,25 +589,28 @@ export default function FreightCalculator({
                   )}
                 </div>
 
-                {/* Load Type Toggle */}
-                <div className="space-y-2">
+                {/* Load Type Toggle — toggle-group with aria-pressed so screen
+                    readers announce the current selection. */}
+                <div className="space-y-2" role="group" aria-label="Load type">
                   <Label className="text-sm font-medium text-slate-700">Load Type</Label>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setLoadType('ftl')}
+                      aria-pressed={loadType === 'ftl'}
                       className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                         loadType === 'ftl'
                           ? 'bg-amber-100 border-amber-500 text-amber-800'
                           : 'bg-white border-slate-300 text-slate-600 hover:border-slate-400'
                       }`}
                     >
-                      <Truck className="w-4 h-4" />
+                      <Truck className="w-4 h-4" aria-hidden="true" />
                       FTL
                     </button>
                     <button
                       type="button"
                       onClick={() => setLoadType('ltl')}
+                      aria-pressed={loadType === 'ltl'}
                       className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
                         loadType === 'ltl'
                           ? 'bg-amber-100 border-amber-500 text-amber-800'
@@ -613,16 +626,18 @@ export default function FreightCalculator({
                 {/* LTL Weight (only show for LTL) */}
                 {loadType === 'ltl' && (
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-slate-700">
+                    <Label htmlFor="freight-ltl-weight" className="text-sm font-medium text-slate-700">
                       Shipment Weight (lbs)
                     </Label>
                     <input
+                      id="freight-ltl-weight"
                       type="range"
                       min={500}
                       max={20000}
                       step={500}
                       value={ltlWeight}
                       onChange={(e) => setLtlWeight(Number(e.target.value))}
+                      aria-valuetext={`${ltlWeight.toLocaleString()} pounds`}
                       className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
                     />
                     <div className="flex justify-between text-xs text-slate-500">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X, CheckCircle } from 'lucide-react';
@@ -18,6 +18,12 @@ export default function ExitIntentPopup({ city }: ExitIntentPopupProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Focus management for the modal dialog (a11y): we save where focus was
+  // before opening so we can restore it on close, and we focus the close
+  // button when the dialog appears so keyboard users land inside it.
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
   // Check sessionStorage on mount
   useEffect(() => {
@@ -65,7 +71,72 @@ export default function ExitIntentPopup({ city }: ExitIntentPopupProps) {
 
   const closePopup = useCallback(() => {
     setShowPopup(false);
+    // Restore focus to whatever the user was on before the popup interrupted
+    // them. Guard against the element having been removed from the DOM (rare
+    // but possible — page navigation, transitions, etc.) by falling back to
+    // document.body so keyboard users are never stranded with no focus.
+    const target = previousFocusRef.current;
+    if (target && document.contains(target)) {
+      target.focus();
+    } else {
+      document.body.focus();
+    }
   }, []);
+
+  // When dialog opens, save the previously-focused element and move focus
+  // into the dialog (close button is the first interactive element so it's
+  // a sensible target — Escape and the X button are the two exits).
+  useEffect(() => {
+    if (showPopup) {
+      previousFocusRef.current = document.activeElement as HTMLElement;
+      // Defer to next tick so the dialog has rendered before we focus into it
+      requestAnimationFrame(() => {
+        closeButtonRef.current?.focus();
+      });
+    }
+  }, [showPopup]);
+
+  // Re-anchor focus after the dialog body swaps from form view to success view.
+  // Without this, if the user hits Enter on the submit button, focus is dropped
+  // to <body> when the button unmounts — and the next Tab escapes the dialog
+  // via the page underneath. We move focus to the close button on success so it
+  // stays within the dialog until the user dismisses.
+  useEffect(() => {
+    if (showPopup && isSuccess) {
+      requestAnimationFrame(() => closeButtonRef.current?.focus());
+    }
+  }, [showPopup, isSuccess]);
+
+  // Focus trap: keep Tab cycling within the dialog while it's open. Without
+  // this, a keyboard user can Tab past the dialog into the page underneath,
+  // which is a WCAG 2.4.3 (focus order) and 2.1.2 (no keyboard trap) issue —
+  // ironically *missing* the trap is what creates the problem here.
+  useEffect(() => {
+    if (!showPopup) return;
+
+    const handleTab = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab' || !dialogRef.current) return;
+
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTab);
+    return () => document.removeEventListener('keydown', handleTab);
+  }, [showPopup]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -111,16 +182,24 @@ export default function ExitIntentPopup({ city }: ExitIntentPopupProps) {
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
       onClick={handleBackdropClick}
+      role="presentation"
     >
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-8 relative">
+      <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="exit-intent-title"
+        className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-8 relative"
+      >
         {/* Close button */}
         <button
+          ref={closeButtonRef}
           type="button"
           onClick={closePopup}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors p-1 rounded"
           aria-label="Close popup"
         >
-          <X className="w-6 h-6" />
+          <X className="w-6 h-6" aria-hidden="true" />
         </button>
 
         {isSuccess ? (
@@ -143,7 +222,7 @@ export default function ExitIntentPopup({ city }: ExitIntentPopupProps) {
           </div>
         ) : (
           <>
-            <h3 className="text-2xl font-bold text-slate-900 mb-3 pr-8">
+            <h3 id="exit-intent-title" className="text-2xl font-bold text-slate-900 mb-3 pr-8">
               Before you go...
             </h3>
 
