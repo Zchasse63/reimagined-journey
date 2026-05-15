@@ -35,6 +35,22 @@
   status = 301
   force = true
 
+# Cluster article slug renamed for clearer terminology — industry standard
+# is "hinged vs non-hinged" (the strict packaging-engineering definition
+# reserves "clamshell" for hinged-only). 301 catches anyone who already
+# indexed or linked to the old slug from the Phase 8 content push.
+[[redirects]]
+  from = "/guides/hinged-vs-2piece-clamshells/"
+  to = "/guides/hinged-vs-non-hinged-clamshells/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/guides/hinged-vs-2piece-clamshells"
+  to = "/guides/hinged-vs-non-hinged-clamshells/"
+  status = 301
+  force = true
+
 # HTTPS redirect
 [[redirects]]
   from = "http://*"
