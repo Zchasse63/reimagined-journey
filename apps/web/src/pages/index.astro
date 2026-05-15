@@ -31,6 +31,19 @@ const states = getAllStates();
 const totalCities = getTotalCityCount();
 const hubCity = getHubCity();
 
+// SSR cache window — short edge cache so live market-data updates surface
+// within minutes, not hours. Verified in production after PR #18 + #19: the
+// netlify.toml `[[headers]] for = "/"` rule was *not* being applied to the
+// Astro SSR function response (Netlify Function-emitted headers win over
+// netlify.toml header rules). Setting it here directly is the reliable fix.
+// browser: max-age=0 (always revalidate)
+// CDN: s-maxage=300 (5 min hard cache)
+// stale-while-revalidate=600 (serve stale up to 10 min while refetching)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=0, must-revalidate, s-maxage=300, stale-while-revalidate=600'
+);
+
 // Fetch dynamic data with fallbacks
 let marketData: MarketData = FALLBACK_MARKET_DATA;
 let recalls: Recall[] = FALLBACK_RECALLS;
