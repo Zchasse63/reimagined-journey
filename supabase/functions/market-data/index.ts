@@ -426,6 +426,181 @@ function getMockMarketData(): MarketData {
 }
 
 /**
+ * Fetch a daily futures settlement from Yahoo Finance's free public chart
+ * endpoint. Used for commodities where there's no direct USDA/BLS series
+ * with daily granularity (soybean oil, ICE sugar contracts).
+ *
+ * Yahoo Finance quotes ag commodities in `USX` (US cents). Caller decides
+ * whether to keep cents (sugar pricing convention) or divide by 100 (oil
+ * pricing convention).
+ *
+ * No API key required. The endpoint is rate-limited but a single daily call
+ * per symbol stays well within limits.
+ */
+interface YahooQuoteResult {
+  current: number;
+  previous: number;
+  exchange: string;
+  asOf: string; // ISO date of the most recent close
+}
+
+async function fetchYahooDailyClose(symbol: string): Promise<YahooQuoteResult | null> {
+  try {
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ValueSourceBot/1.0)' },
+    });
+    if (!response.ok) {
+      console.error(`Yahoo Finance returned ${response.status} for ${symbol}`);
+      return null;
+    }
+    const data = await response.json();
+    const result = data.chart?.result?.[0];
+    if (!result) {
+      console.error(`Yahoo Finance returned no result for ${symbol}`);
+      return null;
+    }
+    const meta = result.meta;
+    const timestamps: number[] = result.timestamp ?? [];
+    const closes: (number | null)[] = result.indicators?.quote?.[0]?.close ?? [];
+
+    // Walk back from the end to find the latest valid close + the one before
+    let current: number | null = null;
+    let previous: number | null = null;
+    let asOfTs: number | null = null;
+    for (let i = closes.length - 1; i >= 0; i--) {
+      if (closes[i] != null) {
+        if (current === null) {
+          current = closes[i] as number;
+          asOfTs = timestamps[i];
+        } else {
+          previous = closes[i] as number;
+          break;
+        }
+      }
+    }
+
+    // Fall back to regularMarketPrice / chartPreviousClose from meta if the
+    // close array was sparse (intraday before the daily settlement).
+    if (current === null) current = meta.regularMarketPrice ?? null;
+    if (previous === null) previous = meta.chartPreviousClose ?? null;
+    if (current === null || !Number.isFinite(current)) return null;
+
+    return {
+      current,
+      previous: previous != null && Number.isFinite(previous) ? previous : current,
+      exchange: meta.exchangeName ?? 'UNK',
+      asOf: asOfTs ? new Date(asOfTs * 1000).toISOString().slice(0, 10) : '',
+    };
+  } catch (error) {
+    console.error(`Yahoo Finance fetch error for ${symbol}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Fetch live cooking-oil prices. CBOT Soybean Oil (ZL=F) is the only oil
+ * with a clean free daily source — canola has a Canadian contract (RS=F)
+ * but it's CAD-denominated and corn oil has no direct futures (corn oil is
+ * a refined product, not the corn commodity itself). For those we fall
+ * back to static estimates and label the source accordingly.
+ */
+async function fetchLiveCookingOilPrices(): Promise<CommodityData | null> {
+  try {
+    const soyResult = await fetchYahooDailyClose('ZL=F');
+    if (!soyResult) return null;
+
+    // Yahoo quotes ZL=F in cents per pound. Convert to $/lb to match the
+    // existing display convention (oil prices shown as $0.XX/lb).
+    const currentDollars = soyResult.current / 100;
+    const previousDollars = soyResult.previous / 100;
+    const changePct = previousDollars > 0
+      ? ((currentDollars - previousDollars) / previousDollars) * 100
+      : 0;
+
+    return {
+      items: [
+        {
+          name: 'Soybean Oil',
+          price: parseFloat(currentDollars.toFixed(2)),
+          unit: 'lb',
+          change: parseFloat(changePct.toFixed(1)),
+        },
+        // Canola and corn oil have no daily public source — keep static
+        // values but flag the source so the UI can distinguish.
+        { name: 'Canola Oil', price: 0.55, unit: 'lb', change: -0.4 },
+        { name: 'Corn Oil',   price: 0.62, unit: 'lb', change: 0.2 },
+      ],
+      source: `CBOT Soybean Oil futures (ZL=F, ${soyResult.asOf}); canola + corn estimated`,
+    };
+  } catch (error) {
+    console.error('Error fetching cooking oil:', error);
+    return null;
+  }
+}
+
+/**
+ * Fetch live sugar prices. ICE Sugar #11 (raw, SB=F) and ICE Sugar #16
+ * (refined, SF=F) both quote in cents/lb on Yahoo Finance. HFCS has no
+ * futures contract (it's a manufactured product, not a traded commodity),
+ * so it stays as a static estimate.
+ */
+async function fetchLiveSugarPrices(): Promise<CommodityData | null> {
+  try {
+    const [raw, refined] = await Promise.all([
+      fetchYahooDailyClose('SB=F'),
+      fetchYahooDailyClose('SF=F'),
+    ]);
+
+    // If both fail we fall back to mock; if only one fails we partially
+    // populate with the live one and skip the other rather than mixing
+    // live and stale in the same row.
+    if (!raw && !refined) return null;
+
+    const items: CommodityItem[] = [];
+    if (raw) {
+      const changePct = raw.previous > 0
+        ? ((raw.current - raw.previous) / raw.previous) * 100
+        : 0;
+      items.push({
+        name: 'Raw Sugar (ICE #11)',
+        price: parseFloat(raw.current.toFixed(2)),
+        unit: 'cents/lb',
+        change: parseFloat(changePct.toFixed(1)),
+      });
+    }
+    if (refined) {
+      const changePct = refined.previous > 0
+        ? ((refined.current - refined.previous) / refined.previous) * 100
+        : 0;
+      items.push({
+        name: 'Refined Sugar (ICE #16)',
+        price: parseFloat(refined.current.toFixed(2)),
+        unit: 'cents/lb',
+        change: parseFloat(changePct.toFixed(1)),
+      });
+    }
+    // HFCS: no live source. Include if we have at least one live sugar so
+    // the row isn't sparse-looking, but make the source field honest.
+    items.push({
+      name: 'High Fructose Corn Syrup',
+      price: 28.50,
+      unit: 'cents/lb',
+      change: -0.3,
+    });
+
+    const asOf = raw?.asOf ?? refined?.asOf ?? '';
+    return {
+      items,
+      source: `ICE Sugar futures (${asOf}); HFCS estimated (no public futures contract)`,
+    };
+  } catch (error) {
+    console.error('Error fetching sugar:', error);
+    return null;
+  }
+}
+
+/**
  * Fetch Freightos Baltic Index data
  * Uses public FBX API when available
  */
@@ -951,13 +1126,17 @@ async function getMarketData(
     return { data: cachedData, cached: true };
   }
 
-  // Try to fetch real data from APIs in parallel
-  const [poultry, beef, diesel, oceanFreight, tariffs] = await Promise.all([
+  // Try to fetch real data from APIs in parallel. Yahoo Finance fetches
+  // (cookingOil + sugar) are independent of Supabase and run alongside the
+  // EIA / USDA / USITC calls.
+  const [poultry, beef, diesel, oceanFreight, tariffs, cookingOil, sugar] = await Promise.all([
     fetchUSDAPoultryPrices(),
     fetchUSDABeefPrices(),
     fetchEIADieselPrices(),
     fetchFreightosRates(),
     fetchTariffData(supabase),
+    fetchLiveCookingOilPrices(),
+    fetchLiveSugarPrices(),
   ]);
 
   // Use mock data as fallback for any missing data
@@ -966,8 +1145,8 @@ async function getMarketData(
   const marketData: MarketData = {
     poultry: poultry || mockData.poultry,
     beef: beef || mockData.beef,
-    cookingOil: mockData.cookingOil,
-    sugar: mockData.sugar,
+    cookingOil: cookingOil || mockData.cookingOil,
+    sugar: sugar || mockData.sugar,
     diesel: diesel || mockData.diesel,
     oceanFreight: oceanFreight || mockData.oceanFreight,
     trucking: mockData.trucking, // ATRI data requires subscription
