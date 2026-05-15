@@ -5,6 +5,11 @@ import { SITE_CONFIG } from '@/lib/site-config';
 const currentYear = new Date().getFullYear();
 
 const footerLinks = {
+  shop: [
+    { href: '/catalog/', label: 'Wholesale Catalog' },
+    { href: '/guides/', label: 'Buyer\'s Guides' },
+    { href: '/#quote', label: 'Request a Quote' },
+  ],
   locations: [
     { href: '/georgia/', label: 'Georgia' },
     { href: '/florida/', label: 'Florida' },
@@ -23,7 +28,7 @@ const footerLinks = {
 <footer class="bg-slate-900 text-slate-300">
   <!-- Main Footer -->
   <div class="container-wide py-12 md:py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 lg:gap-12">
       <!-- Brand Column -->
       <div class="lg:col-span-2">
         <a href="/" class="flex items-center space-x-2 mb-4">
@@ -59,6 +64,23 @@ const footerLinks = {
             </span>
           </div>
         </div>
+      </div>
+
+      <!-- Shop Links — the two conversion-driving pages (Catalog + Guides) -->
+      <div>
+        <h3 class="text-white font-semibold mb-4">Shop</h3>
+        <ul class="space-y-3">
+          {footerLinks.shop.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="text-slate-400 hover:text-primary-400 transition-colors"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <!-- Locations Links -->

@@ -88,6 +88,27 @@
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 
+# SSR pages that consume live market data (homepage + state + city pages) need
+# a short CDN cache window so updates to the market-data edge function show up
+# within minutes, not hours. Without this rule, Netlify Edge cached the homepage
+# for 30+ minutes with stale $3.58 diesel while the API was returning $5.28.
+# stale-while-revalidate lets Netlify serve the prior version while it pulls a
+# fresh one in the background, so visitors never wait on the SSR fetch.
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate, s-maxage=300, stale-while-revalidate=600"
+
+[[headers]]
+  for = "/:state/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate, s-maxage=600, stale-while-revalidate=1800"
+
+[[headers]]
+  for = "/:state/:city/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate, s-maxage=600, stale-while-revalidate=1800"
+
 # Edge functions for SSR pages
 # Note: The @astrojs/netlify adapter v5+ generates functions in .netlify/v1/functions
 # Netlify automatically detects this location, so no explicit directory config needed
