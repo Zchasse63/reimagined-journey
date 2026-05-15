@@ -87,160 +87,75 @@ interface MarketData {
 }
 
 /**
- * Mock market data - realistic values based on current market data
- * Real APIs will be integrated when API keys are configured
+ * Static fallback values for categories that do not yet have a live data source
+ * wired up. Previous version added Math.random() variance to fake liveness —
+ * that has been removed because it misled users into thinking these were
+ * being refreshed. Sources are labeled "(estimated)" so the UI can flag them.
+ *
+ * Live-data categories (do NOT consume from here when the upstream API works):
+ *  - beef:   served via fetchUSDABeefPrices() -> standalone usda-prices fn
+ *  - diesel: served via fetchEIADieselPrices() -> direct EIA v2 API call
+ *  - tariffs: served via fetchTariffData() -> USITC HTS REST API
  */
 function getMockMarketData(): MarketData {
-  const variance = () => (Math.random() - 0.5) * 0.1;
-
   return {
     poultry: {
       items: [
-        {
-          name: 'Whole Chicken',
-          price: parseFloat((1.12 + variance() * 0.1).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((-2.1 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Wings',
-          price: parseFloat((2.14 + variance() * 0.2).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((3.2 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Breast',
-          price: parseFloat((2.89 + variance() * 0.2).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((-0.5 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Thighs',
-          price: parseFloat((1.45 + variance() * 0.1).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((0.8 + variance() * 2).toFixed(1)),
-        },
+        { name: 'Whole Chicken', price: 1.32, unit: 'lb', change: -1.5 },
+        { name: 'Wings',         price: 2.45, unit: 'lb', change: 2.8 },
+        { name: 'Breast',        price: 2.98, unit: 'lb', change: -0.4 },
+        { name: 'Thighs',        price: 1.58, unit: 'lb', change: 0.6 },
       ],
-      source: 'USDA LMPR',
+      source: 'USDA AMS Broiler Market News (estimated — live API pending)',
     },
     beef: {
       items: [
-        {
-          name: 'Choice Cutout',
-          price: parseFloat((315.42 + variance() * 10).toFixed(2)),
-          unit: 'cwt',
-          change: parseFloat((1.3 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Select Cutout',
-          price: parseFloat((298.15 + variance() * 10).toFixed(2)),
-          unit: 'cwt',
-          change: parseFloat((0.8 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Ground Beef 81%',
-          price: parseFloat((285.50 + variance() * 8).toFixed(2)),
-          unit: 'cwt',
-          change: parseFloat((-0.3 + variance() * 2).toFixed(1)),
-        },
+        { name: 'Choice Cutout',     price: 387.45, unit: 'cwt', change: -1.2 },
+        { name: 'Select Cutout',     price: 372.10, unit: 'cwt', change: 0.4 },
+        { name: 'Ground Beef 81%',   price: 305.20, unit: 'cwt', change: -0.5 },
       ],
-      source: 'USDA LMPR',
+      source: 'USDA AMS Boxed Beef Cutout (estimated fallback — live API normally fills)',
     },
     cookingOil: {
       items: [
-        {
-          name: 'Soybean Oil',
-          price: parseFloat((0.52 + variance() * 0.05).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((-1.8 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Canola Oil',
-          price: parseFloat((0.48 + variance() * 0.05).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((-0.5 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Corn Oil',
-          price: parseFloat((0.55 + variance() * 0.05).toFixed(2)),
-          unit: 'lb',
-          change: parseFloat((0.2 + variance() * 2).toFixed(1)),
-        },
+        { name: 'Soybean Oil', price: 0.50, unit: 'lb', change: -1.8 },
+        { name: 'Canola Oil',  price: 0.55, unit: 'lb', change: -0.4 },
+        { name: 'Corn Oil',    price: 0.62, unit: 'lb', change: 0.2 },
       ],
-      source: 'USDA ERS',
+      source: 'USDA ERS Oil Crops Yearbook (estimated — live API pending)',
     },
     sugar: {
       items: [
-        {
-          name: 'Raw Sugar (ICE #11)',
-          price: parseFloat((22.45 + variance() * 1).toFixed(2)),
-          unit: 'cents/lb',
-          change: parseFloat((2.3 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'Refined Sugar (ICE #16)',
-          price: parseFloat((45.80 + variance() * 2).toFixed(2)),
-          unit: 'cents/lb',
-          change: parseFloat((1.5 + variance() * 2).toFixed(1)),
-        },
-        {
-          name: 'High Fructose Corn Syrup',
-          price: parseFloat((28.50 + variance() * 1.5).toFixed(2)),
-          unit: 'cents/lb',
-          change: parseFloat((-0.8 + variance() * 2).toFixed(1)),
-        },
+        { name: 'Raw Sugar (ICE #11)',        price: 19.85, unit: 'cents/lb', change: -0.6 },
+        { name: 'Refined Sugar (ICE #16)',    price: 43.20, unit: 'cents/lb', change: 0.8 },
+        { name: 'High Fructose Corn Syrup',   price: 28.50, unit: 'cents/lb', change: -0.3 },
       ],
-      source: 'Trading Economics / ICE Futures',
+      source: 'ICE Futures + USDA ERS Sugar Yearbook (estimated — live API pending)',
     },
     diesel: {
-      price: parseFloat((3.58 + variance() * 0.1).toFixed(2)),
-      previousWeek: 3.55,
-      region: 'Lower Atlantic (PADD 1C)',
+      // This block is only reached if fetchEIADieselPrices returns null. The
+      // EIA-fed live value is typically $4-6/gal in 2025-2026; the prior
+      // $3.58 fallback was set when the API was last broken in early 2024.
+      price: 5.28,
+      previousWeek: 5.33,
+      region: 'Lower Atlantic (PADD 1C, estimated fallback)',
       unit: 'gal',
     },
     oceanFreight: {
       routes: [
-        {
-          origin: 'Shanghai, China',
-          destination: 'Savannah, GA',
-          price: parseFloat((2850 + variance() * 200).toFixed(0)),
-          unit: '40ft container',
-          change: parseFloat((-4.2 + variance() * 3).toFixed(1)),
-          transitDays: 28,
-        },
-        {
-          origin: 'Ho Chi Minh, Vietnam',
-          destination: 'Savannah, GA',
-          price: parseFloat((3120 + variance() * 200).toFixed(0)),
-          unit: '40ft container',
-          change: parseFloat((1.8 + variance() * 3).toFixed(1)),
-          transitDays: 32,
-        },
-        {
-          origin: 'Bangkok, Thailand',
-          destination: 'Savannah, GA',
-          price: parseFloat((3450 + variance() * 200).toFixed(0)),
-          unit: '40ft container',
-          change: parseFloat((0.5 + variance() * 3).toFixed(1)),
-          transitDays: 35,
-        },
-        {
-          origin: 'Guayaquil, Ecuador',
-          destination: 'Miami, FL',
-          price: parseFloat((1850 + variance() * 150).toFixed(0)),
-          unit: '40ft container',
-          change: parseFloat((-2.1 + variance() * 3).toFixed(1)),
-          transitDays: 8,
-        },
+        { origin: 'Shanghai, China',         destination: 'Savannah, GA', price: 2850, unit: '40ft container', change: -4.2, transitDays: 28 },
+        { origin: 'Ho Chi Minh, Vietnam',    destination: 'Savannah, GA', price: 3120, unit: '40ft container', change: 1.8,  transitDays: 32 },
+        { origin: 'Bangkok, Thailand',       destination: 'Savannah, GA', price: 3450, unit: '40ft container', change: 0.5,  transitDays: 35 },
+        { origin: 'Guayaquil, Ecuador',      destination: 'Miami, FL',    price: 1850, unit: '40ft container', change: -2.1, transitDays: 8 },
       ],
-      source: 'Freightos Baltic Index (FBX)',
+      source: 'Freightos Baltic Index (estimated — live API pending)',
       lastUpdated: new Date().toISOString(),
     },
     trucking: {
-      ratePerMile: parseFloat((2.26 + variance() * 0.1).toFixed(2)),
-      nationalAverage: parseFloat((2.18 + variance() * 0.1).toFixed(2)),
-      fuelSurchargePercent: parseFloat((43.2 + variance() * 2).toFixed(1)),
-      source: 'ATRI / DAT Freight Analytics',
+      ratePerMile: 2.26,
+      nationalAverage: 2.18,
+      fuelSurchargePercent: 43.2,
+      source: 'ATRI / DAT Freight Analytics (estimated — subscription API)',
     },
     tariffs: {
       examples: [
@@ -834,58 +749,75 @@ async function fetchUSDAPoultryPrices(): Promise<CommodityData | null> {
 }
 
 /**
- * Fetch real USDA beef prices
- * Uses correct API endpoint: /reports/{slug_id}/{section_name}
+ * Fetch real USDA beef prices by delegating to the standalone usda-prices
+ * edge function, which already handles change-from-prior computation via the
+ * protein_prices history table. This eliminates the previous bug where
+ * `change` was hardcoded to 0 for every cut.
  */
 async function fetchUSDABeefPrices(): Promise<CommodityData | null> {
   try {
-    // USDA AMS Boxed Beef Report: slug_id 2453, section "Current Cutout Values"
-    const response = await fetch(
-      'https://mpr.datamart.ams.usda.gov/services/v1.1/reports/2453/Current%20Cutout%20Values'
-    );
-
-    if (response.ok) {
-      const data = await response.json();
-      if (data.results && data.results.length > 0) {
-        const latest = data.results[0];
-
-        const items: CommodityItem[] = [];
-
-        if (latest.choice_600_900_current) {
-          items.push({
-            name: 'Choice Cutout',
-            price: parseFloat(latest.choice_600_900_current) || 315.42,
-            unit: 'cwt',
-            change: 0,
-          });
-        }
-
-        if (latest.select_600_900_current) {
-          items.push({
-            name: 'Select Cutout',
-            price: parseFloat(latest.select_600_900_current) || 298.15,
-            unit: 'cwt',
-            change: 0,
-          });
-        }
-
-        if (items.length > 0) {
-          return {
-            items,
-            source: 'USDA LMPR',
-          };
-        }
-      }
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY');
+    if (!supabaseUrl) {
+      return null;
     }
-    return null;
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
+    if (anonKey) {
+      headers['Authorization'] = `Bearer ${anonKey}`;
+    }
+
+    const response = await fetch(`${supabaseUrl}/functions/v1/usda-prices`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      console.error('usda-prices function returned', response.status);
+      return null;
+    }
+
+    const proteins = (await response.json()) as Array<{
+      commodity: string;
+      cutType: string;
+      priceAvg: number;
+      unit: string;
+      changeFromPrior: number | null;
+    }>;
+
+    // Filter to beef cuts only. Pork is returned alongside but the homepage
+    // dashboard currently only renders the beef block; we surface beef here
+    // and let a future change add a pork block if the menu mix calls for it.
+    const beefItems: CommodityItem[] = proteins
+      .filter((p) => p.commodity === 'Beef' && p.priceAvg > 0)
+      .map((p) => ({
+        name: p.cutType,
+        price: p.priceAvg,
+        unit: p.unit,
+        change: p.changeFromPrior ?? 0,
+      }));
+
+    if (beefItems.length === 0) {
+      return null;
+    }
+
+    return {
+      items: beefItems,
+      source: 'USDA AMS Boxed Beef Cutout (LM_XB403)',
+    };
   } catch (error) {
-    console.error('Error fetching USDA beef prices:', error);
+    console.error('Error calling usda-prices function:', error);
     return null;
   }
 }
 
 /**
- * Fetch real EIA diesel prices
+ * Fetch real EIA diesel prices using the v2 series-ID pattern that actually
+ * works. Previous version used `facets[duession][]=PTE` — `duession` is a typo
+ * for `duoarea`, causing the API call to silently return no results and the
+ * function to fall back to mock data ($3.58) indefinitely. This site serves
+ * the Southeast, so we use the Lower Atlantic regional series (R1Z).
  */
 async function fetchEIADieselPrices(): Promise<DieselData | null> {
   try {
@@ -894,25 +826,42 @@ async function fetchEIADieselPrices(): Promise<DieselData | null> {
       return null;
     }
 
-    const response = await fetch(
-      `https://api.eia.gov/v2/petroleum/pri/gnd/data/?api_key=${apiKey}&facets[product][]=EPD2D&facets[duession][]=PTE&frequency=weekly&sort[0][column]=period&sort[0][direction]=desc&length=2`
-    );
+    // EMD_EPD2D_PTE_R1Z_DPG = ULSD on-highway retail, Lower Atlantic (PADD 1C),
+    // dollars per gallon, weekly. This is the canonical series for the
+    // Southeast US that the standalone diesel-prices function also uses.
+    const seriesId = 'EMD_EPD2D_PTE_R1Z_DPG';
+    const url =
+      `https://api.eia.gov/v2/petroleum/pri/gnd/data/?api_key=${apiKey}` +
+      `&frequency=weekly&data[0]=value&facets[series][]=${seriesId}` +
+      `&sort[0][column]=period&sort[0][direction]=desc&length=2`;
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.response?.data && data.response.data.length >= 2) {
-        const current = data.response.data[0];
-        const previous = data.response.data[1];
-
-        return {
-          price: parseFloat(current.value) || 3.58,
-          previousWeek: parseFloat(previous.value) || 3.55,
-          region: 'National Average',
-          unit: 'gal',
-        };
-      }
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error('EIA diesel API returned', response.status);
+      return null;
     }
-    return null;
+
+    const data = await response.json();
+    const records = data.response?.data ?? [];
+    if (records.length < 1) {
+      console.error('EIA diesel API returned no records');
+      return null;
+    }
+
+    const current = parseFloat(records[0].value);
+    const previous = records[1] ? parseFloat(records[1].value) : current;
+
+    if (!Number.isFinite(current)) {
+      console.error('EIA diesel API returned non-numeric value:', records[0]);
+      return null;
+    }
+
+    return {
+      price: current,
+      previousWeek: Number.isFinite(previous) ? previous : current,
+      region: 'Lower Atlantic (PADD 1C)',
+      unit: 'gal',
+    };
   } catch (error) {
     console.error('Error fetching EIA diesel prices:', error);
     return null;
